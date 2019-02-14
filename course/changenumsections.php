@@ -38,6 +38,19 @@ $sectionreturn = optional_param('sectionreturn', null, PARAM_INT); // Section to
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $courseformatoptions = course_get_format($course)->get_format_options();
 
+// SSU_AMEND START - Prevent default course $maxsections being exceeded.
+$courseformat = course_get_format($course);
+$lastsection = $courseformat->get_last_section_number();
+$maxsections = get_config('moodlecourse', 'maxsections');
+if($numsections + $lastsection <= $maxsections){
+  $numsections = $numsections;
+}elseif(($numsections + $lastsection) > $maxsections){
+  $numsections = $maxsections - $lastsection;
+  if($numsections < 0){
+    $numsections = 0;
+  }
+}
+// SSU_AMEND END
 $PAGE->set_url('/course/changenumsections.php', array('courseid' => $courseid));
 
 // Authorisation checks.
@@ -81,7 +94,10 @@ if (isset($courseformatoptions['numsections']) && $increase !== null) {
 
     // Don't go less than 0, intentionally redirect silently (for the case of
     // double clicks).
+// SSU_AMEND START - Prevent default course $maxsections being exceeded.
+    //if ($courseformatoptions['numsections'] >= 0) {
     if ($courseformatoptions['numsections'] >= 0) {
+// SSU_AMEND END
         update_course((object)array('id' => $course->id,
             'numsections' => $courseformatoptions['numsections']));
     }
@@ -96,13 +112,25 @@ if (isset($courseformatoptions['numsections']) && $increase !== null) {
         require_capability('moodle/course:movesections', context_course::instance($course->id));
     }
     $sections = [];
-    for ($i = 0; $i < max($numsections, 1); $i ++) {
-        $sections[] = course_create_section($course, $insertsection);
+//SSU_AMEND START - Prevent default course $maxsections being exceeded.
+    if($numsections > 0){
+        for ($i = 0; $i < max($numsections, 1); $i ++) {
+            $sections[] = course_create_section($course, $insertsection);
+        }
+
+        if (!$returnurl) {
+            $returnurl = course_get_url($course, $sections[0]->section,
+                ($sectionreturn !== null) ? ['sr' => $sectionreturn] : []);
+        }
+    }else{
+      $returnurl = course_get_url($course, $lastsection,
+          ($sectionreturn !== null) ? ['sr' => $lastsection] : []);
     }
-    if (!$returnurl) {
-        $returnurl = course_get_url($course, $sections[0]->section,
-            ($sectionreturn !== null) ? ['sr' => $sectionreturn] : []);
-    }
+    // if (!$returnurl) {
+    //     $returnurl = course_get_url($course, $sections[0]->section,
+    //         ($sectionreturn !== null) ? ['sr' => $sectionreturn] : []);
+    // }
+//SSU_AMEND END
 }
 
 // Redirect to where we were..

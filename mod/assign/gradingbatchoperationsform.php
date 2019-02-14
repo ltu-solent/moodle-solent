@@ -44,19 +44,31 @@ class mod_assign_grading_batch_operations_form extends moodleform {
 
         // Visible elements.
         $options = array();
-        $options['lock'] = get_string('locksubmissions', 'assign');
-        $options['unlock'] = get_string('unlocksubmissions', 'assign');
-        $options['downloadselected'] = get_string('downloadselectedsubmissions', 'assign');
+
+// SSU_AMEND START - REARRANGE MENU OPTIONS
+		    if ($instance['markingworkflow']) {
+            $options['setmarkingworkflowstate'] = get_string('setmarkingworkflowstate', 'assign');
+        }
         if ($instance['submissiondrafts']) {
             $options['reverttodraft'] = get_string('reverttodraft', 'assign');
         }
         if ($instance['duedate'] && has_capability('mod/assign:grantextension', $instance['context'])) {
             $options['grantextension'] = get_string('grantextension', 'assign');
         }
+        $options['lock'] = get_string('locksubmissions', 'assign');
+        $options['unlock'] = get_string('unlocksubmissions', 'assign');
+        $options['downloadselected'] = get_string('downloadselectedsubmissions', 'assign');
         if ($instance['attemptreopenmethod'] == ASSIGN_ATTEMPT_REOPEN_METHOD_MANUAL) {
             $options['addattempt'] = get_string('addattempt', 'assign');
         }
+        $options['lock'] = get_string('locksubmissions', 'assign');
+        $options['unlock'] = get_string('unlocksubmissions', 'assign');
+        $options['downloadselected'] = get_string('downloadselectedsubmissions', 'assign');
 
+		if ($instance['attemptreopenmethod'] == ASSIGN_ATTEMPT_REOPEN_METHOD_MANUAL) {
+            $options['addattempt'] = get_string('addattempt', 'assign');
+        }
+// SSU_AMEND END
         foreach ($instance['feedbackplugins'] as $plugin) {
             if ($plugin->is_visible() && $plugin->is_enabled()) {
                 foreach ($plugin->get_grading_batch_operations() as $action => $description) {
@@ -88,4 +100,3 @@ class mod_assign_grading_batch_operations_form extends moodleform {
         $mform->addElement('group', 'actionsgrp', $batchdescription, $objs, ' ', false);
     }
 }
-

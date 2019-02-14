@@ -136,6 +136,9 @@ class assign_grading_table extends table_sql implements renderable {
 
         $fields = user_picture::fields('u', $extrauserfields) . ', ';
         $fields .= 'u.id as userid, ';
+// SSU_AMEND START - GRADING TABLE STUDENT NO
+		$fields .= 'u.idnumber, ';
+// SSU_AMEND END
         $fields .= 's.status as status, ';
         $fields .= 's.id as submissionid, ';
         $fields .= 's.timecreated as firstsubmission, ';
@@ -338,8 +341,12 @@ class assign_grading_table extends table_sql implements renderable {
                 $columns[] = 'picture';
                 $headers[] = get_string('pictureofuser');
             } else {
-                $columns[] = 'recordid';
-                $headers[] = get_string('recordid', 'assign');
+// SSU_AMEND START - GRADING TABLE STUDENT NO              
+				//$columns[] = 'recordid';
+				//$headers[] = get_string('recordid', 'assign');
+				$columns[] = 'idnumber';
+                $headers[] = 'Student ID';
+// SSU_AMEND END	
             }
 
             // Fullname.
@@ -349,8 +356,12 @@ class assign_grading_table extends table_sql implements renderable {
             // Participant # details if can view real identities.
             if ($this->assignment->is_blind_marking()) {
                 if (!$this->is_downloading()) {
-                    $columns[] = 'recordid';
-                    $headers[] = get_string('recordid', 'assign');
+// SSU_AMEND START - GRADING TABLE STUDENT NO
+                    //$columns[] = 'recordid';
+                    //$headers[] = get_string('recordid', 'assign');
+					$columns[] = 'idnumber';
+					$headers[] = 'Student ID';
+// SSU_AMEND END
                 }
             }
 
@@ -360,8 +371,12 @@ class assign_grading_table extends table_sql implements renderable {
             }
         } else {
             // Record ID.
-            $columns[] = 'recordid';
-            $headers[] = get_string('recordid', 'assign');
+// SSU_AMEND START - GRADING TABLE STUDENT NO
+            //$columns[] = 'recordid';
+            //$headers[] = get_string('recordid', 'assign');
+			$columns[] = 'idnumber';
+			$headers[] = 'Student ID';
+// SSU_AMEND END
         }
 
         // Submission status.
@@ -397,7 +412,13 @@ class assign_grading_table extends table_sql implements renderable {
         }
         // Grade.
         $columns[] = 'grade';
-        $headers[] = get_string('grade');
+// SSU_AMEND START - CHANGE GRADE STRING IF DOUBLEMARKS ENABLED
+		if($plugin = $this->assignment->get_feedback_plugin_by_type('doublemark')->is_enabled('enabled')){
+			 $headers[] = get_string('agreed', 'assign');
+		}else{
+			$headers[] = get_string('grade');
+		}
+// SSU_AMEND END
         if ($this->is_downloading()) {
             $gradetype = $this->assignment->get_instance()->grade;
             if ($gradetype > 0) {
@@ -498,7 +519,10 @@ class assign_grading_table extends table_sql implements renderable {
         foreach ($extrauserfields as $extrafield) {
              $this->column_class($extrafield, $extrafield);
         }
+// SSU_AMEND START
         $this->no_sorting('recordid');
+       //$this->no_sorting('idnumber');
+// SSU_AMEND END
         $this->no_sorting('finalgrade');
         $this->no_sorting('userid');
         $this->no_sorting('select');
@@ -589,6 +613,11 @@ class assign_grading_table extends table_sql implements renderable {
         $gradingdisabled = $this->assignment->grading_disabled($row->id);
         // The function in the assignment keeps a static cache of this list of states.
         $workflowstates = $this->assignment->get_marking_workflow_states_for_current_user();
+// SSU_AMEND START - Remove 'Released' option from quick grading for MUP
+		if($this->assignment->get_course()->startdate >= 1533081600 && $this->assignment->get_course_module()->idnumber != ''){
+			unset($workflowstates['released']);
+		}
+// SSU_AMEND END
         $workflowstate = $row->workflowstate;
         if (empty($workflowstate)) {
             $workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_NOTMARKED;

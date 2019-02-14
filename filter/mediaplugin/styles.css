@@ -11,7 +11,9 @@
 .mediaplugin,
 .mediaplugin video {
     /* Make videos as wide as possible without being wider than their containers */
-    width: 100vw;
+/* SSU_AMEND START - full width playing up */
+    /* width: 100vw; */
+/* SSU_AMEND END */
     max-width: 100%;
 }
 

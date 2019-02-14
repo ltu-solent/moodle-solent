@@ -388,26 +388,32 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
                     }
                 }
             }
-
-            if (course_can_delete_section($course, $section)) {
-                if (get_string_manager()->string_exists('deletesection', 'format_'.$course->format)) {
-                    $strdelete = get_string('deletesection', 'format_'.$course->format);
-                } else {
-                    $strdelete = get_string('deletesection');
-                }
-                $url = new moodle_url('/course/editsection.php', array(
-                    'id' => $section->id,
-                    'sr' => $sectionreturn,
-                    'delete' => 1,
-                    'sesskey' => sesskey()));
-                $controls['delete'] = array(
-                    'url' => $url,
-                    'icon' => 'i/delete',
-                    'name' => $strdelete,
-                    'pixattr' => array('class' => ''),
-                    'attr' => array('class' => 'icon editing_delete'));
-            }
+// SSU_AMEND START - PREVENT ANYONE EXCEPT ADMINS FROM DELETING SECTIONS
+            if((strpos($catname, 'unit pages') !== false &&  $section->section > 4) || is_siteadmin()){
+              if (course_can_delete_section($course, $section)) {
+                  if (get_string_manager()->string_exists('deletesection', 'format_'.$course->format)) {
+                      $strdelete = get_string('deletesection', 'format_'.$course->format);
+                  } else {
+                      $strdelete = get_string('deletesection');
+                  }
+                  $url = new moodle_url('/course/editsection.php', array(
+                      'id' => $section->id,
+                      'sr' => $sectionreturn,
+                      'delete' => 1,
+                      'sesskey' => sesskey()));
+                  $controls['delete'] = array(
+                      'url' => $url,
+                      'icon' => 'i/delete',
+                      'name' => $strdelete,
+                      'pixattr' => array('class' => '', 'alt' => $strdelete),
+                      'attr' => array('class' => 'icon editing_delete', 'title' => $strdelete));
+              }
+      			}
+// SSU_AMEND END
         }
+			}
+        }
+
 
         return $controls;
     }

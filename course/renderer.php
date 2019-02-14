@@ -561,8 +561,17 @@ class core_course_renderer extends plugin_renderer_base {
         // Render element that allows to edit activity name inline. It calls {@link course_section_cm_name_title()}
         // to get the display title of the activity.
         $tmpl = new \core_course\output\course_module_name($mod, $this->page->user_is_editing(), $displayoptions);
-        return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
-            $groupinglabel;
+        // return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
+        //     $groupinglabel;
+// SSU_AMEND START - MARKS UPLOAD - PREVENT QUICK EDIT OF ASSIGNMENT NAME
+        if($mod->modname == 'assign' && $mod->idnumber){
+          return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output)) .
+          $groupinglabel;
+        }else{
+          return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
+          $groupinglabel;
+        }
+// SSU_AMEND END
     }
 
     /**
@@ -602,6 +611,13 @@ class core_course_renderer extends plugin_renderer_base {
             $textclasses .= ' dimmed dimmed_text';
         }
         return array($linkclasses, $textclasses);
+// SSU_AMEND START - MARKS UPLOAD - PREVENT QUICK EDIT OF ASSIGNMENT NAME
+		if($mod->modname == 'assign' && $mod->idnumber){
+			return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output));
+		}else{
+			return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output));
+		}
+// SSU_AMEND END
     }
 
     /**
@@ -1110,9 +1126,46 @@ class core_course_renderer extends plugin_renderer_base {
 
         // course name
         $coursename = $chelper->get_course_formatted_name($course);
+/** SSU_AMEND START - COURSE START DATE / UNIT DESCRIPTORS IN SEARCH RESULTS
+* Add start date to search results and course pages.
+**/
+    		include_once($CFG->dirroot.'/local/search_unit_descriptor.php');
+    		$descriptor = unit_descriptor($course);
+
+    		$currentcategory = coursecat::get($course->category, IGNORE_MISSING);
+    		$catname = strtolower('x'.$currentcategory->name);
+
+    		if(strpos($catname, 'unit pages') !== false){
+    			$coursename = $chelper->get_course_formatted_name($course);
+    			$coursename .= '<span class="solent_startdate_search">Unit runs from '.   date('d/m/Y',$course->startdate) .' - ' .  date('d/m/Y',$course->enddate) . '</span>' . $descriptor;
+    		}else{
+    			$coursename = $chelper->get_course_formatted_name($course);
+    		}
+// SSU_AMEND END
         $coursenamelink = html_writer::link(new moodle_url('/course/view.php', array('id' => $course->id)),
                                             $coursename, array('class' => $course->visible ? '' : 'dimmed'));
         $content .= html_writer::tag($nametag, $coursenamelink, array('class' => 'coursename'));
+
+/** SSU_AMEND START - COURSE START DATE / UNIT DESCRIPTORS IN SEARCH RESULTS
+* Add start date to search results and course pages.
+**/
+		$url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+		include_once($CFG->dirroot.'/local/search_unit_descriptor.php');
+		$descriptor = unit_descriptor($course);
+		$currentcategory = coursecat::get($course->category, IGNORE_MISSING);
+        if(isset($currentcategory)){
+          $catname = strtolower('x'.$currentcategory->name);
+      		if(strpos($catname, 'unit pages') !== false){
+				if(strpos($url, '/course/search.php') == true){
+					$content .= '<span class="solent_startdate_search">' . $descriptor . '</span>';
+				}else{
+					$content .= '<span class="solent_startdate_search">Unit runs from '.   date('d/m/Y',$course->startdate) .' - ' .  date('d/m/Y',$course->enddate) . '</span>' . $descriptor;
+				}
+      		}
+        }
+// SSU_AMEND END
+
+
         // If we display course in collapsed form but the course has summary or course contacts, display the link to the info page.
         $content .= html_writer::start_tag('div', array('class' => 'moreinfo'));
         if ($chelper->get_show_courses() < self::COURSECAT_SHOW_COURSES_EXPANDED) {

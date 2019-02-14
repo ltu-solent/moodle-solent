@@ -50,6 +50,13 @@ class block_private_files extends block_base {
             return null;
         }
 
+// SSU_AMEND START - PRIVATE FILES BLOCK
+// Prevent users without capability from viewing private files block
+		if (!has_capability('moodle/user:manageownfiles',context_SYSTEM::instance())){
+			return null;
+		}
+// SSU_AMEND END
+
         $this->content = new stdClass();
         $this->content->text = '';
         $this->content->footer = '';

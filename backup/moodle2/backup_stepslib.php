@@ -371,18 +371,29 @@ class backup_course_structure_step extends backup_structure_step {
         global $DB;
 
         // Define each element separated
-
-        $course = new backup_nested_element('course', array('id', 'contextid'), array(
+// SSU_AMEND START - Prevent legacy files being backedup or imported
+        // $course = new backup_nested_element('course', array('id', 'contextid'), array(
+            // 'shortname', 'fullname', 'idnumber',
+            // 'summary', 'summaryformat', 'format', 'showgrades',
+            // 'newsitems', 'startdate', 'enddate',
+            // 'marker', 'maxbytes', 'legacyfiles', 'showreports',
+            // 'visible', 'groupmode', 'groupmodeforce',
+            // 'defaultgroupingid', 'lang', 'theme',
+            // 'timecreated', 'timemodified',
+            // 'requested',
+            // 'enablecompletion', 'completionstartonenrol', 'completionnotify'));
+			
+		$course = new backup_nested_element('course', array('id', 'contextid'), array(
             'shortname', 'fullname', 'idnumber',
             'summary', 'summaryformat', 'format', 'showgrades',
             'newsitems', 'startdate', 'enddate',
-            'marker', 'maxbytes', 'legacyfiles', 'showreports',
+            'marker', 'maxbytes', 'showreports',
             'visible', 'groupmode', 'groupmodeforce',
             'defaultgroupingid', 'lang', 'theme',
             'timecreated', 'timemodified',
             'requested',
             'enablecompletion', 'completionstartonenrol', 'completionnotify'));
-
+// SSU_AMEND END
         $category = new backup_nested_element('category', array('id'), array(
             'name', 'description'));
 
@@ -463,8 +474,9 @@ class backup_course_structure_step extends backup_structure_step {
 
         $course->annotate_files('course', 'summary', null);
         $course->annotate_files('course', 'overviewfiles', null);
-        $course->annotate_files('course', 'legacy', null);
-
+// SSU_AMEND START - Prevent legacy files being backedup or imported
+        //$course->annotate_files('course', 'legacy', null);
+// SSU_AMEND END
         // Return root element ($course)
 
         return $course;

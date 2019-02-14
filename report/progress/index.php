@@ -297,10 +297,20 @@ if (!$csv) {
         echo '<th scope="col" class="completion-identifyfield">' .
                 get_user_field_name($field) . '</th>';
     }
+// SSU_AMEND START - Add ID number, Department and address fields	
+	echo '<th scope="col" class="completion-identifyfield">ID Number</th>';
+	echo '<th scope="col" class="completion-identifyfield">Department</th>';
+	echo '<th scope="col" class="completion-identifyfield">Address</th>';
+// SSU_AMEND END
 } else {
     foreach ($extrafields as $field) {
         echo $sep . csv_quote(get_user_field_name($field));
     }
+// SSU_AMEND START - Add ID number, Department and address fields
+	echo $sep . csv_quote('ID Number');
+	echo $sep . csv_quote('Department');
+	echo $sep . csv_quote('Address');
+// SSU_AMEND END
 }
 
 // Activities
@@ -347,20 +357,35 @@ if ($csv) {
     print '</tr></thead><tbody>';
 }
 
+
+
 // Row for each user
 foreach($progress as $user) {
+// SSU_AMEND START - Add ID number, Department and address fields
+	$user1 =   core_user::get_user($user->id);
+// SSU_AMEND END
     // User name
     if ($csv) {
         print csv_quote(fullname($user));
         foreach ($extrafields as $field) {
             echo $sep . csv_quote($user->{$field});
         }
+// SSU_AMEND START - Add ID number, Department and address fields
+			echo $sep . csv_quote($user1->idnumber);
+			echo $sep . csv_quote($user1->department);
+			echo $sep . csv_quote($user1->address);
+// SSU_AMEND END
     } else {
         print '<tr><th scope="row"><a href="'.$CFG->wwwroot.'/user/view.php?id='.
             $user->id.'&amp;course='.$course->id.'">'.fullname($user).'</a></th>';
         foreach ($extrafields as $field) {
-            echo '<td>' . s($user->{$field}) . '</td>';
+            echo '<td>' . s($user->{$field}) . '</td>';            
         }
+// SSU_AMEND START - Add ID number, Department and address fields
+		echo '<td>' . $user1->idnumber . '</td>';
+		echo '<td>' . $user1->department . '</td>';
+		echo '<td>' . $user1->address . '</td>';
+// SSU_AMEND END
     }
 
     // Progress for each activity

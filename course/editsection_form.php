@@ -23,14 +23,41 @@ class editsection_form extends moodleform {
         $sectioninfo = $this->_customdata['cs'];
 
         $mform->addElement('header', 'generalhdr', get_string('general'));
+//SSU_AMEND START - Restrict tabs name length in units
+        // $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
+        //     'defaultvalue' => $this->_customdata['defaultsectionname'],
+        //     'customvalue' => $sectioninfo->name,
+        // ], ['size' => 30, 'maxlength' => 255]);
+        global $CFG;
+        require_once($CFG->libdir.'/coursecatlib.php');
+        $category = coursecat::get($course->category, IGNORE_MISSING);
+        $catname = strtolower('x'.$category->name);
+        $section = $this->_customdata['cs']->section;
+        if(strpos($catname, 'unit pages') !== false){
+          $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
+              'defaultvalue' => $this->_customdata['defaultsectionname'],
+              'customvalue' => $sectioninfo->name,
+          ], ['size' => 30, 'maxlength' => 30]);
+        }else{
+          $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
+              'defaultvalue' => $this->_customdata['defaultsectionname'],
+              'customvalue' => $sectioninfo->name,
+          ], ['size' => 30, 'maxlength' => 255]);
+        }
+//SSU_AMEND END
+          $mform->setDefault('name', false);
+          $mform->addGroupRule('name', array('name' => array(array(get_string('maximumchars', '', 255), 'maxlength', 255))));
 
-        $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
-            'defaultvalue' => $this->_customdata['defaultsectionname'],
-            'customvalue' => $sectioninfo->name,
-        ], ['size' => 30, 'maxlength' => 255]);
-        $mform->setDefault('name', false);
-        $mform->addGroupRule('name', array('name' => array(array(get_string('maximumchars', '', 255), 'maxlength', 255))));
-
+// SSU_AMEND START - Prevent first 5 section titles being edited
+    		if(strpos($catname, 'unit pages') !== false){
+    			if(!is_siteadmin() && $section < 5){
+    				$mform->addElement('hidden', 'unitpages', 1);
+    				$mform->setType('unitpages', PARAM_RAW);
+    				$mform->disabledIf('name', 'unitpages', 'eq', 1);
+    				$mform->disabledIf('usedefaultname', 'unitpages', 'eq', 1);
+    			}
+    		}
+// SSU_AMEND END
         /// Prepare course and the editor
 
         $mform->addElement('editor', 'summary_editor', get_string('summary'), null, $this->_customdata['editoroptions']);

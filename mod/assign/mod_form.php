@@ -53,8 +53,23 @@ class mod_assign_mod_form extends moodleform_mod {
         } else {
             $mform->setType('name', PARAM_CLEANHTML);
         }
-        $mform->addRule('name', null, 'required', null, 'client');
+		if($this->current->id){
+// SSU_AMEND START - Marks Upload - remove 'required' for quercus assignment names
+			if(!$this->current->modulename == 'assign' && !$this->current->cmidnumber != null){
+          $mform->addRule('name', null, 'required', null, 'client');
+			}
+// SSU_AMEND END
+		}
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+		if($this->current->id){
+// SSU_AMEND START - Marks Upload - prevent assignment name being edited
+      if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
+          // PREVENT ASSIGNMENT NAME BEING EDITED
+          $mform->hardFreeze('name');
+          $mform->setConstant('name', format_string($this->current->name));
+			}
+// SSU_AMEND END
+		}
 
         $this->standard_intro_elements(get_string('description', 'assign'));
 
@@ -86,19 +101,39 @@ class mod_assign_mod_form extends moodleform_mod {
         $options = array('optional'=>true);
         $mform->addElement('date_time_selector', 'allowsubmissionsfromdate', $name, $options);
         $mform->addHelpButton('allowsubmissionsfromdate', 'allowsubmissionsfromdate', 'assign');
-
+//SSU_AMEND START - Freeze allowsubmissionsfromdate
+        if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
+          $mform->hardFreeze('allowsubmissionsfromdate');
+          $mform->setConstant('allowsubmissionsfromdate', format_string($this->current->allowsubmissionsfromdate));
+        }
+//SSU_AMEND END
         $name = get_string('duedate', 'assign');
         $mform->addElement('date_time_selector', 'duedate', $name, array('optional'=>true));
         $mform->addHelpButton('duedate', 'duedate', 'assign');
-
+//SSU_AMEND START - Freeze duedate
+        if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
+          $mform->hardFreeze('duedate');
+          $mform->setConstant('duedate', format_string($this->current->duedate));
+        }
+//SSU_AMEND END
         $name = get_string('cutoffdate', 'assign');
         $mform->addElement('date_time_selector', 'cutoffdate', $name, array('optional'=>true));
         $mform->addHelpButton('cutoffdate', 'cutoffdate', 'assign');
-
+//SSU_AMEND START - Freeze cutoffdate
+        if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
+          $mform->hardFreeze('cutoffdate');
+          $mform->setConstant('cutoffdate', format_string($this->current->cutoffdate));
+        }
+//SSU_AMEND END
         $name = get_string('gradingduedate', 'assign');
         $mform->addElement('date_time_selector', 'gradingduedate', $name, array('optional' => true));
         $mform->addHelpButton('gradingduedate', 'gradingduedate', 'assign');
-
+//SSU_AMEND START - Freeze gradingduedate
+        if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
+          $mform->hardFreeze('gradingduedate');
+          $mform->setConstant('gradingduedate', format_string($this->current->gradingduedate));
+        }
+//SSU_AMEND END
         $name = get_string('alwaysshowdescription', 'assign');
         $mform->addElement('checkbox', 'alwaysshowdescription', $name);
         $mform->addHelpButton('alwaysshowdescription', 'alwaysshowdescription', 'assign');

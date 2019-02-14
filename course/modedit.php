@@ -150,8 +150,22 @@ if ($mform->is_cancelled()) {
 } else if ($fromform = $mform->get_data()) {
     if (!empty($fromform->update)) {
         list($cm, $fromform) = update_moduleinfo($cm, $fromform, $course, $mform);
+// SSU_AMEND START - FORMATIVE INDICATOR
+	//Update formative value
+	$dataobject = $DB->get_record('assign_formative', array('assign'=>$fromform->instance), '*');	
+	$dataobject->formative = $fromform->formative;
+	if($dataobject->id){
+		$DB->update_record('assign_formative', $dataobject);
+	}
+// SSU_AMEND END
     } else if (!empty($fromform->add)) {
         $fromform = add_moduleinfo($fromform, $course, $mform);
+// SSU_AMEND START - FORMATIVE INDICATOR
+	//Add formative here
+	if($fromform->modulename == 'assign'){
+		$record = $DB->insert_record('assign_formative', array('id'=> NULL, 'assign'=>$fromform->instance, 'formative'=>$fromform->formative));
+	}
+// SSU_AMEND END
     } else {
         print_error('invaliddata');
     }
