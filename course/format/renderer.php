@@ -388,8 +388,13 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
                     }
                 }
             }
-// SSU_AMEND START - PREVENT ANYONE EXCEPT ADMINS FROM DELETING SECTIONS
-            if((strpos($catname, 'unit pages') !== false &&  $section->section > 4) || is_siteadmin()){
+// SU_AMEND START - Prevent anyone except admins from deleting default sections
+            global $CFG;
+            $category = core_course_category::get($course->category, IGNORE_MISSING);
+            $catname = strtolower('x'.$category->name);
+            $isunit = strpos($catname, 'unit pages');
+            $iscourse = strpos($catname, 'course pages');
+             if((strpos($catname, 'unit pages') !== false &&  $section->section > 4) || is_siteadmin()){
               if (course_can_delete_section($course, $section)) {
                   if (get_string_manager()->string_exists('deletesection', 'format_'.$course->format)) {
                       $strdelete = get_string('deletesection', 'format_'.$course->format);
@@ -408,15 +413,11 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
                       'pixattr' => array('class' => '', 'alt' => $strdelete),
                       'attr' => array('class' => 'icon editing_delete', 'title' => $strdelete));
               }
-      			}
-// SSU_AMEND END
+      		}
         }
-			}
-        }
-
-
+// SU_AMEND END
         return $controls;
-    }
+  }
 
     /**
      * Generate a summary of a section for display on the 'course index page'
