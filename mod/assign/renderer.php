@@ -852,7 +852,7 @@ class mod_assign_renderer extends plugin_renderer_base {
             $t->data[] = $row;
         }
 
-// SSU_AMEND START - CUT OFF DATE/TIME REMAINING IN SUBMISSION STATUS
+// SU_AMEND START - Cut off date for student submission status
 			if($status->view == assign_submission_status::STUDENT_VIEW){
 				$cutoffdate = 0;
 					$cutoffdate = $status->cutoffdate;
@@ -867,7 +867,7 @@ class mod_assign_renderer extends plugin_renderer_base {
 						}
 					}
 			}
-// SSU_AMEND END
+// SU_AMEND END
 
         // Show graders whether this submission is editable by students.
         if ($status->view == assign_submission_status::GRADER_VIEW) {
@@ -943,18 +943,20 @@ class mod_assign_renderer extends plugin_renderer_base {
                 if (!$submission || $submission->status == ASSIGN_SUBMISSION_STATUS_NEW) {
                     $o .= $this->output->box_start('generalbox submissionaction');
                     $urlparams = array('id' => $status->coursemoduleid, 'action' => 'editsubmission');
-// SSU_AMEND START - ASSIGN HELP STRING POSITION
-          					//New string position
-          					$o .= get_string('editsubmission_help', 'assign');
-// SSU_AMEND END
+// SU_AMEND START - Assign help string position (add)
+                    // New help string position
+                    $o .= $this->output->box_start('boxaligncenter submithelp');
+                    $o .= get_string('addsubmission_help', 'assign');
+                    $o .= $this->output->box_end();
+// SU_AMEND END
                     $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                        get_string('addsubmission', 'assign'), 'get');
-                    $o .= $this->output->box_start('boxaligncenter submithelp');
-// SSU_AMEND START - ASSIGN HELP STRING POSITION
-                    // Old help string positions
-                    //$o .= get_string('addsubmission_help', 'assign');
-// SSU_AMEND END
-                    $o .= $this->output->box_end();
+// SU_AMEND START - Assign help string position (add)
+                    // Old help string position
+                    // $o .= $this->output->box_start('boxaligncenter submithelp');
+                    // $o .= get_string('addsubmission_help', 'assign');
+                    // $o .= $this->output->box_end();
+// SU_AMEND END
                     $o .= $this->output->box_end();
                 } else if ($submission->status == ASSIGN_SUBMISSION_STATUS_REOPENED) {
                     $o .= $this->output->box_start('generalbox submissionaction');
@@ -978,7 +980,7 @@ class mod_assign_renderer extends plugin_renderer_base {
                 } else {
                     $o .= $this->output->box_start('generalbox submissionaction');
                     $urlparams = array('id' => $status->coursemoduleid, 'action' => 'editsubmission');
-// SSU_AMEND START - ASSIGN HELP STRING POSITION
+// SU_AMEND START - Assign help string position (edit)
                     //New string position
                     global $DB;
           					$file = $DB->get_record_sql("SELECT cm.instance
@@ -989,17 +991,20 @@ class mod_assign_renderer extends plugin_renderer_base {
           							AND pc.value = 1
           							AND cm.id = ?", array($status->coursemoduleid));
           					if($file){
-          						$o .= get_string('editsubmission_help', 'assign');
+                      $o .= $this->output->box_start('boxaligncenter submithelp');
+                      $o .= get_string('editsubmission_help', 'assign');
+                      $o .= $this->output->box_end();
           					}
-// SSU_AMEND END
+// SU_AMEND END
                     $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                        get_string('editsubmission', 'assign'), 'get');
-                    $o .= $this->output->box_start('boxaligncenter submithelp');
-// SSU_AMEND START - ASSIGN HELP STRING POSITION
+
+// SU_AMEND START - Assign help string position (edit)
                     // Old string position
-                    //$o .= get_string('editsubmission_help', 'assign');
-// SSU_AMEND END
-                    $o .= $this->output->box_end();
+                    // $o .= $this->output->box_start('boxaligncenter submithelp');
+                    // $o .= get_string('editsubmission_help', 'assign');
+                    // $o .= $this->output->box_end();
+// SU_AMEND END
                     $o .= $this->output->box_end();
                 }
             }
@@ -1007,20 +1012,22 @@ class mod_assign_renderer extends plugin_renderer_base {
             if ($status->cansubmit) {
                 $urlparams = array('id' => $status->coursemoduleid, 'action'=>'submit');
                 $o .= $this->output->box_start('generalbox submissionaction');
-// SSU_AMEND START - ASSIGN HELP STRING POSITION
+// SU_AMEND START - Assign help string position (submit)
         				//New string position
         				if($file){
-        					$o .= get_string('submitassignment_help', 'assign');
+                  $o .= $this->output->box_start('boxaligncenter submithelp');
+                  $o .= get_string('submitassignment_help', 'assign');
+                  $o .= $this->output->box_end();
         				}
-// SSU_AMEND END
+// SU_AMEND END
                 $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                    get_string('submitassignment', 'assign'), 'get');
-                $o .= $this->output->box_start('boxaligncenter submithelp');
-// SSU_AMEND START - ASSIGN HELP STRING POSITION
+// SU_AMEND START - Assign help string position (submit)
                 // Old string position
-                //$o .= get_string('submitassignment_help', 'assign');
-// SSU_AMEND END
-                $o .= $this->output->box_end();
+                // $o .= $this->output->box_start('boxaligncenter submithelp');
+                // $o .= get_string('submitassignment_help', 'assign');
+                // $o .= $this->output->box_end();
+// SU_AMEND END
                 $o .= $this->output->box_end();
             }
         }

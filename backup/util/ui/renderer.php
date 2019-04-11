@@ -739,11 +739,11 @@ class core_backup_renderer extends plugin_renderer_base {
         $table->head = array('', get_string('shortnamecourse'), get_string('fullnamecourse'));
         $table->data = array();
         foreach ($component->get_results() as $course) {
-// SSU_AMEND START - Start date for course import
+// SU_AMEND START - Start date for course import
   			$getcourse = get_course($course->id);
-  			$category = coursecat::get($getcourse->category, IGNORE_MISSING);
+  			$category = core_course_category::get($course->category)->get_formatted_name();
         if(isset($category)){
-        	$catname = strtolower('x'.$category->name);
+        	$catname = strtolower('x'.$category);
         }
 
   			if(strpos($catname, 'unit pages') !== false){
@@ -751,7 +751,7 @@ class core_backup_renderer extends plugin_renderer_base {
   			}else{
   				$startdate = '';
   			}
-// SSU_AMEND END
+// SU_AMEND END
             $row = new html_table_row();
             $row->attributes['class'] = 'ics-course';
             if (!$course->visible) {
@@ -760,10 +760,10 @@ class core_backup_renderer extends plugin_renderer_base {
             $row->cells = array(
                 html_writer::empty_tag('input', array('type' => 'radio', 'name' => 'importid', 'value' => $course->id)),
                 format_string($course->shortname, true, array('context' => context_course::instance($course->id))),
-// SSU_AMEND START - Start date for course import
+// SU_AMEND START - Start date for course import
                 //format_string($course->fullname, true, array('context' => context_course::instance($course->id)))
                 format_string($course->fullname . $startdate, true, array('context' => context_course::instance($course->id)))
-// SSU_AMEND END
+// SU_AMEND END
             );
             $table->data[] = $row;
         }

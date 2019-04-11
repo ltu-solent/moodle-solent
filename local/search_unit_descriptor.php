@@ -3,13 +3,12 @@
 function unit_descriptor($course){
 	global $CFG;
 	require_once('../config.php');
-	require_once($CFG->libdir.'/coursecatlib.php');
-	$category = coursecat::get($course->category, IGNORE_MISSING);
+	$category = core_course_category::get($course->category)->get_formatted_name();
 	if(isset($category)){
-		$catname = strtolower('x'.$category->name);
+		$catname = strtolower('x'.$category);
 		$coursecode = substr($course->shortname, 0, strpos($course->shortname, "_"));
-		$coursefullname = $course->fullname;
-		$startdate = '<br /><div class="solent_startdate">'.$course->startdate.'</div>';
+		//$coursefullname = $course->fullname;
+		//$startdate = '<br /><div class="solent_startdate">'.$course->startdate.'</div>';
 
 		if(strpos($catname, 'unit pages') !== false){
 			$descriptor = '../amendments/course_docs/unit_descriptors/'.$coursecode.'.doc'; //STRING TO LOCATE THE UNIT CODE .DOC
