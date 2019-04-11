@@ -73,7 +73,10 @@ class assign_submission_file extends assign_submission_plugin {
             $defaultfiletypes = $this->get_config('filetypeslist');
         } else {
             $defaultmaxfilesubmissions = get_config('assignsubmission_file', 'maxfiles');
-            $defaultmaxsubmissionsizebytes = get_config('assignsubmission_file', 'maxbytes');
+// SU_AMEND START - 40MB default file size
+            //$defaultmaxsubmissionsizebytes = get_config('assignsubmission_file', 'maxbytes');
+            $defaultmaxsubmissionsizebytes = 41943040;
+// SU_AMEND END
             $defaultfiletypes = get_config('assignsubmission_file', 'filetypes');
         }
         $defaultfiletypes = (string)$defaultfiletypes;
@@ -95,12 +98,12 @@ class assign_submission_file extends assign_submission_plugin {
         $choices = get_max_upload_sizes($CFG->maxbytes,
                                         $COURSE->maxbytes,
                                         get_config('assignsubmission_file', 'maxbytes'));
-										
-// SSU_AMEND START - 40MB DEFAULT FILE SIZE
-		$choices[41943040] =  "40MB";
-		krsort($choices);
-		$choices = array(0=>$choices[0]) + $choices;
-// SSU_AMEND END
+
+// SU_AMEND START - 40MB default file size
+    		$choices[41943040] =  "40MB";
+    		krsort($choices);
+    		$choices = array(0=>$choices[0]) + $choices;
+// SU_AMEND END
 
         $settings[] = array('type' => 'select',
                             'name' => 'maxsubmissionsizebytes',
@@ -113,18 +116,13 @@ class assign_submission_file extends assign_submission_plugin {
         $mform->addHelpButton('assignsubmission_file_maxsizebytes',
                               'maximumsubmissionsize',
                               'assignsubmission_file');
-							  
-// SSU_AMEND START - 40MB DEFAULT FILE SIZE
-        //$mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
-        if($defaultmaxsubmissionsizebytes){
-			$mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
-		}else{
-			$mform->setDefault('assignsubmission_file_maxsizebytes', 41943040);
-		}
-		$mform->disabledIf('assignsubmission_file_maxfiles', 'assignsubmission_helixassign_enabled', 'checked');
-		$mform->disabledIf('assignsubmission_file_maxsizebytes', 'assignsubmission_helixassign_enabled', 'checked');
-// SSU_AMEND END
 
+// SU_AMEND START - Disable file plugins if Medial selected
+        $mform->disabledIf('assignsubmission_file_maxfiles', 'assignsubmission_helixassign_enabled', 'checked');
+        $mform->disabledIf('assignsubmission_file_maxsizebytes', 'assignsubmission_helixassign_enabled', 'checked');
+// SU_AMEND END
+
+        $mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
         $mform->disabledIf('assignsubmission_file_maxsizebytes',
                            'assignsubmission_file_enabled',
                            'notchecked');
