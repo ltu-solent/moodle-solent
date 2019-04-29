@@ -56,7 +56,7 @@ class mod_assign_grading_options_form extends moodleform {
                 }
             }
         }
-// SSU_AMEND START - Prevent pagination of grading table
+// SU_AMEND START - Prevent pagination of grading table
 		$mform->addElement('hidden', 'disableperpage', 1);
 		$mform->setType('disableperpage', PARAM_RAW);
         $mform->addElement('select', 'perpage', get_string('assignmentsperpage', 'assign'), $options, $dirtyclass);

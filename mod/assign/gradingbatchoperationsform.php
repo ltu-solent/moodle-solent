@@ -45,7 +45,7 @@ class mod_assign_grading_batch_operations_form extends moodleform {
         // Visible elements.
         $options = array();
 
-// SSU_AMEND START - REARRANGE MENU OPTIONS
+// SU_AMEND START - REARRANGE MENU OPTIONS
 		    if ($instance['markingworkflow']) {
             $options['setmarkingworkflowstate'] = get_string('setmarkingworkflowstate', 'assign');
         }
@@ -68,7 +68,7 @@ class mod_assign_grading_batch_operations_form extends moodleform {
 		if ($instance['attemptreopenmethod'] == ASSIGN_ATTEMPT_REOPEN_METHOD_MANUAL) {
             $options['addattempt'] = get_string('addattempt', 'assign');
         }
-// SSU_AMEND END
+// SU_AMEND END
         foreach ($instance['feedbackplugins'] as $plugin) {
             if ($plugin->is_visible() && $plugin->is_enabled()) {
                 foreach ($plugin->get_grading_batch_operations() as $action => $description) {

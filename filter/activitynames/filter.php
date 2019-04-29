@@ -44,7 +44,7 @@ class filter_activitynames extends moodle_text_filter {
             return $text;
         }
         $courseid = $coursectx->instanceid;
-// SSU_AMEND START - ACTIVITY NAMES FILTER
+// SSU_AMEND START - Activity names filter
 		// Do not run filter on the search page
 		if (substr ($_SERVER['REQUEST_URI'],0,14) == '/course/search'){
 			return $text;
@@ -81,7 +81,7 @@ class filter_activitynames extends moodle_text_filter {
                             'url' => $cm->url,
                             'id' => $cm->id,
                             'namelen' => -strlen($cm->name), // Negative value for reverse sorting.
-// SSU_AMEND START - ACTIVITY NAMES FILTER IN BOOKS
+// SSU_AMEND START - Activity names filter in books
 							              'modname' => $cm->modname,
 // SSU_AMEND END
                         );
@@ -99,7 +99,7 @@ class filter_activitynames extends moodle_text_filter {
                         $href_tag_begin = html_writer::start_tag('a',
                                 array('class' => 'autolink', 'title' => $title,
                                     'href' => $cm->url));
-// SSU_AMEND START - ACTIVITY NAMES FILTER IN BOOKS
+// SSU_AMEND START - Activity names filter in books
           							global $OUTPUT;
           							if(substr ($_SERVER['REQUEST_URI'],0,12) !=  '/course/view' ){
           								$addedicon = '<img src="' . $OUTPUT->image_url ('icon', $cm->modname) . '" class="icon" alt="'.$cm->modname.'">'; }
@@ -111,7 +111,7 @@ class filter_activitynames extends moodle_text_filter {
 // SSU_AMEND END
                         if ($currentname != $entitisedname) {
                         // If name has some entity (&amp; &quot; &lt; &gt;) add that filter too. MDL-17545.
-// SSU_AMEND START - ACTIVITY NAMES FILTER IN BOOKS
+// SSU_AMEND START - Activity names filter in books
                         //self::$activitylist[$cm->id.'-e'] = new filterobject($entitisedname, $href_tag_begin, '</a>', false, true);
                         self::$activitylist[$cm->id] = new filterobject($entitisedname, $href_tag_begin.''.$addedicon, '</a>', false, true);
 // SSU_AMEND END

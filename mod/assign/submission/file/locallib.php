@@ -117,7 +117,7 @@ class assign_submission_file extends assign_submission_plugin {
                               'maximumsubmissionsize',
                               'assignsubmission_file');
 
-// SU_AMEND START - Disable file plugins if Medial selected
+// SU_AMEND START - Disable file submission options if Medial selected
         $mform->disabledIf('assignsubmission_file_maxfiles', 'assignsubmission_helixassign_enabled', 'checked');
         $mform->disabledIf('assignsubmission_file_maxsizebytes', 'assignsubmission_helixassign_enabled', 'checked');
 // SU_AMEND END

@@ -589,13 +589,13 @@ abstract class moodleform_mod extends moodleform {
             $mform->addElement('text', 'cmidnumber', get_string('idnumbermod'));
             $mform->setType('cmidnumber', PARAM_RAW);
             $mform->addHelpButton('cmidnumber', 'idnumbermod');
-// SSU_AMEND START - MARKS UPLOAD - DISABLE IDNUMBER FOR ALL ASSIGNMENTS 			
+// SU_AMEND START - MARKS UPLOAD - DISABLE IDNUMBER FOR ALL ASSIGNMENTS 			
 			if($this->current->modulename == 'assign'){
 				$mform->addElement('hidden', 'quercus', 1);
 				$mform->setType('quercus', PARAM_RAW);
 				$mform->disabledIf('cmidnumber', 'quercus', 'eq', 1);
 			}			
-// SSU_AMEND END
+// SU_AMEND END
         }
 
         if ($this->_features->groups) {
@@ -850,14 +850,14 @@ abstract class moodleform_mod extends moodleform {
                 }
                 $mform->addElement('modgrade', 'grade', get_string('grade'), $gradeoptions);
                 $mform->addHelpButton('grade', 'modgrade', 'grades');
-// SSU_AMEND START - DEFAULT TO SCALE
+// SU_AMEND START - DEFAULT TO SCALE
 				//$mform->setDefault('grade', $CFG->gradepointdefault);
 				if(isset($this->current->grade) > 0){
 					$mform->setDefault('grade', $CFG->gradepointmax);					
 				}else{
 					$mform->setDefault('grade[modgrade_type]', 'scale');
 				}
-// SSU_AMEND END
+// SU_AMEND END
             }
 
             if ($this->_features->advancedgrading

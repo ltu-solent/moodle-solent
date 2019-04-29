@@ -291,12 +291,12 @@ function assign_update_events($assign, $override = null) {
         $groupid   = isset($current->groupid) ? $current->groupid : 0;
         $userid    = isset($current->userid) ? $current->userid : 0;
         $duedate = isset($current->duedate) ? $current->duedate : $assigninstance->duedate;
-// SSU_AMEND START - Stop admin creating events when assgnments are imported		
+// SU_AMEND START - Stop admin creating events when assignments are imported
 		$admins = explode(',', $CFG->siteadmins);
 		$maindamin = $admins[0];
 
 		if($userid != $maindamin){
-// SSU_AMEND END
+// SU_AMEND END
 			// Only add 'due' events for an override if they differ from the assign default.
 			$addclose = empty($current->id) || !empty($current->duedate);
 

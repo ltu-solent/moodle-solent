@@ -563,7 +563,7 @@ class core_course_renderer extends plugin_renderer_base {
         $tmpl = new \core_course\output\course_module_name($mod, $this->page->user_is_editing(), $displayoptions);
         // return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
         //     $groupinglabel;
-// SSU_AMEND START - MARKS UPLOAD - PREVENT QUICK EDIT OF ASSIGNMENT NAME
+// SU_AMEND START - Marks upload - Prevent quick edit of assignment name
         if($mod->modname == 'assign' && $mod->idnumber){
           return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output)) .
           $groupinglabel;
@@ -571,7 +571,7 @@ class core_course_renderer extends plugin_renderer_base {
           return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
           $groupinglabel;
         }
-// SSU_AMEND END
+// SU_AMEND END
     }
 
     /**
@@ -611,13 +611,13 @@ class core_course_renderer extends plugin_renderer_base {
             $textclasses .= ' dimmed dimmed_text';
         }
         return array($linkclasses, $textclasses);
-// SSU_AMEND START - MARKS UPLOAD - PREVENT QUICK EDIT OF ASSIGNMENT NAME
+// SU_AMEND START - Marks upload - Prevent quick edit of assignment name
 		if($mod->modname == 'assign' && $mod->idnumber){
 			return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output));
 		}else{
 			return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output));
 		}
-// SSU_AMEND END
+// SU_AMEND END
     }
 
     /**
@@ -1126,45 +1126,29 @@ class core_course_renderer extends plugin_renderer_base {
 
         // course name
         $coursename = $chelper->get_course_formatted_name($course);
-/** SSU_AMEND START - COURSE START DATE / UNIT DESCRIPTORS IN SEARCH RESULTS
-* Add start date to search results and course pages.
-**/
-    		include_once($CFG->dirroot.'/local/search_unit_descriptor.php');
-    		$descriptor = unit_descriptor($course);
-
-    		$currentcategory = coursecat::get($course->category, IGNORE_MISSING);
-    		$catname = strtolower('x'.$currentcategory->name);
-
-    		if(strpos($catname, 'unit pages') !== false){
-    			$coursename = $chelper->get_course_formatted_name($course);
-    			$coursename .= '<span class="solent_startdate_search">Unit runs from '.   date('d/m/Y',$course->startdate) .' - ' .  date('d/m/Y',$course->enddate) . '</span>' . $descriptor;
-    		}else{
-    			$coursename = $chelper->get_course_formatted_name($course);
-    		}
-// SSU_AMEND END
         $coursenamelink = html_writer::link(new moodle_url('/course/view.php', array('id' => $course->id)),
                                             $coursename, array('class' => $course->visible ? '' : 'dimmed'));
         $content .= html_writer::tag($nametag, $coursenamelink, array('class' => 'coursename'));
 
-/** SSU_AMEND START - COURSE START DATE / UNIT DESCRIPTORS IN SEARCH RESULTS
+/** SU_AMEND START - Course start date / unit descriptors in search results
 * Add start date to search results and course pages.
 **/
+    global $CFG;
 		$url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 		include_once($CFG->dirroot.'/local/search_unit_descriptor.php');
 		$descriptor = unit_descriptor($course);
-		$currentcategory = coursecat::get($course->category, IGNORE_MISSING);
+		$currentcategory = core_course_category::get($course->category)->get_formatted_name();
         if(isset($currentcategory)){
-          $catname = strtolower('x'.$currentcategory->name);
+          $catname = strtolower('x'.$currentcategory);
       		if(strpos($catname, 'unit pages') !== false){
-				if(strpos($url, '/course/search.php') == true){
-					$content .= '<span class="solent_startdate_search">' . $descriptor . '</span>';
-				}else{
-					$content .= '<span class="solent_startdate_search">Unit runs from '.   date('d/m/Y',$course->startdate) .' - ' .  date('d/m/Y',$course->enddate) . '</span>' . $descriptor;
-				}
+    				if(strpos($url, '/course/search.php') == true){
+    					$content .= '<span class="solent_startdate_search">' . $descriptor . '</span>';
+    				}else{
+    					$content .= '<span class="solent_startdate_search">Unit runs from '.   date('d/m/Y',$course->startdate) .' - ' .  date('d/m/Y',$course->enddate) . '</span>' . $descriptor;
+    				}
       		}
         }
-// SSU_AMEND END
-
+// SU_AMEND END
 
         // If we display course in collapsed form but the course has summary or course contacts, display the link to the info page.
         $content .= html_writer::start_tag('div', array('class' => 'moreinfo'));
