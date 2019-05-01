@@ -4300,7 +4300,36 @@ class assign {
                                     get_string('grading', 'assign'),
                                     $actionformtext);
         $o .= $this->get_renderer()->render($header);
-// SU_AMEND START
+// SSU_AMEND START - Marks Upload: Notification that assignment is in pilot
+		    global $PAGE, $DB;
+        //if($this->get_course_module()->idnumber != '' && $this->get_grade_item()->locked == 0){
+        if ($this->get_course()->startdate >= 1533081600 && $this->get_course_module()->idnumber != '' && $this->get_grade_item()->locked == 0) {
+            if ($PAGE->pagetype == 'mod-assign-grading') {
+              $sitting = $DB->get_record('local_quercus_tasks_sittings', array('assign'=> $this->get_course_module()->instance), 'sitting_desc, externaldate', $strictness=IGNORE_MISSING);
+              if ($sitting->sitting_desc == 'FIRST_SITTING') {
+                $o .= $this->output->notification(get_string('marksuploadinclude','assign'), \core\output\notification::NOTIFY_SUCCESS);
+              } else {
+                // Calculate date grades can be released
+                if ($sitting->externaldate != null){
+                  $releaseavailable = new DateTime('now', core_date::get_user_timezone_object());
+                  $releaseavailable = DateTime::createFromFormat('U', $sitting->externaldate);
+                  $timezone = core_date::get_user_timezone($releaseavailable);
+                  $modifystring = '+' . get_config('local_quercus_tasks', 'boardbuffer') . ' days';
+                  $releaseavailable  = 	$releaseavailable->modify($modifystring);
+                  $releaseavailable = $releaseavailable->getTimestamp();
+
+                  $o .= $this->output->notification(get_string('marksuploadinclude','assign') .
+                    get_string('releasedate', 'assign', ['date' => date('d/m/Y', $releaseavailable), 'days' => get_config('local_quercus_tasks', 'boardbuffer')]),
+                    \core\output\notification::NOTIFY_SUCCESS);
+                }else{
+                  $o .= $this->output->notification(get_string('marksuploadinclude','assign') .
+                    get_string('noboard','assign'),
+                    \core\output\notification::NOTIFY_SUCCESS);
+                }
+              }
+            }
+        }
+
 			if($this->get_grade_item()->locked != 0){
 				$o .= $this->output->notification(get_string('gradeslocked','assign'), \core\output\notification::NOTIFY_ERROR);
 			}
