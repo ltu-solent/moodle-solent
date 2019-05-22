@@ -136,7 +136,7 @@ class assign_grading_table extends table_sql implements renderable {
 
         $fields = user_picture::fields('u', $extrauserfields) . ', ';
         $fields .= 'u.id as userid, ';
-// SU_AMEND START - GRADING TABLE STUDENT NO
+// SSU_AMEND START - Grading table student no
 		$fields .= 'u.idnumber, ';
 // SU_AMEND END
         $fields .= 's.status as status, ';
@@ -341,12 +341,12 @@ class assign_grading_table extends table_sql implements renderable {
                 $columns[] = 'picture';
                 $headers[] = get_string('pictureofuser');
             } else {
-// SU_AMEND START - GRADING TABLE STUDENT NO              
+// SSU_AMEND START - Grading table student no
 				//$columns[] = 'recordid';
 				//$headers[] = get_string('recordid', 'assign');
 				$columns[] = 'idnumber';
                 $headers[] = 'Student ID';
-// SU_AMEND END	
+// SSU_AMEND END
             }
 
             // Fullname.
@@ -356,7 +356,7 @@ class assign_grading_table extends table_sql implements renderable {
             // Participant # details if can view real identities.
             if ($this->assignment->is_blind_marking()) {
                 if (!$this->is_downloading()) {
-// SU_AMEND START - GRADING TABLE STUDENT NO
+// SSU_AMEND START - Grading table student no
                     //$columns[] = 'recordid';
                     //$headers[] = get_string('recordid', 'assign');
 					$columns[] = 'idnumber';
@@ -371,7 +371,7 @@ class assign_grading_table extends table_sql implements renderable {
             }
         } else {
             // Record ID.
-// SU_AMEND START - GRADING TABLE STUDENT NO
+// SSU_AMEND START - Grading table student no
             //$columns[] = 'recordid';
             //$headers[] = get_string('recordid', 'assign');
 			$columns[] = 'idnumber';
@@ -412,7 +412,7 @@ class assign_grading_table extends table_sql implements renderable {
         }
         // Grade.
         $columns[] = 'grade';
-// SU_AMEND START - CHANGE GRADE STRING IF DOUBLEMARKS ENABLED
+// SSU_AMEND START - Marks Upload: Change grade string if doublemarks enabled
 		if($plugin = $this->assignment->get_feedback_plugin_by_type('doublemark')->is_enabled('enabled')){
 			 $headers[] = get_string('agreed', 'assign');
 		}else{
@@ -613,7 +613,7 @@ class assign_grading_table extends table_sql implements renderable {
         $gradingdisabled = $this->assignment->grading_disabled($row->id);
         // The function in the assignment keeps a static cache of this list of states.
         $workflowstates = $this->assignment->get_marking_workflow_states_for_current_user();
-// SU_AMEND START - Remove 'Released' option from quick grading for MUP
+// SSU_AMEND START - Marks Upload: Remove 'Released' option from quick grading for MUP
 		if($this->assignment->get_course()->startdate >= 1533081600 && $this->assignment->get_course_module()->idnumber != ''){
 			unset($workflowstates['released']);
 		}
@@ -889,10 +889,20 @@ class assign_grading_table extends table_sql implements renderable {
         $selectcol = '<label class="accesshide" for="selectuser_' . $row->userid . '">';
         $selectcol .= get_string('selectuser', 'assign', $this->assignment->fullname($row));
         $selectcol .= '</label>';
-        $selectcol .= '<input type="checkbox"
-                              id="selectuser_' . $row->userid . '"
-                              name="selectedusers"
-                              value="' . $row->userid . '"/>';
+//SSU_AMEND START - Select all assignments for release
+        if($this->assignment->get_course_module()->idnumber != '' && !is_siteadmin()){
+          $selectcol .= '<input type="checkbox"
+                                id="selectuser_' . $row->userid . ' selectall"
+                                name="selectallquercus"
+                                class="selectallquercus"
+                                value="' . $row->userid . '"/>';
+        }else{
+          $selectcol .= '<input type="checkbox"
+                                id="selectuser_' . $row->userid . ' selectall"
+                                name="selectedusers"
+                                value="' . $row->userid . '"/>';
+        }
+//SSU_AMEND END
         $selectcol .= '<input type="hidden"
                               name="grademodified_' . $row->userid . '"
                               value="' . $row->timemarked . '"/>';

@@ -32,9 +32,6 @@ $string['addnewattemptfromprevious'] = 'Add a new attempt based on previous subm
 $string['addnewattemptfromprevious_help'] = 'This will copy the contents of your previous submission to a new submission for you to work on.';
 $string['addnewgroupoverride'] = 'Add group override';
 $string['addnewuseroverride'] = 'Add user override';
-// SU_AMEND START
-$string['agreed'] = 'Agreed grade';
-// SU_AMEND END
 $string['allocatedmarker'] = 'Allocated Marker';
 $string['allocatedmarker_help'] = 'Marker allocated to this submission';
 $string['allowsubmissions'] = 'Allow the user to continue making submissions to this assignment.';
@@ -258,9 +255,6 @@ $string['gradelocked'] = 'This grade is locked or overridden in the gradebook.';
 $string['gradeoutof'] = 'Grade out of {$a}';
 $string['gradeoutofhelp'] = 'Grade';
 $string['gradeoutofhelp_help'] = 'Enter the grade for the student\'s submission here. You may include decimals.';
-// SU_AMEND START
-$string['gradeslocked'] = '<strong>Grades for this assignment have been released and locked.</strong>';
-// SU_AMEND END
 $string['gradestudent'] = 'Grade student: (id={$a->id}, fullname={$a->fullname}). ';
 $string['grading'] = 'Grading';
 $string['gradingchangessaved'] = 'The grade changes were saved';
@@ -321,10 +315,6 @@ $string['markingworkflowstatenotmarked'] = 'Not marked';
 $string['markingworkflowstatereadyforreview'] = 'Marking completed';
 $string['markingworkflowstatereadyforrelease'] = 'Ready for release';
 $string['markingworkflowstatereleased'] = 'Released';
-// SU_AMEND START
-$string['marksuploadinclude'] = '<strong>Grades for this assignment will be automatically uploaded to Quercus.</strong>';
-//$string['marksuploadexclude'] = '<h4 style="color:red">Grades for this assignment must be uploaded via the grade upload spreadsheet</h4>';
-// SU_AMEND END
 $string['maxattempts'] = 'Maximum attempts';
 $string['maxattempts_help'] = 'The maximum number of submission attempts that can be made by a student. After this number has been reached, the submission can no longer be reopened.';
 $string['maxgrade'] = 'Maximum grade';
@@ -428,9 +418,6 @@ $string['quickgrading'] = 'Quick grading';
 $string['quickgradingresult'] = 'Quick grading';
 $string['quickgradingchangessaved'] = 'The grade changes were saved';
 $string['quickgrading_help'] = 'Quick grading allows you to assign grades (and outcomes) directly in the submissions table. Quick grading is not compatible with advanced grading and is not recommended when there are multiple markers.';
-//SU_AMEND START
-$string['releasemessage'] = '<h4>By releasing these grades you are confirming that:</h4><br><ul><li>This assessment has been marked in accordance with the University\'s Assessment Policy, Academic Handbook Section 20 and according the assessment\'s specific marking criteria</li><li>You are the unit leader for this unit</li><li>All grades have been entered correctly</li><li>You accept that no more changes can be made to grades</li></ul><br /><p><strong>Reminder</strong> - Have you remembered to indicate which marks are to form part of the sample? If not you must tick the sample box against each relevant mark</p>';
-//SU_AMEND END
 $string['removeallgroupoverrides'] = 'Delete all group overrides';
 $string['removealluseroverrides'] = 'Delete all user overrides';
 $string['reopenuntilpassincompatiblewithblindmarking'] = 'Reopen until pass option is incompatible with blind marking, because the grades are not released to the gradebook until the student identities are revealed.';
@@ -604,7 +591,7 @@ $string['agreed'] = 'Agreed grade';
 $string['gradeslocked'] = '<strong>Grades for this assignment have been released and locked.</strong>';
 $string['marksuploadinclude'] = '<p>Grades for this assignment will be sent to Quercus once they have been released to students in SOL.</p>
 <p><strong>Please do not add marks out of 100 in Turnitin</strong> as it can cause issues with grades sent to Quercus.</p>
-<p>For technical guidance please refer to the <strong><a href="https://learn.solent.ac.uk/staff-help" target="_blank" rel="noopener noreferrer">assignment help</a></strong>
+<p>For technical guidance please visit refer to the <strong><a href="https://learn.solent.ac.uk/staff-help" target="_blank" rel="noopener noreferrer">assignment help</a></strong>
  or contact ltu@solent.ac.uk (ext. 5100). For amendments to dates please email student.registry@solent.ac.uk.</p>';
 $string['noboard'] = '<p>No board date is available (grades cannot be released). Please contact student.registry@solent.ac.uk.</p>';
 $string['releasedate'] = 'Grades cannot be released until {$a->date} ({$a->days} days after the board has passed).';

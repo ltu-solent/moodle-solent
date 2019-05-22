@@ -146,18 +146,6 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
 
         // Grade scale select box.
         $scales = get_scales_menu($COURSE->id);
-//SSU_AMEND START - USE SOLENT GRADE SCALES ONLY
-        global $PAGE;
-        if($PAGE->cm){
-          if($PAGE->cm->modname == 'assign' && $PAGE->cm->idnumber !=''){
-            $newscales = array();
-            $newscales[34] = $scales['34'];
-            $newscales[38] = $scales['38'];
-            unset($scales);
-            $scales = $newscales;
-          }
-        }
-//SSU_AMEND END
         $langscale = get_string('modgradetypescale', 'grades');
         $this->scaleformelement = $this->createFormElement('select', 'modgrade_scale', $langscale,
             $scales, $attributes);

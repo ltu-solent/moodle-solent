@@ -47,7 +47,7 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
         $mform->addElement('static', 'userslist', get_string('selectedusers', 'assign'), $params['usershtml']);
 
         $options = $params['markingworkflowstates'];
-//SU_AMEND START - PREVENT GRADES BEING RE-RELEASED
+//SSU_AMEND START - Marks Upload: Prevent grades being re-released
         if(isset($params['locked']) && $params['locked'] == 0){
           $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);
 
@@ -64,7 +64,7 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
         $mform->setType('action', PARAM_ALPHA);
         $mform->addElement('hidden', 'selectedusers');
         $mform->setType('selectedusers', PARAM_SEQUENCE);
-//SU_AMEND START - PREVENT GRADES BEING RE-RELEASED
+//SSU_AMEND START - Marks Upload: Prevent grades being re-released
         // $this->add_action_buttons(true, get_string('savechanges'));
         if(isset($params['locked']) && $params['locked'] != 0){
           $buttonarray = array();

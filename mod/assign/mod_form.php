@@ -54,7 +54,7 @@ class mod_assign_mod_form extends moodleform_mod {
             $mform->setType('name', PARAM_CLEANHTML);
         }
 		if($this->current->id){
-// SU_AMEND START - Marks Upload - remove 'required' for quercus assignment names
+// SSU_AMEND START - Marks Upload: Remove 'required' for quercus assignment names
 			if(!$this->current->modulename == 'assign' && !$this->current->cmidnumber != null){
           $mform->addRule('name', null, 'required', null, 'client');
 			}
@@ -62,7 +62,7 @@ class mod_assign_mod_form extends moodleform_mod {
 		}
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 		if($this->current->id){
-// SU_AMEND START - Marks Upload - prevent assignment name being edited
+// SSU_AMEND START - Marks Upload: Prevent assignment name being edited
       if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
           // PREVENT ASSIGNMENT NAME BEING EDITED
           $mform->hardFreeze('name');
@@ -101,7 +101,7 @@ class mod_assign_mod_form extends moodleform_mod {
         $options = array('optional'=>true);
         $mform->addElement('date_time_selector', 'allowsubmissionsfromdate', $name, $options);
         $mform->addHelpButton('allowsubmissionsfromdate', 'allowsubmissionsfromdate', 'assign');
-//SSU_AMEND START - Freeze allowsubmissionsfromdate
+//SSU_AMEND START - Marks Upload: Freeze allowsubmissionsfromdate
         if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin()){
           $mform->hardFreeze('allowsubmissionsfromdate');
           $mform->setConstant('allowsubmissionsfromdate', format_string($this->current->allowsubmissionsfromdate));

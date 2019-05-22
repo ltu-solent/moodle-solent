@@ -44,31 +44,19 @@ class mod_assign_grading_batch_operations_form extends moodleform {
 
         // Visible elements.
         $options = array();
-
-// SU_AMEND START - REARRANGE MENU OPTIONS
-		    if ($instance['markingworkflow']) {
-            $options['setmarkingworkflowstate'] = get_string('setmarkingworkflowstate', 'assign');
-        }
+        $options['lock'] = get_string('locksubmissions', 'assign');
+        $options['unlock'] = get_string('unlocksubmissions', 'assign');
+        $options['downloadselected'] = get_string('downloadselectedsubmissions', 'assign');
         if ($instance['submissiondrafts']) {
             $options['reverttodraft'] = get_string('reverttodraft', 'assign');
         }
         if ($instance['duedate'] && has_capability('mod/assign:grantextension', $instance['context'])) {
             $options['grantextension'] = get_string('grantextension', 'assign');
         }
-        $options['lock'] = get_string('locksubmissions', 'assign');
-        $options['unlock'] = get_string('unlocksubmissions', 'assign');
-        $options['downloadselected'] = get_string('downloadselectedsubmissions', 'assign');
         if ($instance['attemptreopenmethod'] == ASSIGN_ATTEMPT_REOPEN_METHOD_MANUAL) {
             $options['addattempt'] = get_string('addattempt', 'assign');
         }
-        $options['lock'] = get_string('locksubmissions', 'assign');
-        $options['unlock'] = get_string('unlocksubmissions', 'assign');
-        $options['downloadselected'] = get_string('downloadselectedsubmissions', 'assign');
 
-		if ($instance['attemptreopenmethod'] == ASSIGN_ATTEMPT_REOPEN_METHOD_MANUAL) {
-            $options['addattempt'] = get_string('addattempt', 'assign');
-        }
-// SU_AMEND END
         foreach ($instance['feedbackplugins'] as $plugin) {
             if ($plugin->is_visible() && $plugin->is_enabled()) {
                 foreach ($plugin->get_grading_batch_operations() as $action => $description) {
@@ -92,7 +80,9 @@ class mod_assign_grading_batch_operations_form extends moodleform {
         $mform->setType('selectedusers', PARAM_SEQUENCE);
         $mform->addElement('hidden', 'returnaction', 'grading');
         $mform->setType('returnaction', PARAM_ALPHA);
-
+//SSU_AMEND START - Set workflow state as default
+        $mform->setDefault('operation', 'setmarkingworkflowstate');
+//SSU_AMEND END
         $objs = array();
         $objs[] =& $mform->createElement('select', 'operation', get_string('chooseoperation', 'assign'), $options);
         $objs[] =& $mform->createElement('submit', 'submit', get_string('go'));
