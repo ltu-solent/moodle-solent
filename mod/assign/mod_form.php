@@ -101,12 +101,12 @@ class mod_assign_mod_form extends moodleform_mod {
         $options = array('optional'=>true);
         $mform->addElement('date_time_selector', 'allowsubmissionsfromdate', $name, $options);
         $mform->addHelpButton('allowsubmissionsfromdate', 'allowsubmissionsfromdate', 'assign');
-//SU_AMEND START - Freeze allowsubmissionsfromdate
-        // if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin() && $this->get_course()->startdate >= '1533081600'){
-        //   $mform->hardFreeze('allowsubmissionsfromdate');
-        //   $mform->setConstant('allowsubmissionsfromdate', format_string($this->current->allowsubmissionsfromdate));
-        // }
-//SU_AMEND END
+//SSU_AMEND START - Freeze allowsubmissionsfromdate
+        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin()){
+          $mform->hardFreeze('allowsubmissionsfromdate');
+          $mform->setConstant('allowsubmissionsfromdate', format_string($this->current->allowsubmissionsfromdate));
+        }
+//SSU_AMEND END
         $name = get_string('duedate', 'assign');
         $mform->addElement('date_time_selector', 'duedate', $name, array('optional'=>true));
         $mform->addHelpButton('duedate', 'duedate', 'assign');
