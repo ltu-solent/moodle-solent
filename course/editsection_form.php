@@ -23,7 +23,7 @@ class editsection_form extends moodleform {
         $sectioninfo = $this->_customdata['cs'];
 
         $mform->addElement('header', 'generalhdr', get_string('general'));
-//SU_AMEND START - Restrict tabs name length in units
+// SU_AMEND START - Restrict tabs name length in units
         // $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
         //     'defaultvalue' => $this->_customdata['defaultsectionname'],
         //     'customvalue' => $sectioninfo->name,
@@ -43,7 +43,7 @@ class editsection_form extends moodleform {
               'customvalue' => $sectioninfo->name,
           ], ['size' => 30, 'maxlength' => 255]);
         }
-//SU_AMEND END
+// SU_AMEND END
           $mform->setDefault('name', false);
           $mform->addGroupRule('name', array('name' => array(array(get_string('maximumchars', '', 255), 'maxlength', 255))));
 

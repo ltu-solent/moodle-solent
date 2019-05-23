@@ -371,7 +371,7 @@ class backup_course_structure_step extends backup_structure_step {
         global $DB;
 
         // Define each element separated
-// SSU_AMEND START - Prevent legacy files being backedup or imported
+// SU_AMEND START - Prevent legacy files being backed up or imported
         // $course = new backup_nested_element('course', array('id', 'contextid'), array(
             // 'shortname', 'fullname', 'idnumber',
             // 'summary', 'summaryformat', 'format', 'showgrades',
@@ -382,7 +382,7 @@ class backup_course_structure_step extends backup_structure_step {
             // 'timecreated', 'timemodified',
             // 'requested',
             // 'enablecompletion', 'completionstartonenrol', 'completionnotify'));
-			
+
 		$course = new backup_nested_element('course', array('id', 'contextid'), array(
             'shortname', 'fullname', 'idnumber',
             'summary', 'summaryformat', 'format', 'showgrades',
@@ -393,7 +393,7 @@ class backup_course_structure_step extends backup_structure_step {
             'timecreated', 'timemodified',
             'requested',
             'enablecompletion', 'completionstartonenrol', 'completionnotify'));
-// SSU_AMEND END
+// SU_AMEND END
         $category = new backup_nested_element('category', array('id'), array(
             'name', 'description'));
 
@@ -474,9 +474,9 @@ class backup_course_structure_step extends backup_structure_step {
 
         $course->annotate_files('course', 'summary', null);
         $course->annotate_files('course', 'overviewfiles', null);
-// SSU_AMEND START - Prevent legacy files being backedup or imported
+// SU_AMEND START - Prevent legacy files being backed up or imported
         //$course->annotate_files('course', 'legacy', null);
-// SSU_AMEND END
+// SU_AMEND END
         // Return root element ($course)
 
         return $course;

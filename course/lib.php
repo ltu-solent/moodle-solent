@@ -658,14 +658,14 @@ function get_module_metadata($course, $modnames, $sectionreturn = null) {
         // Create an object for a default representation of this module type in the activity chooser. It will be used
         // if module does not implement callback get_shortcuts() and it will also be passed to the callback if it exists.
         $defaultmodule = new stdClass();
-//SU_AMEND START - Formative assignment help panel string
+// SU_AMEND START - Formative assignment help panel string
         //$defaultmodule->title = $modnamestr;
         if($modname == 'assign'){
           $defaultmodule->title = 'Formative assignment';
         }else{
           $defaultmodule->title = $modnamestr;
         }
-//SU_AMEND END
+// SU_AMEND END
         $defaultmodule->name = $modname;
         $defaultmodule->link = new moodle_url($urlbase, array('add' => $modname));
         $defaultmodule->icon = $OUTPUT->pix_icon('icon', '', $defaultmodule->name, array('class' => 'icon'));

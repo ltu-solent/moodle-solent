@@ -131,14 +131,14 @@ abstract class base_moodleform extends moodleform {
             $buttonarray[] = $this->_form->createElement('submit', 'previous', get_string('previousstage', 'backup'));
         } else if ($this->uistage instanceof backup_ui_stage) {
             // Only display the button on the first stage of backup, they only place where it has an effect.
-// SSU_AMEND START  - REMOVE FINAL STEP BUTTON FROM IMPORTS
+// SU_AMEND START  - Remove final step button from imports
             //$buttonarray[] = $this->_form->createElement('submit', 'oneclickbackup', get_string('jumptofinalstep', 'backup'),
                 //array('class' => 'oneclickbackup'));
 			if(!$_REQUEST['importid']) {
 				$buttonarray[] = $this->_form->createElement('submit', 'oneclickbackup', get_string('jumptofinalstep', 'backup'),
                 array('class' => 'oneclickbackup'));
 			}
-// SSU_AMEND END
+// SU_AMEND END
         }
         $buttonarray[] = $this->_form->createElement('cancel', 'cancel', get_string('cancel'), array('class' => 'confirmcancel'));
         $buttonarray[] = $this->_form->createElement(

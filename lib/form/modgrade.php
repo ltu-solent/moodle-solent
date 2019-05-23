@@ -166,14 +166,14 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
             'scale' => get_string('modgradetypescale', 'grades'),
             'point' => get_string('modgradetypepoint', 'grades'),
         );
-//SSU_AMEND START - FORCE SCALES TO BE USED
+// SU_AMEND START - Marks Upload: Force scales to be used
         if($PAGE->cm){
           if($PAGE->cm->modname == 'assign' && $PAGE->cm->idnumber !=''){
             unset($gradetype['none']);
             unset($gradetype['point']);
           }
         }
-//SSU_AMEND END
+// SU_AMEND END
         $langtype = get_string('modgradetype', 'grades');
         $this->gradetypeformelement = $this->createFormElement('select', 'modgrade_type', $langtype, $gradetype,
             $attributes, true);

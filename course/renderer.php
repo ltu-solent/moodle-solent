@@ -563,7 +563,7 @@ class core_course_renderer extends plugin_renderer_base {
         $tmpl = new \core_course\output\course_module_name($mod, $this->page->user_is_editing(), $displayoptions);
         // return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
         //     $groupinglabel;
-// SU_AMEND START - Marks upload - Prevent quick edit of assignment name
+// SU_AMEND START - Marks upload: Prevent quick edit of assignment name
         if($mod->modname == 'assign' && $mod->idnumber){
           return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output)) .
           $groupinglabel;
@@ -611,7 +611,7 @@ class core_course_renderer extends plugin_renderer_base {
             $textclasses .= ' dimmed dimmed_text';
         }
         return array($linkclasses, $textclasses);
-// SU_AMEND START - Marks upload - Prevent quick edit of assignment name
+// SU_AMEND START - Marks upload: Prevent quick edit of assignment name
 		if($mod->modname == 'assign' && $mod->idnumber){
 			return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output));
 		}else{

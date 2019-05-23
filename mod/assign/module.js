@@ -72,7 +72,7 @@ M.mod_assign.init_grading_table = function(Y) {
                 }
             });
         }
-// SSU_AMEND START - Select all assignments for release
+// SU_AMEND START - Marks Upload: Select all assignments for release
         var selectallquercus = Y.all('td.cell .selectallquercus');
         if (selectallquercus) {
             selectallquercus.on('change', function(e) {
@@ -95,7 +95,7 @@ M.mod_assign.init_grading_table = function(Y) {
                 }
             });
         }
-// SSU_AMEND END
+// SU_AMEND END
 
         var batchform = Y.one('form.gradingbatchoperationsform');
         if (batchform) {

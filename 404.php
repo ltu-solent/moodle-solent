@@ -1,5 +1,5 @@
 <?php
-// SSU_AMEND START
+// SU_AMEND START
 require_once ('config.php');
 global $CFG, $DB;
 
@@ -21,14 +21,14 @@ if($result_customurls){
 	echo $OUTPUT->header();
 
 	echo '	<h2>Error 404 - Page not found!</h2>
-			<p> The requested URL (' .  $theerrorr . ') was not found on this server. <br /><br /> 
+			<p> The requested URL (' .  $theerrorr . ') was not found on this server. <br /><br />
 
 				If you entered the URL manually please check your
 				spelling and try again. </p>
-				
+
 			<p> If you think this is a server error, please contact
 			the <a href="mailto:ltu@solent.ac.uk">webmaster</a>.</p>
-			
+
 			<address>
 				<a href="/">' . $CFG->wwwroot . '</a><br />
 
@@ -43,6 +43,6 @@ if($result_customurls){
 			</script>
 			<button onclick="goBack()">Go Back</button>';
 	echo $OUTPUT->footer ();
-	//SSU_AMEND END
+	// SU_AMEND END
 }
 ?>

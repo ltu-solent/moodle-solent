@@ -249,7 +249,7 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                             $params['showallcourses'] = 1;
                         }
                         $url = new moodle_url('/user/view.php', $params);
-// SSU_AMEND START - ADD UNIT START DATES TO PROFILE PAGE
+// SU_AMEND START - Add unit start dates to profile page
                         // $courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false),
                                 // $linkattributes));
             						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
@@ -263,7 +263,7 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                                             $linkattributes));
                         }
                     } else {
-// SSU_AMEND START - ADD UNIT START DATES TO PROFILE PAGE
+// SU_AMEND START - Add unit start dates to profile page
                         //$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
             						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
             						$catname = strtolower('x'.$category->name);
@@ -272,7 +272,7 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
             						}else{
             							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
             						}
-// SSU_AMEND END
+// SU_AMEND END
                     }
                 }
                 $shown++;

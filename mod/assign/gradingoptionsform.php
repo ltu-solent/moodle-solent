@@ -46,10 +46,10 @@ class mod_assign_grading_options_form extends moodleform {
 
         $mform->addElement('header', 'general', get_string('gradingoptions', 'assign'));
         // Visible elements.
-// SSU_AMEND START - Marks Upload: Prevent pagination of grading table
+// SU_AMEND START - Marks Upload: Prevent pagination of grading table
         //$options = array(-1 => get_string('all'), 10 => '10', 20 => '20', 50 => '50', 100 => '100');
         $options = array(-1 => get_string('all'));
-// SSU_AMEND END
+// SU_AMEND END
         $maxperpage = get_config('assign', 'maxperpage');
         if (isset($maxperpage) && $maxperpage != -1) {
             unset($options[-1]);
@@ -59,12 +59,12 @@ class mod_assign_grading_options_form extends moodleform {
                 }
             }
         }
-// SSU_AMEND START - Marks Upload: Prevent pagination of grading table
+// SU_AMEND START - Marks Upload: Prevent pagination of grading table
     		$mform->addElement('hidden', 'disableperpage', 1);
     		$mform->setType('disableperpage', PARAM_RAW);
         $mform->addElement('select', 'perpage', get_string('assignmentsperpage', 'assign'), $options, $dirtyclass);
         $mform->disabledIf('perpage', 'disableperpage', 'eq', 1);
-// SSU_AMEND END
+// SU_AMEND END
         $options = array('' => get_string('filternone', 'assign'),
                          ASSIGN_FILTER_NOT_SUBMITTED => get_string('filternotsubmitted', 'assign'),
                          ASSIGN_FILTER_SUBMITTED => get_string('filtersubmitted', 'assign'),

@@ -99,11 +99,11 @@ class assign_submission_file extends assign_submission_plugin {
                                         $COURSE->maxbytes,
                                         get_config('assignsubmission_file', 'maxbytes'));
 
-// SSU_AMEND START - 40MB default file size
+// SU_AMEND START - 40MB default file size
 		$choices[41943040] =  "40MB";
 		krsort($choices);
 		$choices = array(0=>$choices[0]) + $choices;
-// SSU_AMEND END
+// SU_AMEND END
 
 // SU_AMEND START - 40MB default file size
     		$choices[41943040] =  "40MB";
@@ -123,7 +123,7 @@ class assign_submission_file extends assign_submission_plugin {
                               'maximumsubmissionsize',
                               'assignsubmission_file');
 
-// SSU_AMEND START - 40MB default file size
+// SU_AMEND START - 40MB default file size
         //$mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
         if($defaultmaxsubmissionsizebytes){
 			$mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
@@ -132,7 +132,7 @@ class assign_submission_file extends assign_submission_plugin {
 		}
 		$mform->disabledIf('assignsubmission_file_maxfiles', 'assignsubmission_helixassign_enabled', 'checked');
 		$mform->disabledIf('assignsubmission_file_maxsizebytes', 'assignsubmission_helixassign_enabled', 'checked');
-// SSU_AMEND END
+// SU_AMEND END
 
 // SU_AMEND START - Disable file submission options if Medial selected
         $mform->disabledIf('assignsubmission_file_maxfiles', 'assignsubmission_helixassign_enabled', 'checked');

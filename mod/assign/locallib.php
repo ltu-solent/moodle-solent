@@ -4211,10 +4211,10 @@ class assign {
         $gradingactions->set_label(get_string('choosegradingaction', 'assign'));
 
         $gradingmanager = get_grading_manager($this->get_context(), 'mod_assign', 'submissions');
-// SSU_AMEND START - Marks Upload: Prevent pagination of grading table
+// SU_AMEND START - Marks Upload: Prevent pagination of grading table
         //$perpage = $this->get_assign_perpage();
         $perpage = -1;
-// SSU_AMEND END
+// SU_AMEND END
         $filter = get_user_preferences('assign_filter', '');
         $markerfilter = get_user_preferences('assign_markerfilter', '');
         $workflowfilter = get_user_preferences('assign_workflowfilter', '');
@@ -4280,11 +4280,11 @@ class assign {
                                  'markingworkflow'=>$markingworkflow,
                                  'markingallocation'=>$markingallocation);
         $classoptions = array('class'=>'gradingbatchoperationsform');
-//SSU_AMEND START - Remove revert to draft option
+// SU_AMEND START - Marks Upload: Remove revert to draft option
         if($this->get_course_module()->idnumber != '' && !is_siteadmin()){
           $batchformparams['submissiondrafts'] = 0;
         }
-//SSU_AMEND END
+// SU_AMEND END
         $gradingbatchoperationsform = new mod_assign_grading_batch_operations_form(null,
                                                                                    $batchformparams,
                                                                                    'post',
@@ -4306,7 +4306,7 @@ class assign {
                                     get_string('grading', 'assign'),
                                     $actionformtext);
         $o .= $this->get_renderer()->render($header);
-// SSU_AMEND START - Notification that assignment is in pilot
+// SU_AMEND START - Marks Upload: Notification that assignment is in pilot
 		    global $PAGE, $DB;
         //if($this->get_course_module()->idnumber != '' && $this->get_grade_item()->locked == 0){
         if ($this->get_course()->startdate >= 1533081600 && $this->get_course_module()->idnumber != '' && $this->get_grade_item()->locked == 0) {
@@ -4836,7 +4836,7 @@ class assign {
             'userscount' => count($userlist),
             'usershtml' => $usershtml,
             'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user(),
-//SSU_AMEND START - Marks Upload: Send locked value to form
+// SU_AMEND START - Marks Upload: Pass locked value to form
             'locked' => $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?' , array( 'assign', $this->coursemodule->instance))
 // SU_AMEND END
         );
@@ -4850,7 +4850,7 @@ class assign {
             $this->get_course_module()->id,
             get_string('setmarkingworkflowstate', 'assign'));
         $o .= $this->get_renderer()->render($header);
-// SSU_AMEND START - Marks Upload: Show either release disclaimer or locked message
+// SU_AMEND START - Marks Upload: Show either release disclaimer or locked message
 		global $USER;
         $context = context_course::instance($this->course->id);
         $userroles = $DB->get_fieldset_select('role_assignments', 'roleid', 'contextid = ? AND userid = ? ' , array( $context->id, $USER->id));
@@ -7422,7 +7422,7 @@ class assign {
             } else {
                 $grademenu = array(-1 => get_string("nograde")) + make_grades_menu($this->get_instance()->grade);
                 if (count($grademenu) > 1) {
-// SSU_AMEND START - Marks Upload: Agreed grade for double marks
+// SU_AMEND START - Marks Upload: Agreed grade for double marks
                     if ($plugin = $this->get_feedback_plugin_by_type('doublemark')->is_enabled('enabled')) {
                         $gradingelement = $mform->addElement('select', 'grade', get_string('agreed', 'assign'), $grademenu);
                     } else {
@@ -7492,7 +7492,7 @@ class assign {
             $options = array('' => get_string('markingworkflowstatenotmarked', 'assign')) + $states;
             $mform->addElement('select', 'workflowstate', get_string('markingworkflowstate', 'assign'), $options);
             $mform->addHelpButton('workflowstate', 'markingworkflowstate', 'assign');
-//SSU_AMEND START - Marks Upload: Prevent grade being re-released
+// SU_AMEND START - Marks Upload: Prevent grades being re-released
             if($this->get_grade_item()->locked != 0){
                 $mform->addElement('hidden', 'locked', $this->get_grade_item()->locked);
                 $mform->disabledIf('workflowstate', 'locked', 'neq', 0);
@@ -7862,7 +7862,7 @@ class assign {
             'userscount' => 0,  // This form is never re-displayed, so we don't need to
             'usershtml' => '',  // initialise these parameters with real information.
             'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user(),
-//SSU_AMEND START - Marks Upload: Pass locked value to form
+// SU_AMEND START - Marks Upload: Pass locked value to form
             'locked' => $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?' , array( 'assign', $this->coursemodule->instance))
 // SU_AMEND END
         );
@@ -7909,7 +7909,7 @@ class assign {
                     \mod_assign\event\workflow_state_updated::create_from_user($this, $user, $state)->trigger();
                 }
             }
-// SSU_AMEND START - Marks Upload: Lock grades after release
+// SU_AMEND START - Marks Upload: Lock grades after release
             if ($state == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
                 require_once($CFG->dirroot . '/lib/grade/grade_item.php');
                 $gradeitem = $this->get_grade_item();
@@ -8720,7 +8720,7 @@ class assign {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_READYFORRELEASE] = get_string('markingworkflowstatereadyforrelease', 'assign');
         }
 
-// SSU_AMEND START - Release grades by unit leader only
+// SU_AMEND START - Marks Upload: Release grades by unit leader only
         if ($this->get_course()->startdate >= 1533081600 && $this->coursemodule->idnumber != '') {
             global $DB, $USER, $PAGE;
             $context = context_course::instance($this->course->id);
@@ -8756,7 +8756,7 @@ class assign {
               $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
             }
         } else {
-// SSU_AMEND END
+// SU_AMEND END
             if (has_any_capability(array('mod/assign:releasegrades',
                         'mod/assign:managegrades'), $this->context)) {
                 $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');

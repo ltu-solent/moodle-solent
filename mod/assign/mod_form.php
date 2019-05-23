@@ -54,7 +54,7 @@ class mod_assign_mod_form extends moodleform_mod {
             $mform->setType('name', PARAM_CLEANHTML);
         }
 		if($this->current->id){
-// SSU_AMEND START - Marks Upload: Remove 'required' for quercus assignment names
+// SU_AMEND START - Marks Upload: Remove 'required' for quercus assignment names
 			if(!$this->current->modulename == 'assign' && !$this->current->cmidnumber != null){
           $mform->addRule('name', null, 'required', null, 'client');
 			}
@@ -62,7 +62,7 @@ class mod_assign_mod_form extends moodleform_mod {
 		}
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 		if($this->current->id){
-// SSU_AMEND START - Marks Upload: Prevent assignment name being edited
+// SU_AMEND START - Marks Upload: Prevent assignment name being edited
       if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
           // PREVENT ASSIGNMENT NAME BEING EDITED
           $mform->hardFreeze('name');
@@ -101,36 +101,36 @@ class mod_assign_mod_form extends moodleform_mod {
         $options = array('optional'=>true);
         $mform->addElement('date_time_selector', 'allowsubmissionsfromdate', $name, $options);
         $mform->addHelpButton('allowsubmissionsfromdate', 'allowsubmissionsfromdate', 'assign');
-//SSU_AMEND START - Marks Upload: Freeze allowsubmissionsfromdate
+// SU_AMEND START - Marks Upload: Freeze allowsubmissionsfromdate
         if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin()){
           $mform->hardFreeze('allowsubmissionsfromdate');
           $mform->setConstant('allowsubmissionsfromdate', format_string($this->current->allowsubmissionsfromdate));
         }
-//SSU_AMEND END
+// SU_AMEND END
         $name = get_string('duedate', 'assign');
         $mform->addElement('date_time_selector', 'duedate', $name, array('optional'=>true));
         $mform->addHelpButton('duedate', 'duedate', 'assign');
-//SU_AMEND START - Freeze duedate
+// SU_AMEND START - Marks Upload: Freeze duedate
         if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin() && $this->get_course()->startdate >= '1533081600'){          $mform->hardFreeze('duedate');
           $mform->setConstant('duedate', format_string($this->current->duedate));
         }
-//SU_AMEND END
+// SU_AMEND END
         $name = get_string('cutoffdate', 'assign');
         $mform->addElement('date_time_selector', 'cutoffdate', $name, array('optional'=>true));
         $mform->addHelpButton('cutoffdate', 'cutoffdate', 'assign');
-//SU_AMEND START - Freeze cutoffdate
+// SU_AMEND START - Marks Upload: Freeze cutoffdate
         if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin() && $this->get_course()->startdate >= '1533081600'){          $mform->hardFreeze('cutoffdate');
           $mform->setConstant('cutoffdate', format_string($this->current->cutoffdate));
         }
-//SU_AMEND END
+// SU_AMEND END
         $name = get_string('gradingduedate', 'assign');
         $mform->addElement('date_time_selector', 'gradingduedate', $name, array('optional' => true));
         $mform->addHelpButton('gradingduedate', 'gradingduedate', 'assign');
-//SU_AMEND START - Freeze gradingduedate
+// SU_AMEND START - Marks Upload: Freeze gradingduedate
         if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin() && $this->get_course()->startdate >= '1533081600'){          $mform->hardFreeze('gradingduedate');
           $mform->setConstant('gradingduedate', format_string($this->current->gradingduedate));
         }
-//SU_AMEND END
+// SU_AMEND END
         $name = get_string('alwaysshowdescription', 'assign');
         $mform->addElement('checkbox', 'alwaysshowdescription', $name);
         $mform->addHelpButton('alwaysshowdescription', 'alwaysshowdescription', 'assign');
