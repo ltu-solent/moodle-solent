@@ -60,9 +60,11 @@ class mod_assign_grading_options_form extends moodleform {
             }
         }
 // SSU_AMEND START - Marks Upload: Prevent pagination of grading table
-		$mform->addElement('hidden', 'disableperpage', 1);
-		$mform->setType('disableperpage', PARAM_RAW);
+    		$mform->addElement('hidden', 'disableperpage', 1);
+    		$mform->setType('disableperpage', PARAM_RAW);
         $mform->addElement('select', 'perpage', get_string('assignmentsperpage', 'assign'), $options, $dirtyclass);
+        $mform->disabledIf('perpage', 'disableperpage', 'eq', 1);
+// SSU_AMEND END
         $options = array('' => get_string('filternone', 'assign'),
                          ASSIGN_FILTER_NOT_SUBMITTED => get_string('filternotsubmitted', 'assign'),
                          ASSIGN_FILTER_SUBMITTED => get_string('filtersubmitted', 'assign'),
