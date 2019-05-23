@@ -53,9 +53,19 @@ class mod_assign_mod_form extends moodleform_mod {
         } else {
             $mform->setType('name', PARAM_CLEANHTML);
         }
-        $mform->addRule('name', null, 'required', null, 'client');
+// SU_AMEND START - Marks Upload: Remove 'required' for quercus assignment names
+  			if(!$this->current->modulename == 'assign' && !$this->current->cmidnumber != null){
+            $mform->addRule('name', null, 'required', null, 'client');
+  			}
+// SU_AMEND END
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-
+// SU_AMEND START - Marks Upload: Prevent assignment name being edited
+        if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
+            // PREVENT ASSIGNMENT NAME BEING EDITED
+            $mform->hardFreeze('name');
+            $mform->setConstant('name', format_string($this->current->name));
+  			}
+// SU_AMEND END
         $this->standard_intro_elements(get_string('description', 'assign'));
 
         $mform->addElement('filemanager', 'introattachments',

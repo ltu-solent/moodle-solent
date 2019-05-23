@@ -7787,6 +7787,12 @@ class assign {
             $options = array('' => get_string('markingworkflowstatenotmarked', 'assign')) + $states;
             $mform->addElement('select', 'workflowstate', get_string('markingworkflowstate', 'assign'), $options);
             $mform->addHelpButton('workflowstate', 'markingworkflowstate', 'assign');
+// SU_AMEND START - Marks Upload: Prevent grades being re-released
+            if($this->get_grade_item()->locked != 0){
+                $mform->addElement('hidden', 'locked', $this->get_grade_item()->locked);
+                $mform->disabledIf('workflowstate', 'locked', 'neq', 0);
+            }
+// SU_AMEND END
             $gradingstatus = $this->get_grading_status($userid);
             if ($gradingstatus != ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
                 if ($grade->grade && $grade->grade != -1) {

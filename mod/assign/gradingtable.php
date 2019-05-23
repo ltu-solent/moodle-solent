@@ -563,8 +563,10 @@ class assign_grading_table extends table_sql implements renderable {
         foreach ($extrauserfields as $extrafield) {
              $this->column_class($extrafield, $extrafield);
         }
-// SU_AMEND START - Grading table student no
+// SU_AMEND START - Assignment: Grading table student no
         $this->no_sorting('recordid');
+       //$this->no_sorting('idnumber');
+// SU_AMEND END
         $this->no_sorting('finalgrade');
         $this->no_sorting('userid');
         $this->no_sorting('select');
