@@ -252,7 +252,7 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
 // SSU_AMEND START - ADD UNIT START DATES TO PROFILE PAGE
                         // $courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false),
                                 // $linkattributes));
-            						$category = coursecat::get($mycourse->category, IGNORE_MISSING);
+            						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
             						$catname = strtolower('x'.$category->name);
 
             						if(strpos($catname, 'unit pages') !== false){
@@ -265,7 +265,7 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                     } else {
 // SSU_AMEND START - ADD UNIT START DATES TO PROFILE PAGE
                         //$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
-            						$category = coursecat::get($mycourse->category, IGNORE_MISSING);
+            						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
             						$catname = strtolower('x'.$category->name);
             						if(strpos($catname, 'unit pages') !== false){
             							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false) . " - Start date: " . date('d-m-Y', $mycourse->startdate));
