@@ -4346,7 +4346,7 @@ class settings_navigation extends navigation_node {
                 // Edit on the main course page.
                 $baseurl = new moodle_url('/course/view.php', array('id'=>$course->id, 'return'=>$this->page->url->out_as_local_url(false), 'sesskey'=>sesskey()));
             }
-
+//SSU_AMEND START Moved 'turn editing on' button to top of course settings list
             $editurl = clone($baseurl);
             if ($this->page->user_is_editing()) {
                 $editurl->param('edit', 'off');
@@ -4357,6 +4357,16 @@ class settings_navigation extends navigation_node {
             }
             $coursenode->add($editstring, $editurl, self::TYPE_SETTING, null, 'turneditingonoff', new pix_icon('i/edit', ''));
         }
+
+
+
+        if ($adminoptions->update) {
+            // Add the course settings link
+            $url = new moodle_url('/course/edit.php', array('id'=>$course->id));
+            $coursenode->add(get_string('editsettings'), $url, self::TYPE_SETTING, null, 'editsettings', new pix_icon('i/settings', ''));
+        }
+//SSU_AMEND END
+
 
         if ($adminoptions->editcompletion) {
             // Add the course completion settings link
