@@ -43,6 +43,6 @@ if($result_customurls){
 			</script>
 			<button onclick="goBack()">Go Back</button>';
 	echo $OUTPUT->footer ();
-	// SU_AMEND END
+// SU_AMEND END
 }
 ?>
