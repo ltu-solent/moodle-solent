@@ -594,15 +594,7 @@ class core_course_management_renderer extends plugin_renderer_base {
      */
     public function course_listitem(core_course_category $category, core_course_list_element $course, $selectedcourse) {
 
-      $text = $course->get_formatted_name();
-// SU_AMEND START - Add start date to manage categories page
-      //$category = core_course_category::get($course->category, IGNORE_MISSING);
-      $catname = strtolower('x'.$category->name);
-      if(strpos($catname, 'unit pages') !== false){
-        $text .= ' (' .date('d-m-Y',$course->startdate) .')';
-      }
-// SU_AMEND END
-
+        $text = $course->get_formatted_name();
         $attributes = array(
             'class' => 'listitem listitem-course',
             'data-id' => $course->id,
@@ -1186,14 +1178,7 @@ class core_course_management_renderer extends plugin_renderer_base {
      */
     public function search_listitem(core_course_list_element $course, $selectedcourse) {
 
-      $text = $course->get_formatted_name();
-// SU_AMEND START - Add start date to manage categories page
-      $category = core_course_category::get($course->category)->get_formatted_name();
-      $catname = strtolower('x'.$category->name);
-      if(strpos($catname, 'unit pages') !== false){
-        $text .= ' (' .date('d-m-Y',$course->startdate) .')';
-      }
-// SU_AMEND END
+        $text = $course->get_formatted_name();
         $attributes = array(
             'class' => 'listitem listitem-course',
             'data-id' => $course->id,
