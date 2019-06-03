@@ -50,13 +50,6 @@ class block_private_files extends block_base {
             return null;
         }
 
-// SU_AMEND START - Private files block
-// Prevent users without capability from viewing private files block
-		if (!has_capability('moodle/user:manageownfiles',context_SYSTEM::instance())){
-			return null;
-		}
-// SU_AMEND END
-
         $this->content = new stdClass();
         $this->content->text = '';
         $this->content->footer = '';
@@ -64,6 +57,12 @@ class block_private_files extends block_base {
             $this->content = new stdClass();
 
             //TODO: add capability check here!
+// SU_AMEND START - Private files block
+// Prevent users without capability from viewing private files block
+    		if (!has_capability('moodle/user:manageownfiles',context_course::instance($this->page->course->id))){
+    			return null;
+    		}
+// SU_AMEND END
 
             $renderer = $this->page->get_renderer('block_private_files');
             $this->content->text = $renderer->private_files_tree();
