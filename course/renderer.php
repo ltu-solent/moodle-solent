@@ -1130,22 +1130,18 @@ class core_course_renderer extends plugin_renderer_base {
                                             $coursename, array('class' => $course->visible ? '' : 'dimmed'));
         $content .= html_writer::tag($nametag, $coursenamelink, array('class' => 'coursename'));
 
-/** SU_AMEND START - Course start date / unit descriptors in search results
-* Add start date to search results and course pages.
+/** SU_AMEND START - Unit descriptor:  Search results
+* Add unit descriptor to search results.
 **/
     global $CFG;
 		$url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 		include_once($CFG->dirroot.'/local/search_unit_descriptor.php');
-		$descriptor = unit_descriptor($course);
 		$currentcategory = core_course_category::get($course->category)->get_formatted_name();
         if(isset($currentcategory)){
           $catname = strtolower('x'.$currentcategory);
       		if(strpos($catname, 'unit pages') !== false){
-    				if(strpos($url, '/course/search.php') == true){
+              $descriptor = unit_descriptor($course);
     					$content .= '<span class="solent_startdate_search">' . $descriptor . '</span>';
-    				}else{
-    					$content .= '<span class="solent_startdate_search">Unit runs from '.   date('d/m/Y',$course->startdate) .' - ' .  date('d/m/Y',$course->enddate) . '</span>' . $descriptor;
-    				}
       		}
         }
 // SU_AMEND END
