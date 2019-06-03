@@ -1,5 +1,5 @@
 <?php
-// SSU_AMEND START - UNIT DESCRIPTORS
+// SU_AMEND START - Unit descriptor: Main function - is this being used?
 function unit_descriptor($course){
 	global $CFG;
 	require_once('../config.php');

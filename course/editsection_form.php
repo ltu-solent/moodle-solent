@@ -23,7 +23,7 @@ class editsection_form extends moodleform {
         $sectioninfo = $this->_customdata['cs'];
 
         $mform->addElement('header', 'generalhdr', get_string('general'));
-// SU_AMEND START - Restrict tabs name length in units
+// SU_AMEND START - Course: Restrict section name length
         // $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
         //     'defaultvalue' => $this->_customdata['defaultsectionname'],
         //     'customvalue' => $sectioninfo->name,
@@ -47,7 +47,7 @@ class editsection_form extends moodleform {
           $mform->setDefault('name', false);
           $mform->addGroupRule('name', array('name' => array(array(get_string('maximumchars', '', 255), 'maxlength', 255))));
 
-// SU_AMEND START - Prevent first 5 section titles being edited
+// SU_AMEND START - Course: Prevent anyone except admins editing default section titles
     		if(strpos($catname, 'unit pages') !== false){
     			if(!is_siteadmin() && $section < 5){
     				$mform->addElement('hidden', 'unitpages', 1);

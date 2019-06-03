@@ -371,7 +371,7 @@ class backup_course_structure_step extends backup_structure_step {
         global $DB;
 
         // Define each element separated
-// SU_AMEND START - Prevent legacy files being backed up or imported
+// SU_AMEND START - Backup: Prevent legacy files being backed up or imported
         // $course = new backup_nested_element('course', array('id', 'contextid'), array(
             // 'shortname', 'fullname', 'idnumber',
             // 'summary', 'summaryformat', 'format', 'showgrades',
@@ -474,7 +474,7 @@ class backup_course_structure_step extends backup_structure_step {
 
         $course->annotate_files('course', 'summary', null);
         $course->annotate_files('course', 'overviewfiles', null);
-// SU_AMEND START - Prevent legacy files being backed up or imported
+// SU_AMEND START - Backup: Prevent legacy files being backed up or imported
         //$course->annotate_files('course', 'legacy', null);
 // SU_AMEND END
         // Return root element ($course)

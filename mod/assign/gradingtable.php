@@ -136,7 +136,7 @@ class assign_grading_table extends table_sql implements renderable {
 
         $fields = user_picture::fields('u', $extrauserfields) . ', ';
         $fields .= 'u.id as userid, ';
-// SU_AMEND START - Grading table student no
+// SU_AMEND START - Assignment: Grading table student no
 		$fields .= 'u.idnumber, ';
 // SU_AMEND END
         $fields .= 's.status as status, ';
@@ -341,7 +341,7 @@ class assign_grading_table extends table_sql implements renderable {
                 $columns[] = 'picture';
                 $headers[] = get_string('pictureofuser');
             } else {
-// SU_AMEND START - Grading table student no
+// SU_AMEND START - Assignment: Grading table student no
 				//$columns[] = 'recordid';
 				//$headers[] = get_string('recordid', 'assign');
 				$columns[] = 'idnumber';
@@ -356,7 +356,7 @@ class assign_grading_table extends table_sql implements renderable {
             // Participant # details if can view real identities.
             if ($this->assignment->is_blind_marking()) {
                 if (!$this->is_downloading()) {
-// SU_AMEND START - Grading table student no
+// SU_AMEND START - Assignment: Grading table student no
                     //$columns[] = 'recordid';
                     //$headers[] = get_string('recordid', 'assign');
 					$columns[] = 'idnumber';
@@ -371,7 +371,7 @@ class assign_grading_table extends table_sql implements renderable {
             }
         } else {
             // Record ID.
-// SU_AMEND START - Grading table student no
+// SU_AMEND START - Assignment: Grading table student no
             //$columns[] = 'recordid';
             //$headers[] = get_string('recordid', 'assign');
 			$columns[] = 'idnumber';
@@ -519,7 +519,7 @@ class assign_grading_table extends table_sql implements renderable {
         foreach ($extrauserfields as $extrafield) {
              $this->column_class($extrafield, $extrafield);
         }
-// SU_AMEND START - Grading table student no
+// SU_AMEND START - Assignment: Grading table student no
         $this->no_sorting('recordid');
        //$this->no_sorting('idnumber');
 // SU_AMEND END

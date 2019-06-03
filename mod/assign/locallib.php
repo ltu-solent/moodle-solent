@@ -1547,7 +1547,7 @@ class assign {
         }
         $group->setElements($feedbackpluginsenabled);
         $mform->setExpanded('submissiontypes');
-// SU_AMEND START - Expand submission types in assignment settings
+// SU_AMEND START - Assignment: Expand submission types in settings
         $mform->setExpanded('feedbacktypes');
 // SU_AMEND END
     }
@@ -6111,7 +6111,7 @@ class assign {
         $info->assignment = format_string($assignmentname, true, array('context'=>$context));
         $info->url = $CFG->wwwroot.'/mod/assign/view.php?id='.$coursemodule->id;
         $info->timeupdated = userdate($updatetime, get_string('strftimerecentfull'));
-// SU_AMEND START - Add seconds to submission date
+// SU_AMEND START - Assignment: Add seconds to submission date email
         $info->timeupdatedfull = userdate($updatetime, '%d %B %Y, %I:%M:%S %p');
 // SU_AMEND END
 

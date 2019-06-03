@@ -739,7 +739,7 @@ class core_backup_renderer extends plugin_renderer_base {
         $table->head = array('', get_string('shortnamecourse'), get_string('fullnamecourse'));
         $table->data = array();
         foreach ($component->get_results() as $course) {
-// SU_AMEND START - Start date for course import
+// SU_AMEND START - Unit start date: Course import
   			$getcourse = get_course($course->id);
   			$category = core_course_category::get($course->category)->get_formatted_name();
         if(isset($category)){
@@ -760,7 +760,7 @@ class core_backup_renderer extends plugin_renderer_base {
             $row->cells = array(
                 html_writer::empty_tag('input', array('type' => 'radio', 'name' => 'importid', 'value' => $course->id)),
                 format_string($course->shortname, true, array('context' => context_course::instance($course->id))),
-// SU_AMEND START - Start date for course import
+// SU_AMEND START - Unit start date: Course import
                 //format_string($course->fullname, true, array('context' => context_course::instance($course->id)))
                 format_string($course->fullname . $startdate, true, array('context' => context_course::instance($course->id)))
 // SU_AMEND END

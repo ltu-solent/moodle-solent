@@ -334,7 +334,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
         if ($section->section) {
             $url = clone($baseurl);
             if (!$isstealth) {
-//SSU_AMEND START - ﻿Prevent anyone except admins hiding default sections
+//SSU_AMEND START - Course: Prevent anyone except admins hiding default sections
             global $CFG;
             $category = core_course_category::get($course->category, IGNORE_MISSING);
             $catname = strtolower('x'.$category->name);
@@ -420,7 +420,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
                     }
                 }
             }
-// SU_AMEND START - Prevent anyone except admins deleting default sections
+// SU_AMEND START - Course: Prevent anyone except admins deleting default sections
             global $CFG;
             $category = core_course_category::get($course->category, IGNORE_MISSING);
             $catname = strtolower('x'.$category->name);

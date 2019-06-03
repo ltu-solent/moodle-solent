@@ -852,7 +852,7 @@ class mod_assign_renderer extends plugin_renderer_base {
             $t->data[] = $row;
         }
 
-// SU_AMEND START - Cut off date/time remaining in submission status
+// SU_AMEND START - Assignment: Cut off date/time remaining in submission status
 			if($status->view == assign_submission_status::STUDENT_VIEW){
 				$cutoffdate = 0;
 					$cutoffdate = $status->cutoffdate;
@@ -943,14 +943,14 @@ class mod_assign_renderer extends plugin_renderer_base {
                 if (!$submission || $submission->status == ASSIGN_SUBMISSION_STATUS_NEW) {
                     $o .= $this->output->box_start('generalbox submissionaction');
                     $urlparams = array('id' => $status->coursemoduleid, 'action' => 'editsubmission');
-// SU_AMEND START - Assign help string position (add)
+// SU_AMEND START - Assignment: Submission help string position (add)
           					//New string position
           					$o .= get_string('editsubmission_help', 'assign');
 // SU_AMEND END
                     $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                        get_string('addsubmission', 'assign'), 'get');
                     $o .= $this->output->box_start('boxaligncenter submithelp');
-// SU_AMEND START - Assign help string position (add)
+// SU_AMEND START - Assignment: Submission help string position (add)
                     // Old help string positions
                     //$o .= get_string('addsubmission_help', 'assign');
 // SU_AMEND END
@@ -977,7 +977,7 @@ class mod_assign_renderer extends plugin_renderer_base {
                 } else {
                     $o .= $this->output->box_start('generalbox submissionaction');
                     $urlparams = array('id' => $status->coursemoduleid, 'action' => 'editsubmission');
-// SU_AMEND START - Assign help string position (edit)
+// SU_AMEND START - Assignment: Submission help string position (edit)
                     //New string position
                     global $DB;
           					$file = $DB->get_record_sql("SELECT cm.instance
@@ -996,7 +996,7 @@ class mod_assign_renderer extends plugin_renderer_base {
                     $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                        get_string('editsubmission', 'assign'), 'get');
                     $o .= $this->output->box_start('boxaligncenter submithelp');
-// SU_AMEND START - Assign help string position (edit)
+// SU_AMEND START - Assignment: Submission help string position (edit)
                     // Old string position
                     // $o .= $this->output->box_start('boxaligncenter submithelp');
                     // $o .= get_string('editsubmission_help', 'assign');
@@ -1009,7 +1009,7 @@ class mod_assign_renderer extends plugin_renderer_base {
             if ($status->cansubmit) {
                 $urlparams = array('id' => $status->coursemoduleid, 'action'=>'submit');
                 $o .= $this->output->box_start('generalbox submissionaction');
-// SU_AMEND START - Assign help string position (submit)
+// SU_AMEND START - Assignment: Submission help string position (submit)
         				//New string position
         				if($file){
                   $o .= $this->output->box_start('boxaligncenter submithelp');
@@ -1020,7 +1020,7 @@ class mod_assign_renderer extends plugin_renderer_base {
                 $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                    get_string('submitassignment', 'assign'), 'get');
                 $o .= $this->output->box_start('boxaligncenter submithelp');
-// SU_AMEND START - Assign help string position (submit)
+// SU_AMEND START - Assignment: Submission help string position (submit)
                 // Old string position
                 // $o .= $this->output->box_start('boxaligncenter submithelp');
                 // $o .= get_string('submitassignment_help', 'assign');
