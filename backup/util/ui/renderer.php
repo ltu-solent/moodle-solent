@@ -740,17 +740,19 @@ class core_backup_renderer extends plugin_renderer_base {
         $table->data = array();
         foreach ($component->get_results() as $course) {
 // SU_AMEND START - Unit start date: Course import
-  			$getcourse = get_course($course->id);
-  			$category = core_course_category::get($course->category)->get_formatted_name();
-        if(isset($category)){
-        	$catname = strtolower('x'.$category);
-        }
+        global $DB;
+        $category = $DB->get_record_sql('SELECT cc.name FROM {course_categories} cc JOIN {course} c ON c.category = cc.id WHERE c.id = ?', array($course->id));
+        $getcourse = get_course($course->id);
 
-  			if(strpos($catname, 'unit pages') !== false){
-  				$startdate = ' - Start date: ' . date('d-m-Y', $getcourse->startdate);
-  			}else{
-  				$startdate = '';
-  			}
+        if(isset($category)){
+        	$catname = strtolower('x'.$category->name);
+
+          if(strpos($catname, 'unit pages') !== false){
+    				$startdate = ' - Start date: ' . date('d-m-Y', $getcourse->startdate);
+    			}else{
+    				$startdate = '';
+    			}
+        }
 // SU_AMEND END
             $row = new html_table_row();
             $row->attributes['class'] = 'ics-course';
