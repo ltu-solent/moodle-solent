@@ -303,28 +303,58 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
         if ($section->section) {
             $url = clone($baseurl);
             if (!$isstealth) {
-                if (has_capability('moodle/course:sectionvisibility', $coursecontext)) {
-                    if ($section->visible) { // Show the hide/show eye.
-                        $strhidefromothers = get_string('hidefromothers', 'format_'.$course->format);
-                        $url->param('hide', $section->section);
-                        $controls['visiblity'] = array(
-                            'url' => $url,
-                            'icon' => 'i/hide',
-                            'name' => $strhidefromothers,
-                            'pixattr' => array('class' => ''),
-                            'attr' => array('class' => 'icon editing_showhide',
-                                'data-sectionreturn' => $sectionreturn, 'data-action' => 'hide'));
-                    } else {
-                        $strshowfromothers = get_string('showfromothers', 'format_'.$course->format);
-                        $url->param('show',  $section->section);
-                        $controls['visiblity'] = array(
-                            'url' => $url,
-                            'icon' => 'i/show',
-                            'name' => $strshowfromothers,
-                            'pixattr' => array('class' => ''),
-                            'attr' => array('class' => 'icon editing_showhide',
-                                'data-sectionreturn' => $sectionreturn, 'data-action' => 'show'));
-                    }
+// SU_AMEND START - Course: Prevent anyone except admins hiding default sections
+            global $CFG;
+            $category = core_course_category::get($course->category, IGNORE_MISSING);
+            $catname = strtolower('x'.$category->name);
+            if((strpos($catname, 'unit pages') !== false &&  $section->section > 4) || is_siteadmin()){
+                      if (has_capability('moodle/course:sectionvisibility', $coursecontext)) {
+                          if ($section->visible) { // Show the hide/show eye.
+                              $strhidefromothers = get_string('hidefromothers', 'format_'.$course->format);
+                              $url->param('hide', $section->section);
+                              $controls['visiblity'] = array(
+                                  'url' => $url,
+                                  'icon' => 'i/hide',
+                                  'name' => $strhidefromothers,
+                                  'pixattr' => array('class' => '', 'alt' => $strhidefromothers),
+                                  'attr' => array('class' => 'icon editing_showhide', 'title' => $strhidefromothers,
+                                      'data-sectionreturn' => $sectionreturn, 'data-action' => 'hide'));
+                          } else {
+                              $strshowfromothers = get_string('showfromothers', 'format_'.$course->format);
+                              $url->param('show',  $section->section);
+                              $controls['visiblity'] = array(
+                                  'url' => $url,
+                                  'icon' => 'i/show',
+                                  'name' => $strshowfromothers,
+                                  'pixattr' => array('class' => '', 'alt' => $strshowfromothers),
+                                  'attr' => array('class' => 'icon editing_showhide', 'title' => $strshowfromothers,
+                                      'data-sectionreturn' => $sectionreturn, 'data-action' => 'show'));
+                          }
+                      }
+                }else if (strpos($catname, 'unit pages') === false){
+                      if (has_capability('moodle/course:sectionvisibility', $coursecontext)) {
+                          if ($section->visible) { // Show the hide/show eye.
+                              $strhidefromothers = get_string('hidefromothers', 'format_'.$course->format);
+                              $url->param('hide', $section->section);
+                              $controls['visiblity'] = array(
+                                  'url' => $url,
+                                  'icon' => 'i/hide',
+                                  'name' => $strhidefromothers,
+                                  'pixattr' => array('class' => '', 'alt' => $strhidefromothers),
+                                  'attr' => array('class' => 'icon editing_showhide', 'title' => $strhidefromothers,
+                                      'data-sectionreturn' => $sectionreturn, 'data-action' => 'hide'));
+                          } else {
+                              $strshowfromothers = get_string('showfromothers', 'format_'.$course->format);
+                              $url->param('show',  $section->section);
+                              $controls['visiblity'] = array(
+                                  'url' => $url,
+                                  'icon' => 'i/show',
+                                  'name' => $strshowfromothers,
+                                  'pixattr' => array('class' => '', 'alt' => $strshowfromothers),
+                                  'attr' => array('class' => 'icon editing_showhide', 'title' => $strshowfromothers,
+                                      'data-sectionreturn' => $sectionreturn, 'data-action' => 'show'));
+                          }
+                      }
                 }
 
                 if (!$onsectionpage) {
