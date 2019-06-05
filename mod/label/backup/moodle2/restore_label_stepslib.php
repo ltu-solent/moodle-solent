@@ -49,10 +49,10 @@ class restore_label_activity_structure_step extends restore_activity_structure_s
 
         // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
         // See MDL-9367.
-//SU_AMEND START - Backup: Remove styling from user HTML on import
-      $data->intro = strip_tags($data->intro, '<p><br><ul><ol><li>');
-      $data->intro = preg_replace('/(<[^>]*) style=("[^"]+"|\'[^\']+\')([^>]*>)/i', '$1$3', $data->intro);
-//SU_AMEND END
+// SU_AMEND START - Backup: Remove styling from user HTML on import
+      // $data->intro = strip_tags($data->intro, '<p><br><ul><ol><li><i>');
+      // $data->intro = preg_replace('/(<[^>]*) style=("[^"]+"|\'[^\']+\')([^>]*>)/i', '$1$3', $data->intro);
+// SU_AMEND END
         // insert the label record
         $newitemid = $DB->insert_record('label', $data);
         // immediately after inserting "activity" record, call this

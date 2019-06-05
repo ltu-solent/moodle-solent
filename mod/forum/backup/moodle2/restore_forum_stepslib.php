@@ -67,10 +67,10 @@ class restore_forum_activity_structure_step extends restore_activity_structure_s
         if ($data->scale < 0) { // scale found, get mapping
             $data->scale = -($this->get_mappingid('scale', abs($data->scale)));
         }
-//SU_AMEND START - Backup: Remove styling from user HTML on import
-        $data->intro = strip_tags($data->intro, '<p><br><ul><ol><li>'); //Remove all HTML tags execpt those specified
-        $data->intro = preg_replace('/(<[^>]*) style=("[^"]+"|\'[^\']+\')([^>]*>)/i', '$1$3', $data->intro); //Remove extra styling
-//SU_AMEND END
+// SU_AMEND START - Backup: Remove styling from user HTML on import
+        // $data->intro = strip_tags($data->intro, '<p><br><ul><ol><li>'); //Remove all HTML tags execpt those specified
+        // $data->intro = preg_replace('/(<[^>]*) style=("[^"]+"|\'[^\']+\')([^>]*>)/i', '$1$3', $data->intro); //Remove extra styling
+// SU_AMEND END
         $newitemid = $DB->insert_record('forum', $data);
         $this->apply_activity_instance($newitemid);
 
