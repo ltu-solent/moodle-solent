@@ -4327,13 +4327,10 @@ class settings_navigation extends navigation_node {
         if ($forceopen) {
             $coursenode->force_open();
         }
+//SU_AMEND START Changes to options on course settings dropdown menu
 
-
-        if ($adminoptions->update) {
-            // Add the course settings link
-            $url = new moodle_url('/course/edit.php', array('id'=>$course->id));
-            $coursenode->add(get_string('editsettings'), $url, self::TYPE_SETTING, null, 'editsettings', new pix_icon('i/settings', ''));
-        }
+      if ($this->page->url->compare(new moodle_url('/course/admin.php'), URL_MATCH_BASE)) {
+        //if we are trying to view all settings, show all the settings
 
         if ($this->page->user_allowed_editing()) {
             // Add the turn on/off settings
@@ -4347,6 +4344,179 @@ class settings_navigation extends navigation_node {
                 $baseurl = new moodle_url('/course/view.php', array('id'=>$course->id, 'return'=>$this->page->url->out_as_local_url(false), 'sesskey'=>sesskey()));
             }
 
+
+            if ($adminoptions->update) {
+                // Add the course settings link
+                $url = new moodle_url('/course/edit.php', array('id'=>$course->id));
+                $coursenode->add(get_string('editsettings'), $url, self::TYPE_SETTING, null, 'editsettings', new pix_icon('i/settings', ''));
+            }
+
+                $editurl = clone($baseurl);
+                if ($this->page->user_is_editing()) {
+                    $editurl->param('edit', 'off');
+                    $editstring = get_string('turneditingoff');
+                } else {
+                    $editurl->param('edit', 'on');
+                    $editstring = get_string('turneditingon');
+                }
+                $coursenode->add($editstring, $editurl, self::TYPE_SETTING, null, 'turneditingonoff', new pix_icon('i/edit', ''));
+            }
+
+
+            if ($adminoptions->editcompletion) {
+                // Add the course completion settings link
+                $url = new moodle_url('/course/completion.php', array('id' => $course->id));
+                $coursenode->add(get_string('coursecompletion', 'completion'), $url, self::TYPE_SETTING, null, null,
+                                 new pix_icon('i/settings', ''));
+            }
+
+            if (!$adminoptions->update && $adminoptions->tags) {
+                $url = new moodle_url('/course/tags.php', array('id' => $course->id));
+                $coursenode->add(get_string('coursetags', 'tag'), $url, self::TYPE_SETTING, null, 'coursetags', new pix_icon('i/settings', ''));
+            }
+
+            // add enrol nodes
+            enrol_add_course_navigation($coursenode, $course);
+
+            // Manage filters
+            if ($adminoptions->filters) {
+                $url = new moodle_url('/filter/manage.php', array('contextid'=>$coursecontext->id));
+                $coursenode->add(get_string('filters', 'admin'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/filter', ''));
+            }
+
+            // View course reports.
+            if ($adminoptions->reports) {
+                $reportnav = $coursenode->add(get_string('reports'), null, self::TYPE_CONTAINER, null, 'coursereports',
+                        new pix_icon('i/stats', ''));
+                $coursereports = core_component::get_plugin_list('coursereport');
+                foreach ($coursereports as $report => $dir) {
+                    $libfile = $CFG->dirroot.'/course/report/'.$report.'/lib.php';
+                    if (file_exists($libfile)) {
+                        require_once($libfile);
+                        $reportfunction = $report.'_report_extend_navigation';
+                        if (function_exists($report.'_report_extend_navigation')) {
+                            $reportfunction($reportnav, $course, $coursecontext);
+                        }
+                    }
+                }
+
+                $reports = get_plugin_list_with_function('report', 'extend_navigation_course', 'lib.php');
+                foreach ($reports as $reportfunction) {
+                    $reportfunction($reportnav, $course, $coursecontext);
+                }
+            }
+
+            // Check if we can view the gradebook's setup page.
+            if ($adminoptions->gradebook) {
+                $url = new moodle_url('/grade/edit/tree/index.php', array('id' => $course->id));
+                $coursenode->add(get_string('gradebooksetup', 'grades'), $url, self::TYPE_SETTING,
+                    null, 'gradebooksetup', new pix_icon('i/settings', ''));
+            }
+
+            // Add the context locking node.
+            $this->add_context_locking_node($coursenode, $coursecontext);
+
+            //  Add outcome if permitted
+            if ($adminoptions->outcomes) {
+                $url = new moodle_url('/grade/edit/outcome/course.php', array('id'=>$course->id));
+                $coursenode->add(get_string('outcomes', 'grades'), $url, self::TYPE_SETTING, null, 'outcomes', new pix_icon('i/outcomes', ''));
+            }
+
+            //Add badges navigation
+            if ($adminoptions->badges) {
+                require_once($CFG->libdir .'/badgeslib.php');
+                badges_add_course_navigation($coursenode, $course);
+            }
+
+            // Backup this course
+            if ($adminoptions->backup) {
+                $url = new moodle_url('/backup/backup.php', array('id'=>$course->id));
+                $coursenode->add(get_string('backup'), $url, self::TYPE_SETTING, null, 'backup', new pix_icon('i/backup', ''));
+            }
+
+            // Restore to this course
+            if ($adminoptions->restore) {
+                $url = new moodle_url('/backup/restorefile.php', array('contextid'=>$coursecontext->id));
+                $coursenode->add(get_string('restore'), $url, self::TYPE_SETTING, null, 'restore', new pix_icon('i/restore', ''));
+            }
+
+            // Import data from other courses
+            if ($adminoptions->import) {
+                $url = new moodle_url('/backup/import.php', array('id'=>$course->id));
+                $coursenode->add(get_string('import'), $url, self::TYPE_SETTING, null, 'import', new pix_icon('i/import', ''));
+            }
+
+            // Publish course on a hub
+            if ($adminoptions->publish) {
+                $url = new moodle_url('/course/publish/index.php', array('id'=>$course->id));
+                $coursenode->add(get_string('publish', 'core_hub'), $url, self::TYPE_SETTING, null, 'publish',
+                    new pix_icon('i/publish', ''));
+            }
+
+            // Reset this course
+            if ($adminoptions->reset) {
+                $url = new moodle_url('/course/reset.php', array('id'=>$course->id));
+                $coursenode->add(get_string('reset'), $url, self::TYPE_SETTING, null, 'reset', new pix_icon('i/return', ''));
+            }
+
+            // Questions
+            require_once($CFG->libdir . '/questionlib.php');
+            question_extend_settings_navigation($coursenode, $coursecontext)->trim_if_empty();
+
+            if ($adminoptions->update) {
+                // Repository Instances
+                if (!$this->cache->cached('contexthasrepos'.$coursecontext->id)) {
+                    require_once($CFG->dirroot . '/repository/lib.php');
+                    $editabletypes = repository::get_editable_types($coursecontext);
+                    $haseditabletypes = !empty($editabletypes);
+                    unset($editabletypes);
+                    $this->cache->set('contexthasrepos'.$coursecontext->id, $haseditabletypes);
+                } else {
+                    $haseditabletypes = $this->cache->{'contexthasrepos'.$coursecontext->id};
+                }
+                if ($haseditabletypes) {
+                    $url = new moodle_url('/repository/manage_instances.php', array('contextid' => $coursecontext->id));
+                    $coursenode->add(get_string('repositories'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/repository', ''));
+                }
+            }
+
+            // Manage files
+            if ($adminoptions->files) {
+                // hidden in new courses and courses where legacy files were turned off
+                $url = new moodle_url('/files/index.php', array('contextid'=>$coursecontext->id));
+                $coursenode->add(get_string('courselegacyfiles'), $url, self::TYPE_SETTING, null, 'coursefiles', new pix_icon('i/folder', ''));
+
+            }
+
+            // Let plugins hook into course navigation.
+            $pluginsfunction = get_plugins_with_function('extend_navigation_course', 'lib.php');
+            foreach ($pluginsfunction as $plugintype => $plugins) {
+                // Ignore the report plugin as it was already loaded above.
+                if ($plugintype == 'report') {
+                    continue;
+                }
+                foreach ($plugins as $pluginfunction) {
+                    $pluginfunction($coursenode, $course, $coursecontext);
+                }
+            }
+
+            // Return we are done
+            return $coursenode;
+
+      } else {
+        //else, this is a course settings dropdown menu, limit the options
+
+      if ($this->page->user_allowed_editing()) {
+          // Add the turn on/off settings
+
+          if ($this->page->url->compare(new moodle_url('/course/view.php'), URL_MATCH_BASE)) {
+              // We are on the course page, retain the current page params e.g. section.
+              $baseurl = clone($this->page->url);
+              $baseurl->param('sesskey', sesskey());
+          } else {
+              // Edit on the main course page.
+              $baseurl = new moodle_url('/course/view.php', array('id'=>$course->id, 'return'=>$this->page->url->out_as_local_url(false), 'sesskey'=>sesskey()));
+          }
             $editurl = clone($baseurl);
             if ($this->page->user_is_editing()) {
                 $editurl->param('edit', 'off');
@@ -4358,47 +4528,47 @@ class settings_navigation extends navigation_node {
             $coursenode->add($editstring, $editurl, self::TYPE_SETTING, null, 'turneditingonoff', new pix_icon('i/edit', ''));
         }
 
-        if ($adminoptions->editcompletion) {
-            // Add the course completion settings link
-            $url = new moodle_url('/course/completion.php', array('id' => $course->id));
-            $coursenode->add(get_string('coursecompletion', 'completion'), $url, self::TYPE_SETTING, null, null,
-                             new pix_icon('i/settings', ''));
+        if ($adminoptions->update) {
+            // Add the course settings link
+            $url = new moodle_url('/group/index.php', array('id'=>$course->id));
+            $coursenode->add(get_string('groups'), $url, self::TYPE_SETTING, null, 'groups', new pix_icon('i/users', ''));
         }
 
-        if (!$adminoptions->update && $adminoptions->tags) {
-            $url = new moodle_url('/course/tags.php', array('id' => $course->id));
-            $coursenode->add(get_string('coursetags', 'tag'), $url, self::TYPE_SETTING, null, 'coursetags', new pix_icon('i/settings', ''));
+        if ($adminoptions->update) {
+            // Add the course settings link
+            $url = new moodle_url('/question/edit.php', array('courseid'=>$course->id));
+            $coursenode->add('Question bank', $url, self::TYPE_SETTING, null, 'questionbank', new pix_icon('i/db', ''));
         }
 
-        // add enrol nodes
-        enrol_add_course_navigation($coursenode, $course);
-
-        // Manage filters
-        if ($adminoptions->filters) {
-            $url = new moodle_url('/filter/manage.php', array('contextid'=>$coursecontext->id));
-            $coursenode->add(get_string('filters', 'admin'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/filter', ''));
-        }
-
-        // View course reports.
         if ($adminoptions->reports) {
-            $reportnav = $coursenode->add(get_string('reports'), null, self::TYPE_CONTAINER, null, 'coursereports',
-                    new pix_icon('i/stats', ''));
-            $coursereports = core_component::get_plugin_list('coursereport');
-            foreach ($coursereports as $report => $dir) {
-                $libfile = $CFG->dirroot.'/course/report/'.$report.'/lib.php';
-                if (file_exists($libfile)) {
-                    require_once($libfile);
-                    $reportfunction = $report.'_report_extend_navigation';
-                    if (function_exists($report.'_report_extend_navigation')) {
-                        $reportfunction($reportnav, $course, $coursecontext);
-                    }
-                }
-            }
+            // Add the course settings link
+            $url = new moodle_url('/report/log/index.php', array('courseid'=>$course->id));
+            $coursenode->add(get_string('logs'), $url, self::TYPE_SETTING, null, 'logs', new pix_icon('i/folder', ''));
+        }
 
-            $reports = get_plugin_list_with_function('report', 'extend_navigation_course', 'lib.php');
-            foreach ($reports as $reportfunction) {
-                $reportfunction($reportnav, $course, $coursecontext);
-            }
+        if ($adminoptions->reports) {
+            // Add the course settings link
+            $url = new moodle_url('/report/grade/index.php', array('id'=>$course->id));
+            $coursenode->add('Grade report', $url, self::TYPE_SETTING, null, 'gradereport', new pix_icon('i/grades', ''));
+        }
+
+        if ($adminoptions->update) {
+            // Add the recycle bin link
+            $context = context_course::instance($course->id);
+            $url = new moodle_url('/admin/tool/recyclebin/index.php', array('contextid'=>$context->id));
+            $coursenode->add('Recycle bin', $url, self::TYPE_SETTING, null, 'recyclebin', new pix_icon('i/trash', ''));
+        }
+
+        // Import data from other courses
+        if ($adminoptions->import) {
+            $url = new moodle_url('/backup/import.php', array('id'=>$course->id));
+            $coursenode->add(get_string('import'), $url, self::TYPE_SETTING, null, 'import', new pix_icon('i/import', ''));
+        }
+
+        if ($adminoptions->update) {
+            // Add the course settings link
+            $url = new moodle_url('/course/edit.php', array('id'=>$course->id));
+            $coursenode->add(get_string('editsettings'), $url, self::TYPE_SETTING, null, 'editsettings', new pix_icon('i/settings', ''));
         }
 
         // Check if we can view the gradebook's setup page.
@@ -4408,96 +4578,16 @@ class settings_navigation extends navigation_node {
                 null, 'gradebooksetup', new pix_icon('i/settings', ''));
         }
 
-        // Add the context locking node.
-        $this->add_context_locking_node($coursenode, $coursecontext);
-
-        //  Add outcome if permitted
-        if ($adminoptions->outcomes) {
-            $url = new moodle_url('/grade/edit/outcome/course.php', array('id'=>$course->id));
-            $coursenode->add(get_string('outcomes', 'grades'), $url, self::TYPE_SETTING, null, 'outcomes', new pix_icon('i/outcomes', ''));
-        }
-
-        //Add badges navigation
-        if ($adminoptions->badges) {
-            require_once($CFG->libdir .'/badgeslib.php');
-            badges_add_course_navigation($coursenode, $course);
-        }
-
-        // Backup this course
-        if ($adminoptions->backup) {
-            $url = new moodle_url('/backup/backup.php', array('id'=>$course->id));
-            $coursenode->add(get_string('backup'), $url, self::TYPE_SETTING, null, 'backup', new pix_icon('i/backup', ''));
-        }
-
-        // Restore to this course
-        if ($adminoptions->restore) {
-            $url = new moodle_url('/backup/restorefile.php', array('contextid'=>$coursecontext->id));
-            $coursenode->add(get_string('restore'), $url, self::TYPE_SETTING, null, 'restore', new pix_icon('i/restore', ''));
-        }
-
-        // Import data from other courses
-        if ($adminoptions->import) {
-            $url = new moodle_url('/backup/import.php', array('id'=>$course->id));
-            $coursenode->add(get_string('import'), $url, self::TYPE_SETTING, null, 'import', new pix_icon('i/import', ''));
-        }
-
-        // Publish course on a hub
-        if ($adminoptions->publish) {
-            $url = new moodle_url('/course/publish/index.php', array('id'=>$course->id));
-            $coursenode->add(get_string('publish', 'core_hub'), $url, self::TYPE_SETTING, null, 'publish',
-                new pix_icon('i/publish', ''));
-        }
-
-        // Reset this course
-        if ($adminoptions->reset) {
-            $url = new moodle_url('/course/reset.php', array('id'=>$course->id));
-            $coursenode->add(get_string('reset'), $url, self::TYPE_SETTING, null, 'reset', new pix_icon('i/return', ''));
-        }
-
-        // Questions
-        require_once($CFG->libdir . '/questionlib.php');
-        question_extend_settings_navigation($coursenode, $coursecontext)->trim_if_empty();
-
-        if ($adminoptions->update) {
-            // Repository Instances
-            if (!$this->cache->cached('contexthasrepos'.$coursecontext->id)) {
-                require_once($CFG->dirroot . '/repository/lib.php');
-                $editabletypes = repository::get_editable_types($coursecontext);
-                $haseditabletypes = !empty($editabletypes);
-                unset($editabletypes);
-                $this->cache->set('contexthasrepos'.$coursecontext->id, $haseditabletypes);
-            } else {
-                $haseditabletypes = $this->cache->{'contexthasrepos'.$coursecontext->id};
-            }
-            if ($haseditabletypes) {
-                $url = new moodle_url('/repository/manage_instances.php', array('contextid' => $coursecontext->id));
-                $coursenode->add(get_string('repositories'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/repository', ''));
-            }
-        }
-
-        // Manage files
-        if ($adminoptions->files) {
-            // hidden in new courses and courses where legacy files were turned off
-            $url = new moodle_url('/files/index.php', array('contextid'=>$coursecontext->id));
-            $coursenode->add(get_string('courselegacyfiles'), $url, self::TYPE_SETTING, null, 'coursefiles', new pix_icon('i/folder', ''));
-
-        }
-
-        // Let plugins hook into course navigation.
-        $pluginsfunction = get_plugins_with_function('extend_navigation_course', 'lib.php');
-        foreach ($pluginsfunction as $plugintype => $plugins) {
-            // Ignore the report plugin as it was already loaded above.
-            if ($plugintype == 'report') {
-                continue;
-            }
-            foreach ($plugins as $pluginfunction) {
-                $pluginfunction($coursenode, $course, $coursecontext);
-            }
+        if (has_capability('moodle/course:enrolreview', $coursecontext)) {
+        // Check we can add a groups link
+        enrol_add_course_navigation($coursenode, $course);
         }
 
         // Return we are done
         return $coursenode;
-    }
+        }
+      }
+//SU_AMEND END
 
     /**
      * This function calls the module function to inject module settings into the
