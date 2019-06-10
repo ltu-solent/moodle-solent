@@ -4327,7 +4327,7 @@ class settings_navigation extends navigation_node {
         if ($forceopen) {
             $coursenode->force_open();
         }
-//SU_AMEND START Changes to options on course settings dropdown menu
+// SU_AMEND START - Changes to options on course settings dropdown menu
 
       if ($this->page->url->compare(new moodle_url('/course/admin.php'), URL_MATCH_BASE)) {
         //if we are trying to view all settings, show all the settings
@@ -4350,7 +4350,7 @@ class settings_navigation extends navigation_node {
                 $url = new moodle_url('/course/edit.php', array('id'=>$course->id));
                 $coursenode->add(get_string('editsettings'), $url, self::TYPE_SETTING, null, 'editsettings', new pix_icon('i/settings', ''));
             }
-
+//SU_AMEND END
                 $editurl = clone($baseurl);
                 if ($this->page->user_is_editing()) {
                     $editurl->param('edit', 'off');
