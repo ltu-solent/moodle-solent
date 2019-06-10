@@ -210,8 +210,11 @@ class course_summary_exporter extends \core\external\exporter {
      */
     public static function coursecolor($courseid) {
         // The colour palette is hardcoded for now. It would make sense to combine it with theme settings.
-        $basecolors = ['#81ecec', '#74b9ff', '#a29bfe', '#dfe6e9', '#00b894',
-            '#0984e3', '#b2bec3', '#fdcb6e', '#fd79a8', '#6c5ce7'];
+// SSU_AMEND START - SSU course block colours
+        // $basecolors = ['#81ecec', '#74b9ff', '#a29bfe', '#dfe6e9', '#00b894',
+        //     '#0984e3', '#b2bec3', '#fdcb6e', '#fd79a8', '#6c5ce7'];
+        $basecolors = ['#cfcc38', '#466273', '#71a3a7', '#9bae4d', '#575757', '#763978', '#00aaaf', '#008fbd', '#836d69', '#e16766'];
+// SSU_AMEND END
 
         $color = $basecolors[$courseid % 10];
         return $color;
