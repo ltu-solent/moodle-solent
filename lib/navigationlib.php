@@ -4552,11 +4552,16 @@ class settings_navigation extends navigation_node {
             $coursenode->add('Grade report', $url, self::TYPE_SETTING, null, 'gradereport', new pix_icon('i/grades', ''));
         }
 
-        if ($adminoptions->update) {
-            // Add the recycle bin link
-            $context = context_course::instance($course->id);
-            $url = new moodle_url('/admin/tool/recyclebin/index.php', array('contextid'=>$context->id));
-            $coursenode->add('Recycle bin', $url, self::TYPE_SETTING, null, 'recyclebin', new pix_icon('i/trash', ''));
+        // Let plugins hook into course navigation.
+        $pluginsfunction = get_plugins_with_function('extend_navigation_course', 'lib.php');
+        foreach ($pluginsfunction as $plugintype => $plugins) {
+            // Only load tool plugins
+            if ($plugintype !== 'tool') {
+                continue;
+            }
+            foreach ($plugins as $pluginfunction) {
+                $pluginfunction($coursenode, $course, $coursecontext);
+            }
         }
 
         // Import data from other courses
