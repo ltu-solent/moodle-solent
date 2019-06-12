@@ -371,6 +371,19 @@ function(
         }
 
         if (coursesData.courses.length) {
+//SU_AMEND START Add data for adding formatted start and end dates to courses on myoverview
+          if (!coursesData.courses[0].formattedstartdate) { //if the course dates haven't yet been converted to a human readable format, do so
+            var startdate = new Date(coursesData.courses[0].startdate*1000);
+            coursesData.courses[0].formattedstartdate = startdate.toLocaleDateString();
+            var enddate = new Date(coursesData.courses[0].enddate*1000);
+            coursesData.courses[0].formattedenddate = enddate.toLocaleDateString();
+          }
+
+          if (coursesData.courses[0].formattedstartdate !== null) { //if the course has dates, add a hyphen between them
+            coursesData.courses[0].hyphen = '-';
+          }
+//SU_AMEND END
+
             return Templates.render(currentTemplate, {
                 courses: coursesData.courses
             });
