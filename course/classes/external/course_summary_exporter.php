@@ -54,7 +54,7 @@ class course_summary_exporter extends \core\external\exporter {
     }
 
     protected function get_other_values(renderer_base $output) {
-        global $CFG;
+        global $CFG, $DB;
         $courseimage = self::get_course_image($this->data);
         if (!$courseimage) {
             $courseimage = self::get_course_pattern($this->data);
@@ -65,9 +65,19 @@ class course_summary_exporter extends \core\external\exporter {
             $hasprogress = true;
         }
         $progress = floor($progress);
+
+//SU_AMEND START Find out if the course is a unit page
+        $category = $category = $DB->get_record('course_categories', array("id" => $this->data->category));
+        if (strtolower($category->name) == "unit pages") {
+            $is_unit_page = true;
+        } else {
+            $is_unit_page = false;
+        }
+
         return array(
             'fullnamedisplay' => get_course_display_name_for_list($this->data),
             'viewurl' => (new moodle_url('/course/view.php', array('id' => $this->data->id)))->out(false),
+            'is_unit_page' => $is_unit_page,
             'courseimage' => $courseimage,
             'progress' => $progress,
             'hasprogress' => $hasprogress,
@@ -140,6 +150,10 @@ class course_summary_exporter extends \core\external\exporter {
             'isfavourite' => array(
                 'type' => PARAM_BOOL
             ),
+            'is_unit_page' => array(
+                'type' => PARAM_BOOL
+            ),
+//SU_AMMEND END
             'hidden' => array(
                 'type' => PARAM_BOOL
             ),
