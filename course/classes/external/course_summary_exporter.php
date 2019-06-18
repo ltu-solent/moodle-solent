@@ -54,7 +54,7 @@ class course_summary_exporter extends \core\external\exporter {
     }
 
     protected function get_other_values(renderer_base $output) {
-        global $CFG;
+        global $CFG, $DB;
         $courseimage = self::get_course_image($this->data);
         if (!$courseimage) {
             $courseimage = $output->get_generated_image_for_id($this->data->id);
@@ -66,9 +66,23 @@ class course_summary_exporter extends \core\external\exporter {
         }
         $progress = floor($progress);
         $coursecategory = \core_course_category::get($this->data->category, MUST_EXIST, true);
+
+// SU_AMEND START - Block: Module dates in myoverview block
+        $catname = strtolower('x'.$coursecategory->name);
+
+        if(strpos($catname, 'unit pages') != false) {
+            $is_unit_page = true;
+        } else {
+            $is_unit_page = false;
+        }
+// SU_AMEND END
+
         return array(
             'fullnamedisplay' => get_course_display_name_for_list($this->data),
             'viewurl' => (new moodle_url('/course/view.php', array('id' => $this->data->id)))->out(false),
+// SU_AMEND START - Block: Module dates in myoverview block
+            'is_unit_page' => $is_unit_page,
+// SU_AMEND END
             'courseimage' => $courseimage,
             'progress' => $progress,
             'hasprogress' => $hasprogress,
@@ -145,6 +159,11 @@ class course_summary_exporter extends \core\external\exporter {
             'isfavourite' => array(
                 'type' => PARAM_BOOL
             ),
+// SU_AMEND START - Block: Module dates in myoverview block
+            'is_unit_page' => array(
+                'type' => PARAM_BOOL
+            ),
+//SU_AMMEND END
             'hidden' => array(
                 'type' => PARAM_BOOL
             ),
