@@ -1136,14 +1136,21 @@ class core_course_renderer extends plugin_renderer_base {
     global $CFG;
 		$url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 		include_once($CFG->dirroot.'/local/search_unit_descriptor.php');
-		$currentcategory = core_course_category::get($course->category)->get_formatted_name();
-        if(isset($currentcategory)){
-          $catname = strtolower('x'.$currentcategory);
-      		if(strpos($catname, 'unit pages') !== false){
-              $descriptor = unit_descriptor($course);
-    					$content .= '<span class="solent_startdate_search">' . $descriptor . '</span>';
-      		}
-        }
+
+    $context = context_coursecat::instance($course->category);
+    if($course->visible == 0 && !has_capability('moodle/category:viewhiddencategories', $context)){
+      $currentcategory = '';
+    }else{
+      $currentcategory = core_course_category::get($course->category)->get_formatted_name();
+    }
+    if(isset($currentcategory)){
+      $catname = strtolower('x'.$currentcategory);
+  		if(strpos($catname, 'unit pages') !== false){
+          $descriptor = unit_descriptor($course);
+					$content .= '<span class="solent_startdate_search">' . $descriptor . '</span>';
+      }
+		}
+
 // SU_AMEND END
 
         // If we display course in collapsed form but the course has summary or course contacts, display the link to the info page.
