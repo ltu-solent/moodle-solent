@@ -42,9 +42,11 @@ M.core_backup.importrestrictions = function(modnames) {
 				|| labeltext.search("Here you could put the teaching") != -1
 				|| labeltext.search("There is more support available") != -1
 				|| labeltext.search("You could add a link to the") != -1
-				// || (labeltext.search("Reading List") != -1 && htmlFor.search("activity_readinglist") == -1)
+				|| labeltext.search("Unit readings") != -1
 				|| labeltext.search("Reading list") != -1
+				|| labeltext.search("Assignment checklist") != -1
 				|| labeltext.search("Put everything relating to all unit assessment") != -1
+				|| labeltext.search("Put everything relating to unit assessment") != -1
 				|| labeltext.search("What counts as supporting materials") != -1
 				|| labeltext.search("Ask your students to contribute") != -1
 				|| labeltext.search("Found something interesting") != -1
@@ -59,7 +61,7 @@ M.core_backup.importrestrictions = function(modnames) {
 				|| labeltext.search("Here you could put the teaching") != -1
 				|| labeltext.search("For guidance and support with researching") != -1
 				|| labeltext.search("The checklist tool for assessments has been") != -1
-				|| labeltext.search("The Library provides additional support for your studies") != -1
+				|| labeltext.search("The Library provides additional support for") != -1
 				|| labeltext.search("SEND MESSAGES THROUGH SOL INSTEAD") != -1			){
 					checkbox.set("checked", false);
 					checkbox.set("disabled", true);
