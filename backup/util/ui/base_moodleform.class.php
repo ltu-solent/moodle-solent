@@ -405,6 +405,12 @@ abstract class base_moodleform extends moodleform {
         $modnames = $modinfo->get_used_module_names(true);
         $PAGE->requires->yui_module('moodle-backup-backupselectall', 'M.core_backup.backupselectall',
                 array($modnames));
+// SU_AMEND START - Backup: Import restrctions
+        if ($this->uistage->get_ui() instanceof import_ui) {
+          $PAGE->requires->yui_module('moodle-backup-importrestrictions', 'M.core_backup.importrestrictions',
+                array());
+        }
+// SU_AMEND END
         $PAGE->requires->strings_for_js(array('select', 'all', 'none'), 'moodle');
         $PAGE->requires->strings_for_js(array('showtypes', 'hidetypes'), 'backup');
 
