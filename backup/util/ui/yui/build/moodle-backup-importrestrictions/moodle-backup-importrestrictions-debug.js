@@ -36,18 +36,15 @@ M.core_backup.importrestrictions = function(modnames) {
 			  || labeltext.search("Frequently Asked Questions") != -1){
 					checkbox.set("checked", false);
 					checkbox.set("disabled", true);
-				}
+			}
 
-			if(labeltext.search("By the end of this unit") != -1
-				|| labeltext.search("THIS IS A HIDDEN LABEL") != -1
-				|| labeltext.search("You will be able to do this") != -1
+			if(labeltext.search("THIS IS A HIDDEN LABEL") != -1
 				|| labeltext.search("Here you could put the teaching") != -1
 				|| labeltext.search("There is more support available") != -1
 				|| labeltext.search("You could add a link to the") != -1
 				// || (labeltext.search("Reading List") != -1 && htmlFor.search("activity_readinglist") == -1)
 				|| labeltext.search("Reading list") != -1
 				|| labeltext.search("Put everything relating to all unit assessment") != -1
-				|| labeltext.search("The checklist tool for assessments ") != -1
 				|| labeltext.search("What counts as supporting materials") != -1
 				|| labeltext.search("Ask your students to contribute") != -1
 				|| labeltext.search("Found something interesting") != -1
@@ -57,7 +54,13 @@ M.core_backup.importrestrictions = function(modnames) {
 				|| labeltext.search("COLLEAGUES - WE ARE HERE TO HELP") != -1
 				|| labeltext.search("Learning journey") != -1
 				|| labeltext.search("Becoming a student is a process") != -1
-				|| labeltext.search("All of these succeeding tabs are for your") != -1	){
+				|| labeltext.search("All of these succeeding tabs are for your") != -1
+				|| labeltext.search("Replace this content with a summary") != -1
+				|| labeltext.search("Here you could put the teaching") != -1
+				|| labeltext.search("For guidance and support with researching") != -1
+				|| labeltext.search("The checklist tool for assessments has been") != -1
+				|| labeltext.search("The Library provides additional support for your studies") != -1
+				|| labeltext.search("SEND MESSAGES THROUGH SOL INSTEAD") != -1			){
 					checkbox.set("checked", false);
 					checkbox.set("disabled", true);
 			}
