@@ -168,7 +168,7 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
         );
 // SU_AMEND START - Marks Upload: Force scales to be used
         if($PAGE->cm){
-          if($PAGE->cm->modname == 'assign' && $PAGE->cm->idnumber !=''){
+          if($PAGE->cm->modname == 'assign' && $PAGE->cm->idnumber !='' && !is_siteadmin()){
             unset($gradetype['none']);
             unset($gradetype['point']);
           }
