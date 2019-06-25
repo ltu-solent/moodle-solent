@@ -997,11 +997,18 @@ abstract class moodleform_mod extends moodleform {
                     $gradeoptions['currentscaleid'] = $gradeitem->scaleid;
                     $gradeoptions['hasgrades'] = $gradeitem->has_grades();
                 }
+
             }
             $mform->addElement('modgrade', $gradefieldname, get_string('grade'), $gradeoptions);
             $mform->addHelpButton($gradefieldname, 'modgrade', 'grades');
             $mform->setDefault($gradefieldname, $CFG->gradepointdefault);
-
+// SU_AMEND START - Marks Upload: Default to scale
+    			  if(isset($this->current->grade) > 0){
+    					$mform->setDefault('grade', $CFG->gradepointmax);
+    				}else{
+    					$mform->setDefault('grade[modgrade_type]', 'scale');
+    				}
+// SU_AMEND END
             if ($this->_features->advancedgrading
                     and !empty($this->current->_advancedgradingdata['methods'])
                     and !empty($this->current->_advancedgradingdata['areas'])) {
