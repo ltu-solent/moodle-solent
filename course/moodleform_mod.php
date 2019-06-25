@@ -860,12 +860,12 @@ abstract class moodleform_mod extends moodleform {
 // SU_AMEND END
 
 // SU_AMEND START - Marks Upload: Hardfreeze scale
-        if ($this->_cm) {
-          if($this->_cm->modname == 'assign' && $this->_cm->idnumber !='' && !is_siteadmin()){
-              $mform->hardFreeze('grade');
-              $mform->setConstant('grade', format_string($this->get_current()->grade));
-          }
-        }
+        // if ($this->_cm) {
+        //   if($this->_cm->modname == 'assign' && $this->_cm->idnumber !='' && !is_siteadmin()){
+        //       $mform->hardFreeze('grade');
+        //       $mform->setConstant('grade', format_string($this->get_current()->grade));
+        //   }
+        // }
 // SU_AMEND END
             }
 
