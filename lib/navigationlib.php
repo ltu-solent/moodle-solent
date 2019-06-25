@@ -4507,8 +4507,7 @@ class settings_navigation extends navigation_node {
         //else, this is a course settings dropdown menu, limit the options
 
       if ($this->page->user_allowed_editing()) {
-          // Add the turn on/off settings
-
+          // Add the turn editing on/off link
           if ($this->page->url->compare(new moodle_url('/course/view.php'), URL_MATCH_BASE)) {
               // We are on the course page, retain the current page params e.g. section.
               $baseurl = clone($this->page->url);
@@ -4527,27 +4526,26 @@ class settings_navigation extends navigation_node {
             }
             $coursenode->add($editstring, $editurl, self::TYPE_SETTING, null, 'turneditingonoff', new pix_icon('i/edit', ''));
         }
-
+        // Add the group settings link
         if ($adminoptions->update) {
-            // Add the course settings link
             $url = new moodle_url('/group/index.php', array('id'=>$course->id));
             $coursenode->add(get_string('groups'), $url, self::TYPE_SETTING, null, 'groups', new pix_icon('i/users', ''));
         }
 
+        // Add the question bank settings link
         if ($adminoptions->update) {
-            // Add the course settings link
             $url = new moodle_url('/question/edit.php', array('courseid'=>$course->id));
             $coursenode->add('Question bank', $url, self::TYPE_SETTING, null, 'questionbank', new pix_icon('i/db', ''));
         }
 
+        // Add the logs settings link
         if ($adminoptions->reports) {
-            // Add the course settings link
-            $url = new moodle_url('/report/log/index.php', array('courseid'=>$course->id));
+            $url = new moodle_url('/report/log/index.php', array('id'=>$course->id));
             $coursenode->add(get_string('logs'), $url, self::TYPE_SETTING, null, 'logs', new pix_icon('i/folder', ''));
         }
 
+        // Add the grade report settings link
         if ($adminoptions->reports) {
-            // Add the course settings link
             $url = new moodle_url('/report/grade/index.php', array('id'=>$course->id));
             $coursenode->add('Grade report', $url, self::TYPE_SETTING, null, 'gradereport', new pix_icon('i/grades', ''));
         }
@@ -4564,14 +4562,14 @@ class settings_navigation extends navigation_node {
             }
         }
 
-        // Import data from other courses
+        // Add the Import link
         if ($adminoptions->import) {
             $url = new moodle_url('/backup/import.php', array('id'=>$course->id));
             $coursenode->add(get_string('import'), $url, self::TYPE_SETTING, null, 'import', new pix_icon('i/import', ''));
         }
 
+        // Add the course settings link
         if ($adminoptions->update) {
-            // Add the course settings link
             $url = new moodle_url('/course/edit.php', array('id'=>$course->id));
             $coursenode->add(get_string('editsettings'), $url, self::TYPE_SETTING, null, 'editsettings', new pix_icon('i/settings', ''));
         }
@@ -4582,10 +4580,9 @@ class settings_navigation extends navigation_node {
             $coursenode->add(get_string('gradebooksetup', 'grades'), $url, self::TYPE_SETTING,
                 null, 'gradebooksetup', new pix_icon('i/settings', ''));
         }
-
+        // Add the unenrol self from course link
         if (has_capability('moodle/course:enrolreview', $coursecontext)) {
-        // Check we can add a groups link
-        enrol_add_course_navigation($coursenode, $course);
+          enrol_add_course_navigation($coursenode, $course);
         }
 
         // Return we are done
