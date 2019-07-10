@@ -6360,7 +6360,12 @@ class assign {
         }
         $info->assignment = format_string($assignmentname, true, array('context'=>$context));
         $info->url = $CFG->wwwroot.'/mod/assign/view.php?id='.$coursemodule->id;
-        $info->timeupdated = userdate($updatetime, get_string('strftimerecentfull'));
+// SU_AMEND START - Assignment: Add seconds to submission date email
+        //$info->timeupdated = userdate($updatetime, get_string('strftimerecentfull'));
+        $info->timeupdated = userdate($updatetime, '%d %B %Y, %I:%M:%S %p');
+// SU_AMEND START - Assignment: Add seconds to submission date email
+        $info->timeupdatedfull = userdate($updatetime, '%d %B %Y, %I:%M:%S %p');
+// SU_AMEND END
 
         $postsubject = get_string($messagetype . 'small', 'assign', $info);
         $posttext = self::format_notification_message_text($messagetype,

@@ -1052,9 +1052,15 @@ class assign_grading_table extends table_sql implements renderable {
         $submission = false;
         $this->get_group_and_submission($row->id, $group, $submission, -1);
         if ($submission && $submission->timemodified && $submission->status != ASSIGN_SUBMISSION_STATUS_NEW) {
-            $o = userdate($submission->timemodified);
+// SU_AMEND START - Assignment: Show seconds for submission time
+            // $o = userdate($submission->timemodified);
+            $o = userdate($row->timesubmitted, '%A, %d %b %Y, %I:%M:%S %p');
+// SU_AMEND END
         } else if ($row->timesubmitted && $row->status != ASSIGN_SUBMISSION_STATUS_NEW) {
-            $o = userdate($row->timesubmitted);
+// SU_AMEND START - Assignment: Show seconds for submission time
+            //$o = userdate($row->timesubmitted);
+            $o = userdate($row->timesubmitted, '%A, %d %b %Y, %I:%M:%S %p');
+// SU_AMEND END
         }
 
         return $o;
