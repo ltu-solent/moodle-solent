@@ -806,7 +806,6 @@ class mod_assign_renderer extends plugin_renderer_base {
                 }
             }
 
-
             if ($status->extensionduedate) {
                 // Extension date.
                 $row = new html_table_row();
@@ -851,23 +850,6 @@ class mod_assign_renderer extends plugin_renderer_base {
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
         }
-
-// SU_AMEND START - Assignment: Cut off date/time remaining in submission status
-			if($status->view == assign_submission_status::STUDENT_VIEW){
-				$cutoffdate = 0;
-					$cutoffdate = $status->cutoffdate;
-					if($cutoffdate){
-						if($cutoffdate > $status->duedate){
-							$row = new html_table_row();
-							$cell1c = new html_table_cell(get_string('latesubmissions', 'assign'));
-							$late = get_string('latesubmissionsaccepted', 'assign', userdate($status->cutoffdate));
-							$cell2c = new html_table_cell($late);
-							$row->cells = array($cell1c, $cell2c);
-							$t->data[] = $row;
-						}
-					}
-			}
-// SU_AMEND END
 
         // Show graders whether this submission is editable by students.
         if ($status->view == assign_submission_status::GRADER_VIEW) {
@@ -943,17 +925,11 @@ class mod_assign_renderer extends plugin_renderer_base {
                 if (!$submission || $submission->status == ASSIGN_SUBMISSION_STATUS_NEW) {
                     $o .= $this->output->box_start('generalbox submissionaction');
                     $urlparams = array('id' => $status->coursemoduleid, 'action' => 'editsubmission');
-// SU_AMEND START - Assignment: Submission help string position (add)
-          					//New string position
-          					$o .= get_string('editsubmission_help', 'assign');
-// SU_AMEND END
                     $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                        get_string('addsubmission', 'assign'), 'get');
                     $o .= $this->output->box_start('boxaligncenter submithelp');
-// SU_AMEND START - Assignment: Submission help string position (add)
-                    // Old help string positions
-                    //$o .= get_string('addsubmission_help', 'assign');
-// SU_AMEND END
+                    $o .= get_string('addsubmission_help', 'assign');
+                    $o .= $this->output->box_end();
                     $o .= $this->output->box_end();
                 } else if ($submission->status == ASSIGN_SUBMISSION_STATUS_REOPENED) {
                     $o .= $this->output->box_start('generalbox submissionaction');
@@ -977,31 +953,11 @@ class mod_assign_renderer extends plugin_renderer_base {
                 } else {
                     $o .= $this->output->box_start('generalbox submissionaction');
                     $urlparams = array('id' => $status->coursemoduleid, 'action' => 'editsubmission');
-// SU_AMEND START - Assignment: Submission help string position (edit)
-                    //New string position
-                    global $DB;
-          					$file = $DB->get_record_sql("SELECT cm.instance
-          							FROM {assign} a
-          							JOIN {course_modules} cm ON cm.instance = a.id
-          							JOIN {assign_plugin_config} pc ON pc.assignment = a.id
-          							WHERE (pc.plugin = 'file' AND pc.subtype = 'assignsubmission' AND pc.name = 'enabled')
-          							AND pc.value = 1
-          							AND cm.id = ?", array($status->coursemoduleid));
-          					if($file){
-                      $o .= $this->output->box_start('boxaligncenter submithelp');
-                      $o .= get_string('editsubmission_help', 'assign');
-                      $o .= $this->output->box_end();
-          					}
-// SU_AMEND END
                     $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                        get_string('editsubmission', 'assign'), 'get');
                     $o .= $this->output->box_start('boxaligncenter submithelp');
-// SU_AMEND START - Assignment: Submission help string position (edit)
-                    // Old string position
-                    // $o .= $this->output->box_start('boxaligncenter submithelp');
-                    // $o .= get_string('editsubmission_help', 'assign');
-                    // $o .= $this->output->box_end();
-// SU_AMEND END
+                    $o .= get_string('editsubmission_help', 'assign');
+                    $o .= $this->output->box_end();
                     $o .= $this->output->box_end();
                 }
             }
@@ -1009,23 +965,11 @@ class mod_assign_renderer extends plugin_renderer_base {
             if ($status->cansubmit) {
                 $urlparams = array('id' => $status->coursemoduleid, 'action'=>'submit');
                 $o .= $this->output->box_start('generalbox submissionaction');
-// SU_AMEND START - Assignment: Submission help string position (submit)
-        				//New string position
-        				if($file){
-                  $o .= $this->output->box_start('boxaligncenter submithelp');
-                  $o .= get_string('submitassignment_help', 'assign');
-                  $o .= $this->output->box_end();
-        				}
-// SU_AMEND END
                 $o .= $this->output->single_button(new moodle_url('/mod/assign/view.php', $urlparams),
                                                    get_string('submitassignment', 'assign'), 'get');
                 $o .= $this->output->box_start('boxaligncenter submithelp');
-// SU_AMEND START - Assignment: Submission help string position (submit)
-                // Old string position
-                // $o .= $this->output->box_start('boxaligncenter submithelp');
-                // $o .= get_string('submitassignment_help', 'assign');
-                // $o .= $this->output->box_end();
-// SU_AMEND END
+                $o .= get_string('submitassignment_help', 'assign');
+                $o .= $this->output->box_end();
                 $o .= $this->output->box_end();
             }
         }
@@ -1544,3 +1488,4 @@ class mod_assign_renderer extends plugin_renderer_base {
         return $this->render_from_template('mod_assign/grading_app', $context);
     }
 }
+
