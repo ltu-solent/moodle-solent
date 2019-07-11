@@ -504,7 +504,12 @@ class report_log_table_log extends table_sql {
 
         if (!($this->filterparams->logreader instanceof logstore_legacy\log\store)) {
             // Filter out anonymous actions, this is N/A for legacy log because it never stores them.
-            $joins[] = "anonymous = 0";
+// SU_AMEND START - Log: Show all assignment logs to admins
+            //$joins[] = "anonymous = 0";
+            if(!is_siteadmin()){
+              $joins[] = "anonymous = 0";
+            }
+// SU_AMEND END
         }
 
         $selector = implode(' AND ', $joins);
