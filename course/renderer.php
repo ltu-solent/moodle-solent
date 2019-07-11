@@ -561,17 +561,8 @@ class core_course_renderer extends plugin_renderer_base {
         // Render element that allows to edit activity name inline. It calls {@link course_section_cm_name_title()}
         // to get the display title of the activity.
         $tmpl = new \core_course\output\course_module_name($mod, $this->page->user_is_editing(), $displayoptions);
-        // return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
-        //     $groupinglabel;
-// SU_AMEND START - Marks upload: Prevent quick edit of assignment name
-        if($mod->modname == 'assign' && $mod->idnumber){
-          return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output)) .
-          $groupinglabel;
-        }else{
-          return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
-          $groupinglabel;
-        }
-// SU_AMEND END
+        return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
+            $groupinglabel;
     }
 
     /**
@@ -611,13 +602,6 @@ class core_course_renderer extends plugin_renderer_base {
             $textclasses .= ' dimmed dimmed_text';
         }
         return array($linkclasses, $textclasses);
-// SU_AMEND START - Marks upload: Prevent quick edit of assignment name
-		if($mod->modname == 'assign' && $mod->idnumber){
-			return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output));
-		}else{
-			return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output));
-		}
-// SU_AMEND END
     }
 
     /**
@@ -1129,14 +1113,6 @@ class core_course_renderer extends plugin_renderer_base {
         $coursenamelink = html_writer::link(new moodle_url('/course/view.php', array('id' => $course->id)),
                                             $coursename, array('class' => $course->visible ? '' : 'dimmed'));
         $content .= html_writer::tag($nametag, $coursenamelink, array('class' => 'coursename'));
-
-// SU_AMEND START - Unit descriptor:  Search results
-    global $CFG;
-		$url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-		include_once($CFG->dirroot.'/local/search_unit_descriptor.php');
-    $content .= '<span class="solent_startdate_search">' .  unit_descriptor($course) . '</span>';
-// SU_AMEND END
-
         // If we display course in collapsed form but the course has summary or course contacts, display the link to the info page.
         $content .= html_writer::start_tag('div', array('class' => 'moreinfo'));
         if ($chelper->get_show_courses() < self::COURSECAT_SHOW_COURSES_EXPANDED) {
