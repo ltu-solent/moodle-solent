@@ -4854,9 +4854,17 @@ class assign {
 		global $USER;
         $context = context_course::instance($this->course->id);
         $userroles = $DB->get_fieldset_select('role_assignments', 'roleid', 'contextid = ? AND userid = ? ' , array( $context->id, $USER->id));
+
         if($this->get_grade_item()->locked == 0){
-          //if ((in_array(15, $userroles) || in_array(26, $userroles) /* || is_siteadmin() */) && $this->coursemodule->idnumber != '') {
-          if ((in_array(15, $userroles) || in_array(26, $userroles) /* || is_siteadmin() */) && $this->coursemodule->idnumber != '' && $this->get_course()->startdate >= 1533081600) {
+          $access = 0;
+          $rolesallowed = explode(',', get_config('local_quercus_tasks', 'releaseroles'));
+          foreach($rolesallowed as $role){
+              if(in_array($role, $userroles) ){
+                $access = 1;
+              }
+          }
+
+          if ($access == 1 && $this->coursemodule->idnumber != '' && $this->get_course()->startdate >= 1533081600) {
               $sitting = $DB->get_record('local_quercus_tasks_sittings', array('assign'=> $this->coursemodule->instance), 'sitting_desc, externaldate', $strictness=IGNORE_MISSING);
               if($sitting->sitting_desc == 'FIRST_SITTING'){
                 $message = get_string('releasemessage', 'assign');
@@ -8733,8 +8741,15 @@ class assign {
             $now = new DateTime('now', core_date::get_user_timezone_object());
 
             // 'Released' not available on grading page and only for unit leader or assessments team for bulk changes
-            if ((in_array(15, $userroles) || in_array(26, $userroles) /* || is_siteadmin() */) && $PAGE->pagetype != "mod-assign-gradingpanel" && $locked == 0) {
+            $access = 0;
+            $rolesallowed = explode(',', get_config('local_quercus_tasks', 'releaseroles'));
+            foreach($rolesallowed as $role){
+                if(in_array($role, $userroles) ){
+                  $access = 1;
+                }
+            }
 
+            if (($access == 1) && $PAGE->pagetype != "mod-assign-gradingpanel" && $locked == 0) {
               $sitting = $DB->get_record('local_quercus_tasks_sittings', array('assign'=> $this->coursemodule->instance), 'sitting_desc, externaldate', $strictness=IGNORE_MISSING);
 
               if($sitting->sitting_desc == 'FIRST_SITTING'){
