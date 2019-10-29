@@ -5043,8 +5043,11 @@ class assign {
 
         if($this->get_grade_item()->locked == 0){
           $access = 0;
-          if (has_capability('local/quercustasks:releasegrades', $this->context)) {
+          $rolesallowed = explode(',', get_config('local_quercus_tasks', 'releaseroles'));
+          foreach($rolesallowed as $role){
+              if(in_array($role, $userroles) ){
                 $access = 1;
+              }
           }
 
           if ($access == 1 && $this->coursemodule->idnumber != '' && $this->get_course()->startdate >= 1533081600) {
@@ -9034,8 +9037,11 @@ class assign {
 
             // 'Released' not available on grading page and only for unit leader or assessments team for bulk changes
             $access = 0;
-            if (has_capability('local/quercustasks:releasegrades', $this->context)) {
+            $rolesallowed = explode(',', get_config('local_quercus_tasks', 'releaseroles'));
+            foreach($rolesallowed as $role){
+                if(in_array($role, $userroles) ){
                   $access = 1;
+                }
             }
 
             if (($access == 1) && $PAGE->pagetype != "mod-assign-gradingpanel" && $locked == 0) {
