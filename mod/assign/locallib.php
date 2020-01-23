@@ -4857,11 +4857,8 @@ class assign {
 
         if($this->get_grade_item()->locked == 0){
           $access = 0;
-          $rolesallowed = explode(',', get_config('local_quercus_tasks', 'releaseroles'));
-          foreach($rolesallowed as $role){
-              if(in_array($role, $userroles) ){
+          if (has_capability('local/quercustasks:releasegrades', $this->context)) {
                 $access = 1;
-              }
           }
 
           if ($access == 1 && $this->coursemodule->idnumber != '' && $this->get_course()->startdate >= 1533081600) {
@@ -8731,6 +8728,7 @@ class assign {
         }
 
 // SU_AMEND START - Marks Upload: Release grades by unit leader only
+
         if ($this->get_course()->startdate >= 1533081600 && $this->coursemodule->idnumber != '') {
             global $DB, $USER, $PAGE;
             $context = context_course::instance($this->course->id);
@@ -8742,11 +8740,8 @@ class assign {
 
             // 'Released' not available on grading page and only for unit leader or assessments team for bulk changes
             $access = 0;
-            $rolesallowed = explode(',', get_config('local_quercus_tasks', 'releaseroles'));
-            foreach($rolesallowed as $role){
-                if(in_array($role, $userroles) ){
+            if (has_capability('local/quercustasks:releasegrades', $this->context)) {
                   $access = 1;
-                }
             }
 
             if (($access == 1) && $PAGE->pagetype != "mod-assign-gradingpanel" && $locked == 0) {
