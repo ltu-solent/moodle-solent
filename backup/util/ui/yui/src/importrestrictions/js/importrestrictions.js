@@ -38,8 +38,10 @@ M.core_backup.importrestrictions = function(modnames) {
 
 			if(labeltext.search("THIS IS A HIDDEN LABEL") != -1
 				|| labeltext.search("Here you could put the teaching") != -1
-				|| labeltext.search("There is more support available") != -1
 				|| labeltext.search("You could add a link to the") != -1
+				|| labeltext.search("For guidance and support with researching") != -1 // New
+				|| labeltext.search("Assignment checklist") != -1 // New
+				|| labeltext.search("The Library provides additional support") != -1 // New
 				|| labeltext.search("Unit readings") != -1
 				|| labeltext.search("Reading list") != -1
 				|| labeltext.search("Assignment checklist") != -1
