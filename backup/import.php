@@ -222,12 +222,14 @@ if ($backup->get_stage() == backup_ui::STAGE_FINAL) {
 	// Check if course is in 'unit pages' category first.
 	global $CFG;
 	$category = core_course_category::get($course->category, IGNORE_MISSING);
-	$catname = strtolower('x'.$category->name);
-	if(strpos($catname, 'unit pages') !== false){
+	// $catname = strtolower('x'.$category->name);
+	// if(strpos($catname, 'unit pages') !== false){
+	if($category->name == 'Unit Pages'){
 		$messagebody = '<a href="' . $CFG->wwwroot . '/course/view.php?id='. $course->id . '">' . $CFG->wwwroot . '/course/view.php?id='. $course->id . '</a>';
 		$to = "instructional.design@solent.ac.uk";
 		$subject = "Module imported: " . $course->shortname;
-		$headers = "From: " . $CFG->noreplyaddress . "\r\n";
+		//$headers = "From: " . $CFG->noreplyaddress . "\r\n";
+		$headers = "From: lt.systems@solent.ac.uk \r\n";
 		$headers .= "MIME-Version: 1.0\r\n";
 		$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 		mail($to, $subject, $messagebody, $headers);
