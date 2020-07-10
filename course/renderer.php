@@ -1217,13 +1217,7 @@ class core_course_renderer extends plugin_renderer_base {
         $content .= $this->course_name($chelper, $course);
         $content .= $this->course_enrolment_icons($course);
         $content .= html_writer::end_tag('div');
-
-// SU_AMEND START - Unit descriptor:  Search results
-    global $CFG;
-		$url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-		include_once($CFG->dirroot.'/local/search_unit_descriptor.php');
-    $content .= '<span class="solent_startdate_search">' .  unit_descriptor($course) . '</span>';
-// SU_AMEND END
+        
         $content .= html_writer::start_tag('div', array('class' => 'content'));
         $content .= $this->coursecat_coursebox_content($chelper, $course);
         $content .= html_writer::end_tag('div');
