@@ -619,64 +619,48 @@ class core_course_renderer extends plugin_renderer_base {
         // Render element that allows to edit activity name inline. It calls {@link course_section_cm_name_title()}
         // to get the display title of the activity.
         $tmpl = new \core_course\output\course_module_name($mod, $this->page->user_is_editing(), $displayoptions);
-        // return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
-        //     $groupinglabel;
-// SU_AMEND START - Marks upload: Prevent quick edit of assignment name
-        if($mod->modname == 'assign' && $mod->idnumber){
-          return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output)) .
-          $groupinglabel;
-        }else{
-          return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
-          $groupinglabel;
-        }
-// SU_AMEND END
+        return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
+            $groupinglabel;
     }
 
     /**
-     * Returns the CSS classes for the activity name/content
-     *
-     * For items which are hidden, unavailable or stealth but should be displayed
-     * to current user ($mod->is_visible_on_course_page()), we show those as dimmed.
-     * Students will also see as dimmed activities names that are not yet available
-     * but should still be displayed (without link) with availability info.
-     *
-     * @param cm_info $mod
-     * @return array array of two elements ($linkclasses, $textclasses)
-     */
-    protected function course_section_cm_classes(cm_info $mod) {
-        $linkclasses = '';
-        $textclasses = '';
-        if ($mod->uservisible) {
-            $conditionalhidden = $this->is_cm_conditionally_hidden($mod);
-            $accessiblebutdim = (!$mod->visible || $conditionalhidden) &&
-                has_capability('moodle/course:viewhiddenactivities', $mod->context);
-            if ($accessiblebutdim) {
-                $linkclasses .= ' dimmed';
-                $textclasses .= ' dimmed_text';
-                if ($conditionalhidden) {
-                    $linkclasses .= ' conditionalhidden';
-                    $textclasses .= ' conditionalhidden';
-                }
-            }
-            if ($mod->is_stealth()) {
-                // Stealth activity is the one that is not visible on course page.
-                // It still may be displayed to the users who can manage it.
-                $linkclasses .= ' stealth';
-                $textclasses .= ' stealth';
-            }
-        } else {
-            $linkclasses .= ' dimmed';
-            $textclasses .= ' dimmed dimmed_text';
-        }
-        return array($linkclasses, $textclasses);
-// SU_AMEND START - Marks upload: Prevent quick edit of assignment name
-		if($mod->modname == 'assign' && $mod->idnumber){
-			return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output));
-		}else{
-			return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output));
-		}
-// SU_AMEND END
-    }
+       * Returns the CSS classes for the activity name/content
+       *
+       * For items which are hidden, unavailable or stealth but should be displayed
+       * to current user ($mod->is_visible_on_course_page()), we show those as dimmed.
+       * Students will also see as dimmed activities names that are not yet available
+       * but should still be displayed (without link) with availability info.
+       *
+       * @param cm_info $mod
+       * @return array array of two elements ($linkclasses, $textclasses)
+       */
+      protected function course_section_cm_classes(cm_info $mod) {
+          $linkclasses = '';
+          $textclasses = '';
+          if ($mod->uservisible) {
+              $conditionalhidden = $this->is_cm_conditionally_hidden($mod);
+              $accessiblebutdim = (!$mod->visible || $conditionalhidden) &&
+                  has_capability('moodle/course:viewhiddenactivities', $mod->context);
+              if ($accessiblebutdim) {
+                  $linkclasses .= ' dimmed';
+                  $textclasses .= ' dimmed_text';
+                  if ($conditionalhidden) {
+                      $linkclasses .= ' conditionalhidden';
+                      $textclasses .= ' conditionalhidden';
+                  }
+              }
+              if ($mod->is_stealth()) {
+                  // Stealth activity is the one that is not visible on course page.
+                  // It still may be displayed to the users who can manage it.
+                  $linkclasses .= ' stealth';
+                  $textclasses .= ' stealth';
+              }
+          } else {
+              $linkclasses .= ' dimmed';
+              $textclasses .= ' dimmed dimmed_text';
+          }
+          return array($linkclasses, $textclasses);
+      }
 
     /**
      * Renders html to display a name with the link to the course module on a course page
@@ -1233,7 +1217,7 @@ class core_course_renderer extends plugin_renderer_base {
         $content .= $this->course_name($chelper, $course);
         $content .= $this->course_enrolment_icons($course);
         $content .= html_writer::end_tag('div');
-        
+
         $content .= html_writer::start_tag('div', array('class' => 'content'));
         $content .= $this->coursecat_coursebox_content($chelper, $course);
         $content .= html_writer::end_tag('div');
