@@ -86,19 +86,36 @@ class mod_assign_mod_form extends moodleform_mod {
         $options = array('optional'=>true);
         $mform->addElement('date_time_selector', 'allowsubmissionsfromdate', $name, $options);
         $mform->addHelpButton('allowsubmissionsfromdate', 'allowsubmissionsfromdate', 'assign');
-
+// SU_AMEND START - Marks Upload: Freeze allowsubmissionsfromdate
+        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin()){
+          $mform->hardFreeze('allowsubmissionsfromdate');
+          $mform->setConstant('allowsubmissionsfromdate', format_string($this->current->allowsubmissionsfromdate));
+        }
+// SU_AMEND END
         $name = get_string('duedate', 'assign');
         $mform->addElement('date_time_selector', 'duedate', $name, array('optional'=>true));
         $mform->addHelpButton('duedate', 'duedate', 'assign');
-
+// SU_AMEND START - Marks Upload: Freeze duedate
+        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin() && $this->get_course()->startdate >= '1533081600'){          $mform->hardFreeze('duedate');
+          $mform->setConstant('duedate', format_string($this->current->duedate));
+        }
+// SU_AMEND END
         $name = get_string('cutoffdate', 'assign');
         $mform->addElement('date_time_selector', 'cutoffdate', $name, array('optional'=>true));
         $mform->addHelpButton('cutoffdate', 'cutoffdate', 'assign');
-
+// SU_AMEND START - Marks Upload: Freeze cutoffdate
+        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin() && $this->get_course()->startdate >= '1533081600'){          $mform->hardFreeze('cutoffdate');
+          $mform->setConstant('cutoffdate', format_string($this->current->cutoffdate));
+        }
+// SU_AMEND END
         $name = get_string('gradingduedate', 'assign');
         $mform->addElement('date_time_selector', 'gradingduedate', $name, array('optional' => true));
         $mform->addHelpButton('gradingduedate', 'gradingduedate', 'assign');
-
+// SU_AMEND START - Marks Upload: Freeze gradingduedate
+        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin() && $this->get_course()->startdate >= '1533081600'){          $mform->hardFreeze('gradingduedate');
+          $mform->setConstant('gradingduedate', format_string($this->current->gradingduedate));
+        }
+// SU_AMEND END
         $name = get_string('alwaysshowdescription', 'assign');
         $mform->addElement('checkbox', 'alwaysshowdescription', $name);
         $mform->addHelpButton('alwaysshowdescription', 'alwaysshowdescription', 'assign');

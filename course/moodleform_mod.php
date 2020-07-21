@@ -594,6 +594,13 @@ abstract class moodleform_mod extends moodleform {
             $mform->addElement('text', 'cmidnumber', get_string('idnumbermod'));
             $mform->setType('cmidnumber', PARAM_RAW);
             $mform->addHelpButton('cmidnumber', 'idnumbermod');
+// SU_AMEND START - Marks Upload: Disable idnumber for all assignments
+      			if($this->current->modulename == 'assign'){
+      				$mform->addElement('hidden', 'quercus', 1);
+      				$mform->setType('quercus', PARAM_RAW);
+      				$mform->disabledIf('cmidnumber', 'quercus', 'eq', 1);
+      			}
+// SU_AMEND END
         }
 
         if ($this->_features->groups) {
@@ -997,6 +1004,16 @@ abstract class moodleform_mod extends moodleform {
                     $gradeoptions['currentscaleid'] = $gradeitem->scaleid;
                     $gradeoptions['hasgrades'] = $gradeitem->has_grades();
                 }
+                $mform->addElement('modgrade', 'grade', get_string('grade'), $gradeoptions);
+                $mform->addHelpButton('grade', 'modgrade', 'grades');
+// SU_AMEND START - Marks Upload: Default to scale
+			//	$mform->setDefault('grade', $CFG->gradepointdefault);
+				if(isset($this->current->grade) > 0){
+					$mform->setDefault('grade', $CFG->gradepointmax);
+				}else{
+					$mform->setDefault('grade[modgrade_type]', 'scale');
+				}
+// SU_AMEND END
 
             }
             $mform->addElement('modgrade', $gradefieldname, get_string('grade'), $gradeoptions);

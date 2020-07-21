@@ -136,6 +136,9 @@ class assign_grading_table extends table_sql implements renderable {
 
         $fields = user_picture::fields('u', $extrauserfields) . ', ';
         $fields .= 'u.id as userid, ';
+// SU_AMEND START - Grading table student no
+		$fields .= 'u.idnumber, ';
+// SU_AMEND END
         $fields .= 's.status as status, ';
         $fields .= 's.id as submissionid, ';
         $fields .= 's.timecreated as firstsubmission, ';
@@ -382,8 +385,12 @@ class assign_grading_table extends table_sql implements renderable {
                 $columns[] = 'picture';
                 $headers[] = get_string('pictureofuser');
             } else {
-                $columns[] = 'recordid';
-                $headers[] = get_string('recordid', 'assign');
+// SU_AMEND START - Grading table student no
+				//$columns[] = 'recordid';
+				//$headers[] = get_string('recordid', 'assign');
+				$columns[] = 'idnumber';
+                $headers[] = 'Student ID';
+// SU_AMEND END
             }
 
             // Fullname.
@@ -393,8 +400,12 @@ class assign_grading_table extends table_sql implements renderable {
             // Participant # details if can view real identities.
             if ($this->assignment->is_blind_marking()) {
                 if (!$this->is_downloading()) {
-                    $columns[] = 'recordid';
-                    $headers[] = get_string('recordid', 'assign');
+// SU_AMEND START - Grading table student no
+                    //$columns[] = 'recordid';
+                    //$headers[] = get_string('recordid', 'assign');
+					$columns[] = 'idnumber';
+					$headers[] = 'Student ID';
+// SU_AMEND END
                 }
             }
 
@@ -404,8 +415,12 @@ class assign_grading_table extends table_sql implements renderable {
             }
         } else {
             // Record ID.
-            $columns[] = 'recordid';
-            $headers[] = get_string('recordid', 'assign');
+// SU_AMEND START - Grading table student no
+            //$columns[] = 'recordid';
+            //$headers[] = get_string('recordid', 'assign');
+			$columns[] = 'idnumber';
+			$headers[] = 'Student ID';
+// SU_AMEND END
         }
 
         // Submission status.
@@ -441,7 +456,13 @@ class assign_grading_table extends table_sql implements renderable {
         }
         // Grade.
         $columns[] = 'grade';
-        $headers[] = get_string('grade');
+// SU_AMEND START - Marks Upload: Change grade string if doublemarks enabled
+		if($plugin = $this->assignment->get_feedback_plugin_by_type('doublemark')->is_enabled('enabled')){
+			 $headers[] = get_string('agreed', 'assign');
+		}else{
+			$headers[] = get_string('grade');
+		}
+// SU_AMEND END
         if ($this->is_downloading()) {
             $gradetype = $this->assignment->get_instance()->grade;
             if ($gradetype > 0) {
@@ -542,6 +563,7 @@ class assign_grading_table extends table_sql implements renderable {
         foreach ($extrauserfields as $extrafield) {
              $this->column_class($extrafield, $extrafield);
         }
+// SU_AMEND START - Grading table student no
         $this->no_sorting('recordid');
         $this->no_sorting('finalgrade');
         $this->no_sorting('userid');
@@ -633,6 +655,11 @@ class assign_grading_table extends table_sql implements renderable {
         $gradingdisabled = $this->assignment->grading_disabled($row->id);
         // The function in the assignment keeps a static cache of this list of states.
         $workflowstates = $this->assignment->get_marking_workflow_states_for_current_user();
+// SU_AMEND START - Marks Upload: Remove 'Released' option from quick grading
+		if($this->assignment->get_course()->startdate >= 1533081600 && $this->assignment->get_course_module()->idnumber != ''){
+			unset($workflowstates['released']);
+		}
+// SU_AMEND END
         $workflowstate = $row->workflowstate;
         if (empty($workflowstate)) {
             $workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_NOTMARKED;
@@ -905,10 +932,20 @@ class assign_grading_table extends table_sql implements renderable {
         $selectcol = '<label class="accesshide" for="selectuser_' . $row->userid . '">';
         $selectcol .= get_string('selectuser', 'assign', $this->assignment->fullname($row));
         $selectcol .= '</label>';
-        $selectcol .= '<input type="checkbox"
-                              id="selectuser_' . $row->userid . '"
-                              name="selectedusers"
-                              value="' . $row->userid . '"/>';
+// SU_AMEND START - Marks Upload: Select all assignments for release
+        if($this->assignment->get_course_module()->idnumber != '' && !is_siteadmin()){
+          $selectcol .= '<input type="checkbox"
+                                id="selectuser_' . $row->userid . ' selectall"
+                                name="selectallquercus"
+                                class="selectallquercus"
+                                value="' . $row->userid . '"/>';
+        }else{
+          $selectcol .= '<input type="checkbox"
+                                id="selectuser_' . $row->userid . ' selectall"
+                                name="selectedusers"
+                                value="' . $row->userid . '"/>';
+        }
+// SU_AMEND END
         $selectcol .= '<input type="hidden"
                               name="grademodified_' . $row->userid . '"
                               value="' . $row->timemarked . '"/>';

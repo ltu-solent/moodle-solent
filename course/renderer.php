@@ -619,8 +619,17 @@ class core_course_renderer extends plugin_renderer_base {
         // Render element that allows to edit activity name inline. It calls {@link course_section_cm_name_title()}
         // to get the display title of the activity.
         $tmpl = new \core_course\output\course_module_name($mod, $this->page->user_is_editing(), $displayoptions);
-        return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
-            $groupinglabel;
+        // return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
+        //     $groupinglabel;
+// SU_AMEND START - Marks upload: Prevent quick edit of assignment name
+        if($mod->modname == 'assign' && $mod->idnumber){
+          return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output)) .
+          $groupinglabel;
+        }else{
+          return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output)) .
+          $groupinglabel;
+        }
+// SU_AMEND END
     }
 
     /**
@@ -660,6 +669,13 @@ class core_course_renderer extends plugin_renderer_base {
             $textclasses .= ' dimmed dimmed_text';
         }
         return array($linkclasses, $textclasses);
+// SU_AMEND START - Marks upload: Prevent quick edit of assignment name
+		if($mod->modname == 'assign' && $mod->idnumber){
+			return $this->output->render_from_template('core/inplace_non_editable', $tmpl->export_for_template($this->output));
+		}else{
+			return $this->output->render_from_template('core/inplace_editable', $tmpl->export_for_template($this->output));
+		}
+// SU_AMEND END
     }
 
     /**

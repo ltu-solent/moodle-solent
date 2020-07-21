@@ -72,6 +72,30 @@ M.mod_assign.init_grading_table = function(Y) {
                 }
             });
         }
+// SU_AMEND START - Marks Upload: Select all assignments for release
+        var selectallquercus = Y.all('td.cell .selectallquercus');
+        if (selectallquercus) {
+            selectallquercus.on('change', function(e) {
+                if (e.currentTarget.get('checked')) {
+                    checkboxes = Y.all('td.c0 input[type="checkbox"]');
+                    checkboxes.each(function(node) {
+                        rowelement = node.get('parentNode').get('parentNode');
+                        node.set('checked', true);
+                        rowelement.removeClass('unselectedrow');
+                        rowelement.addClass('selectedrow');
+                    });
+                } else {
+                    checkboxes = Y.all('td.c0 input[type="checkbox"]');
+                    checkboxes.each(function(node) {
+                        rowelement = node.get('parentNode').get('parentNode');
+                        node.set('checked', false);
+                        rowelement.removeClass('selectedrow');
+                        rowelement.addClass('unselectedrow');
+                    });
+                }
+            });
+        }
+// SU_AMEND END
 
         var batchform = Y.one('form.gradingbatchoperationsform');
         if (batchform) {
