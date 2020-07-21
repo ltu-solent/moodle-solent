@@ -96,6 +96,10 @@ class assign_submission_file extends assign_submission_plugin {
                                         $COURSE->maxbytes,
                                         get_config('assignsubmission_file', 'maxbytes'));
 
+// SU_AMEND START - Assignment: 100MB default file size
+        $defaultmaxsubmissionsizebytes = 104857600;
+// SU_AMEND END
+
         $settings[] = array('type' => 'select',
                             'name' => 'maxsubmissionsizebytes',
                             'description' => get_string('maximumsubmissionsize', 'assignsubmission_file'),
