@@ -268,148 +268,118 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
      * @param bool $onsectionpage true if being printed on a section page
      * @return array of edit control items
      */
-    protected function section_edit_control_items($course, $section, $onsectionpage = false) {
-        if (!$this->page->user_is_editing()) {
-            return array();
-        }
+     protected function section_edit_control_items($course, $section, $onsectionpage = false) {
+             if (!$this->page->user_is_editing()) {
+                 return array();
+             }
 
-        $sectionreturn = $onsectionpage ? $section->section : null;
+             $sectionreturn = $onsectionpage ? $section->section : null;
 
-        $coursecontext = context_course::instance($course->id);
-        $numsections = course_get_format($course)->get_last_section_number();
-        $isstealth = $section->section > $numsections;
+             $coursecontext = context_course::instance($course->id);
+             $numsections = course_get_format($course)->get_last_section_number();
+             $isstealth = $section->section > $numsections;
 
-        $baseurl = course_get_url($course, $sectionreturn);
-        $baseurl->param('sesskey', sesskey());
+             $baseurl = course_get_url($course, $sectionreturn);
+             $baseurl->param('sesskey', sesskey());
 
-        $controls = array();
+             $controls = array();
 
-        if (!$isstealth && has_capability('moodle/course:update', $coursecontext)) {
-            if ($section->section > 0
-                && get_string_manager()->string_exists('editsection', 'format_'.$course->format)) {
-                $streditsection = get_string('editsection', 'format_'.$course->format);
-            } else {
-                $streditsection = get_string('editsection');
-            }
+             if (!$isstealth && has_capability('moodle/course:update', $coursecontext)) {
+                 if ($section->section > 0
+                     && get_string_manager()->string_exists('editsection', 'format_'.$course->format)) {
+                     $streditsection = get_string('editsection', 'format_'.$course->format);
+                 } else {
+                     $streditsection = get_string('editsection');
+                 }
 
-            $controls['edit'] = array(
-                'url'   => new moodle_url('/course/editsection.php', array('id' => $section->id, 'sr' => $sectionreturn)),
-                'icon' => 'i/settings',
-                'name' => $streditsection,
-                'pixattr' => array('class' => ''),
-                'attr' => array('class' => 'icon edit'));
-        }
+                 $controls['edit'] = array(
+                     'url'   => new moodle_url('/course/editsection.php', array('id' => $section->id, 'sr' => $sectionreturn)),
+                     'icon' => 'i/settings',
+                     'name' => $streditsection,
+                     'pixattr' => array('class' => ''),
+                     'attr' => array('class' => 'icon edit'));
+             }
 
-        if ($section->section) {
-            $url = clone($baseurl);
-            if (!$isstealth) {
-// SU_AMEND START - Course: Prevent anyone except admins hiding default sections
-            global $CFG;
-            $category = core_course_category::get($course->category, IGNORE_MISSING);
-            $catname = strtolower('x'.$category->name);
-            if((strpos($catname, 'unit pages') !== false &&  $section->section > 4) || is_siteadmin()){
-                      if (has_capability('moodle/course:sectionvisibility', $coursecontext)) {
-                          if ($section->visible) { // Show the hide/show eye.
-                              $strhidefromothers = get_string('hidefromothers', 'format_'.$course->format);
-                              $url->param('hide', $section->section);
-                              $controls['visiblity'] = array(
-                                  'url' => $url,
-                                  'icon' => 'i/hide',
-                                  'name' => $strhidefromothers,
-                                  'pixattr' => array('class' => '', 'alt' => $strhidefromothers),
-                                  'attr' => array('class' => 'icon editing_showhide', 'title' => $strhidefromothers,
-                                      'data-sectionreturn' => $sectionreturn, 'data-action' => 'hide'));
-                          } else {
-                              $strshowfromothers = get_string('showfromothers', 'format_'.$course->format);
-                              $url->param('show',  $section->section);
-                              $controls['visiblity'] = array(
-                                  'url' => $url,
-                                  'icon' => 'i/show',
-                                  'name' => $strshowfromothers,
-                                  'pixattr' => array('class' => '', 'alt' => $strshowfromothers),
-                                  'attr' => array('class' => 'icon editing_showhide', 'title' => $strshowfromothers,
-                                      'data-sectionreturn' => $sectionreturn, 'data-action' => 'show'));
-                          }
-                      }
-                }else if (strpos($catname, 'unit pages') === false){
-                      if (has_capability('moodle/course:sectionvisibility', $coursecontext)) {
-                          if ($section->visible) { // Show the hide/show eye.
-                              $strhidefromothers = get_string('hidefromothers', 'format_'.$course->format);
-                              $url->param('hide', $section->section);
-                              $controls['visiblity'] = array(
-                                  'url' => $url,
-                                  'icon' => 'i/hide',
-                                  'name' => $strhidefromothers,
-                                  'pixattr' => array('class' => '', 'alt' => $strhidefromothers),
-                                  'attr' => array('class' => 'icon editing_showhide', 'title' => $strhidefromothers,
-                                      'data-sectionreturn' => $sectionreturn, 'data-action' => 'hide'));
-                          } else {
-                              $strshowfromothers = get_string('showfromothers', 'format_'.$course->format);
-                              $url->param('show',  $section->section);
-                              $controls['visiblity'] = array(
-                                  'url' => $url,
-                                  'icon' => 'i/show',
-                                  'name' => $strshowfromothers,
-                                  'pixattr' => array('class' => '', 'alt' => $strshowfromothers),
-                                  'attr' => array('class' => 'icon editing_showhide', 'title' => $strshowfromothers,
-                                      'data-sectionreturn' => $sectionreturn, 'data-action' => 'show'));
-                          }
-                      }
-                }
+             if ($section->section) {
+                 $url = clone($baseurl);
+                 if (!$isstealth) {
+                     if (has_capability('moodle/course:sectionvisibility', $coursecontext)) {
+                         if ($section->visible) { // Show the hide/show eye.
+                             $strhidefromothers = get_string('hidefromothers', 'format_'.$course->format);
+                             $url->param('hide', $section->section);
+                             $controls['visiblity'] = array(
+                                 'url' => $url,
+                                 'icon' => 'i/hide',
+                                 'name' => $strhidefromothers,
+                                 'pixattr' => array('class' => ''),
+                                 'attr' => array('class' => 'icon editing_showhide',
+                                     'data-sectionreturn' => $sectionreturn, 'data-action' => 'hide'));
+                         } else {
+                             $strshowfromothers = get_string('showfromothers', 'format_'.$course->format);
+                             $url->param('show',  $section->section);
+                             $controls['visiblity'] = array(
+                                 'url' => $url,
+                                 'icon' => 'i/show',
+                                 'name' => $strshowfromothers,
+                                 'pixattr' => array('class' => ''),
+                                 'attr' => array('class' => 'icon editing_showhide',
+                                     'data-sectionreturn' => $sectionreturn, 'data-action' => 'show'));
+                         }
+                     }
 
-                if (!$onsectionpage) {
-                    if (has_capability('moodle/course:movesections', $coursecontext)) {
-                        $url = clone($baseurl);
-                        if ($section->section > 1) { // Add a arrow to move section up.
-                            $url->param('section', $section->section);
-                            $url->param('move', -1);
-                            $strmoveup = get_string('moveup');
-                            $controls['moveup'] = array(
-                                'url' => $url,
-                                'icon' => 'i/up',
-                                'name' => $strmoveup,
-                                'pixattr' => array('class' => ''),
-                                'attr' => array('class' => 'icon moveup'));
-                        }
+                     if (!$onsectionpage) {
+                         if (has_capability('moodle/course:movesections', $coursecontext)) {
+                             $url = clone($baseurl);
+                             if ($section->section > 1) { // Add a arrow to move section up.
+                                 $url->param('section', $section->section);
+                                 $url->param('move', -1);
+                                 $strmoveup = get_string('moveup');
+                                 $controls['moveup'] = array(
+                                     'url' => $url,
+                                     'icon' => 'i/up',
+                                     'name' => $strmoveup,
+                                     'pixattr' => array('class' => ''),
+                                     'attr' => array('class' => 'icon moveup'));
+                             }
 
-                        $url = clone($baseurl);
-                        if ($section->section < $numsections) { // Add a arrow to move section down.
-                            $url->param('section', $section->section);
-                            $url->param('move', 1);
-                            $strmovedown = get_string('movedown');
-                            $controls['movedown'] = array(
-                                'url' => $url,
-                                'icon' => 'i/down',
-                                'name' => $strmovedown,
-                                'pixattr' => array('class' => ''),
-                                'attr' => array('class' => 'icon movedown'));
-                        }
-                    }
-                }
-            }
+                             $url = clone($baseurl);
+                             if ($section->section < $numsections) { // Add a arrow to move section down.
+                                 $url->param('section', $section->section);
+                                 $url->param('move', 1);
+                                 $strmovedown = get_string('movedown');
+                                 $controls['movedown'] = array(
+                                     'url' => $url,
+                                     'icon' => 'i/down',
+                                     'name' => $strmovedown,
+                                     'pixattr' => array('class' => ''),
+                                     'attr' => array('class' => 'icon movedown'));
+                             }
+                         }
+                     }
+                 }
 
-            if (course_can_delete_section($course, $section)) {
-                if (get_string_manager()->string_exists('deletesection', 'format_'.$course->format)) {
-                    $strdelete = get_string('deletesection', 'format_'.$course->format);
-                } else {
-                    $strdelete = get_string('deletesection');
-                }
-                $url = new moodle_url('/course/editsection.php', array(
-                    'id' => $section->id,
-                    'sr' => $sectionreturn,
-                    'delete' => 1,
-                    'sesskey' => sesskey()));
-                $controls['delete'] = array(
-                    'url' => $url,
-                    'icon' => 'i/delete',
-                    'name' => $strdelete,
-                    'pixattr' => array('class' => ''),
-                    'attr' => array('class' => 'icon editing_delete'));
-            }
-        }
+                 if (course_can_delete_section($course, $section)) {
+                     if (get_string_manager()->string_exists('deletesection', 'format_'.$course->format)) {
+                         $strdelete = get_string('deletesection', 'format_'.$course->format);
+                     } else {
+                         $strdelete = get_string('deletesection');
+                     }
+                     $url = new moodle_url('/course/editsection.php', array(
+                         'id' => $section->id,
+                         'sr' => $sectionreturn,
+                         'delete' => 1,
+                         'sesskey' => sesskey()));
+                     $controls['delete'] = array(
+                         'url' => $url,
+                         'icon' => 'i/delete',
+                         'name' => $strdelete,
+                         'pixattr' => array('class' => ''),
+                         'attr' => array('class' => 'icon editing_delete'));
+                 }
+             }
 
-        return $controls;
-    }
+             return $controls;
+         }
 
     /**
      * Generate a summary of a section for display on the 'course index page'
