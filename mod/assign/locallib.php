@@ -1611,6 +1611,9 @@ class assign {
         }
         $group->setElements($feedbackpluginsenabled);
         $mform->setExpanded('submissiontypes');
+// SU_AMEND START - Assignment: Expand feedback types in settings
+        $mform->setExpanded('feedbacktypes');
+// SU_AMEND END
     }
 
     /**
