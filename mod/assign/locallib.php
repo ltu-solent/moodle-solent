@@ -4547,6 +4547,23 @@ class assign {
                   $releaseavailable  = 	$releaseavailable->modify($modifystring);
                   $releaseavailable = $releaseavailable->getTimestamp();
 
+                  $o .= $this->output->notification(get_string('marksuploadinclude','assign') .
+                    get_string('releasedate', 'assign', ['date' => date('d/m/Y', $releaseavailable), 'days' => get_config('local_quercus_tasks', 'boardbuffer')]),
+                    \core\output\notification::NOTIFY_SUCCESS);
+                }else{
+                  $o .= $this->output->notification(get_string('marksuploadinclude','assign') .
+                    get_string('noboard','assign'),
+                    \core\output\notification::NOTIFY_SUCCESS);
+                }
+              }
+            }
+        }
+
+			if($this->get_grade_item()->locked != 0){
+				$o .= $this->output->notification(get_string('gradeslocked','assign'), \core\output\notification::NOTIFY_ERROR);
+			}
+// SU_AMEND END
+
         $currenturl = $CFG->wwwroot .
                       '/mod/assign/view.php?id=' .
                       $this->get_course_module()->id .
