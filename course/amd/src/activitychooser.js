@@ -199,6 +199,16 @@ const templateDataBuilder = (data, chooserConfig) => {
     if ((tabMode === ALLACTIVITIESRESOURCES || tabMode === ACTIVITIESRESOURCES) && tabMode !== ONLYALL) {
         // Filter the incoming data to find activities then resources.
         activities = data.filter(mod => mod.archetype === ACTIVITY);
+// SU_AMEND START - Course: Formative help panel string
+        /* eslint-disable no-unused-vars */
+        let obj = activities.find((o, i) => {
+            if (o.title === "Assignment") {
+                activities[i].title = 'Formative Assignment';
+                return true;
+            }
+        });
+        /* eslint-enable no-unused-vars */
+// SU_AMEND END
         resources = data.filter(mod => mod.archetype === RESOURCE);
         showActivities = true;
         showResources = true;
