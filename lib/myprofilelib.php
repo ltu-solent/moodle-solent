@@ -259,9 +259,9 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                         // $courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false),
                                 // $linkattributes));
             						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
-            						$catname = strtolower('x'.$category->name);
+            						$catname = strtolower('x'.$category->idnumber);
 
-            						if(strpos($catname, 'unit pages') !== false){
+            						if(strpos($catname, 'modules_') !== false){
             							$courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false) . " - Start date: " . date('d-m-Y', $mycourse->startdate),
             									$linkattributes));
             						}else{
@@ -273,7 +273,7 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                         //$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
             						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
             						$catname = strtolower('x'.$category->name);
-            						if(strpos($catname, 'unit pages') !== false){
+            						if(strpos($catname, 'modules_') !== false){
             							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false) . " - Start date: " . date('d-m-Y', $mycourse->startdate));
             						}else{
             							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
