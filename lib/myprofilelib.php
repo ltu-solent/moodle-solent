@@ -272,7 +272,7 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
 // SU_AMEND START - Add unit start dates to profile page
                         //$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
             						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
-            						$catname = strtolower('x'.$category->name);
+            						$catname = strtolower('x'.$category->idnumber);
             						if(strpos($catname, 'modules_') !== false){
             							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false) . " - Start date: " . date('d-m-Y', $mycourse->startdate));
             						}else{
