@@ -30,9 +30,9 @@ class editsection_form extends moodleform {
         // ], ['size' => 30, 'maxlength' => 255]);
         global $CFG;
         $category = core_course_category::get($course->category, IGNORE_MISSING);
-        $catname = strtolower('x'.$category->name);
+        $catname = strtolower('x'.$category->idnumber);
         $section = $this->_customdata['cs']->section;
-        if(strpos($catname, 'unit pages') !== false){
+        if(strpos($catname, 'modules_') !== false){
           $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
               'defaultvalue' => $this->_customdata['defaultsectionname'],
               'customvalue' => $sectioninfo->name,
@@ -56,7 +56,7 @@ class editsection_form extends moodleform {
           $mform->addGroupRule('name', array('name' => array(array(get_string('maximumchars', '', 255), 'maxlength', 255))));
 
 // SU_AMEND START - Course: Prevent anyone except admins editing default section titles
-    		if(strpos($catname, 'unit pages') !== false){
+    		if(strpos($catname, 'modules_') !== false){
     			if(!is_siteadmin() && $section < 5){
     				$mform->addElement('hidden', 'unitpages', 1);
     				$mform->setType('unitpages', PARAM_RAW);

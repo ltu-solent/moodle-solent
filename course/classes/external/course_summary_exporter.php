@@ -68,9 +68,9 @@ class course_summary_exporter extends \core\external\exporter {
         $coursecategory = \core_course_category::get($this->data->category, MUST_EXIST, true);
 
 // SU_AMEND START - Block: Module dates in myoverview block
-        $catname = strtolower('x'.$coursecategory->name);
+        $catname = strtolower('x'.$coursecategory->idnumber);
 
-        if(strpos($catname, 'unit pages') != false) {
+        if(strpos($catname, 'modules_') != false) {
             $is_unit_page = true;
         } else {
             $is_unit_page = false;
