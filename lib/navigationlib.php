@@ -4453,15 +4453,11 @@ class settings_navigation extends navigation_node {
                     new pix_icon('i/publish', ''));
             }
 
-            // Reset this course
-            if ($adminoptions->reset) {
-                $url = new moodle_url('/course/reset.php', array('id'=>$course->id));
-                $coursenode->add(get_string('reset'), $url, self::TYPE_SETTING, null, 'reset', new pix_icon('i/return', ''));
-            }
-
-            // Questions
-            require_once($CFG->libdir . '/questionlib.php');
-            question_extend_settings_navigation($coursenode, $coursecontext)->trim_if_empty();
+        // Reset this course
+        if ($adminoptions->reset) {
+            $url = new moodle_url('/course/reset.php', array('id'=>$course->id));
+            $coursenode->add(get_string('reset'), $url, self::TYPE_SETTING, null, 'reset', new pix_icon('i/return', ''));
+        }
 
             if ($adminoptions->update) {
                 // Repository Instances

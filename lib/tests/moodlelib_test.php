@@ -36,18 +36,24 @@ class core_moodlelib_testcase extends advanced_testcase {
      * It is not possible to directly change the result of get_string in
      * a unit test. Instead, we create a language pack for language 'xx' in
      * dataroot and make langconfig.php with the string we need to change.
-     * The example separator used here is 'X'; on PHP 5.3 and before this
+     * The default example separator used here is 'X'; on PHP 5.3 and before this
      * must be a single byte character due to PHP bug/limitation in
      * number_format, so you can't use UTF-8 characters.
+     *
+     * @param string $decsep Separator character. Defaults to `'X'`.
      */
-    protected function define_local_decimal_separator() {
+    protected function define_local_decimal_separator(string $decsep = 'X') {
         global $SESSION, $CFG;
 
         $SESSION->lang = 'xx';
-        $langconfig = "<?php\n\$string['decsep'] = 'X';";
+        $langconfig = "<?php\n\$string['decsep'] = '$decsep';";
         $langfolder = $CFG->dataroot . '/lang/xx';
         check_dir_exists($langfolder);
         file_put_contents($langfolder . '/langconfig.php', $langconfig);
+
+        // Ensure the new value is picked up and not taken from the cache.
+        $stringmanager = get_string_manager();
+        $stringmanager->reset_caches(true);
     }
 
     public function test_cleanremoteaddr() {
@@ -2225,6 +2231,14 @@ class core_moodlelib_testcase extends advanced_testcase {
         // Localisation off.
         $this->assertEquals('5.43000', format_float(5.43, 5, false));
         $this->assertEquals('5.43', format_float(5.43, 5, false, true));
+
+        // Tests with tilde as localised decimal separator.
+        $this->define_local_decimal_separator('~');
+
+        // Must also work for '~' as decimal separator.
+        $this->assertEquals('5', format_float(5.0001, 3, true, true));
+        $this->assertEquals('5~43000', format_float(5.43, 5));
+        $this->assertEquals('5~43', format_float(5.43, 5, true, true));
     }
 
     /**
@@ -3587,6 +3601,10 @@ class core_moodlelib_testcase extends advanced_testcase {
      * Tests the getremoteaddr() function.
      */
     public function test_getremoteaddr() {
+        global $CFG;
+
+        $this->resetAfterTest();
+        $CFG->getremoteaddrconf = GETREMOTEADDR_SKIP_HTTP_CLIENT_IP;
         $xforwardedfor = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : null;
 
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '';
@@ -3603,27 +3621,27 @@ class core_moodlelib_testcase extends advanced_testcase {
 
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1,127.0.0.2';
         $twoip = getremoteaddr();
-        $this->assertEquals('127.0.0.1', $twoip);
+        $this->assertEquals('127.0.0.2', $twoip);
 
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1,127.0.0.2, 127.0.0.3';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1,127.0.0.2,127.0.0.3';
         $threeip = getremoteaddr();
-        $this->assertEquals('127.0.0.1', $threeip);
+        $this->assertEquals('127.0.0.3', $threeip);
 
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1:65535,127.0.0.2';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1,127.0.0.2:65535';
         $portip = getremoteaddr();
-        $this->assertEquals('127.0.0.1', $portip);
+        $this->assertEquals('127.0.0.2', $portip);
 
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '0:0:0:0:0:0:0:1,127.0.0.2';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1,0:0:0:0:0:0:0:2';
         $portip = getremoteaddr();
-        $this->assertEquals('0:0:0:0:0:0:0:1', $portip);
+        $this->assertEquals('0:0:0:0:0:0:0:2', $portip);
 
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '0::1,127.0.0.2';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1,0::2';
         $portip = getremoteaddr();
-        $this->assertEquals('0:0:0:0:0:0:0:1', $portip);
+        $this->assertEquals('0:0:0:0:0:0:0:2', $portip);
 
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '[0:0:0:0:0:0:0:1]:65535,127.0.0.2';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1,[0:0:0:0:0:0:0:2]:65535';
         $portip = getremoteaddr();
-        $this->assertEquals('0:0:0:0:0:0:0:1', $portip);
+        $this->assertEquals('0:0:0:0:0:0:0:2', $portip);
 
         $_SERVER['HTTP_X_FORWARDED_FOR'] = $xforwardedfor;
 
