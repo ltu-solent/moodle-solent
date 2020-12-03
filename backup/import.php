@@ -219,12 +219,11 @@ if ($backup->get_stage() == backup_ui::STAGE_FINAL) {
     }
 	
 // SU_AMEND START - Backup: Send email to instructional.design when import is complete
-	// Check if course is in 'unit pages' category first.
+	// Check if course is in 'modules pages' category first.
 	global $CFG;
-	$category = core_course_category::get($course->category, IGNORE_MISSING);
-	// $catname = strtolower('x'.$category->name);
-	// if(strpos($catname, 'unit pages') !== false){
-	if($category->name == 'Unit Pages'){
+	$catidnumber = core_course_category::get($course->category, IGNORE_MISSING);
+	$catidnumber = strtolower('x'.$catidnumber->idnumber);
+	if(strpos($catidnumber, 'modules_') !== false){
 		$messagebody = '<a href="' . $CFG->wwwroot . '/course/view.php?id='. $course->id . '">' . $CFG->wwwroot . '/course/view.php?id='. $course->id . '</a>';
 		$to = "instructional.design@solent.ac.uk";
 		$subject = "Module imported: " . $course->shortname;

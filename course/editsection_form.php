@@ -29,10 +29,10 @@ class editsection_form extends moodleform {
         //     'customvalue' => $sectioninfo->name,
         // ], ['size' => 30, 'maxlength' => 255]);
         global $CFG;
-        $category = core_course_category::get($course->category, IGNORE_MISSING);
-        $catname = strtolower('x'.$category->name);
+        $catidnumber = core_course_category::get($course->category, IGNORE_MISSING);
+        $catidnumber = strtolower('x'.$catidnumber->idnumber);
         $section = $this->_customdata['cs']->section;
-        if(strpos($catname, 'unit pages') !== false){
+        if(strpos($catidnumber, 'modules_') !== false){
           $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
               'defaultvalue' => $this->_customdata['defaultsectionname'],
               'customvalue' => $sectioninfo->name,

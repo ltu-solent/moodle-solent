@@ -249,13 +249,13 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                             $params['showallcourses'] = 1;
                         }
                         $url = new moodle_url('/user/view.php', $params);
-// SU_AMEND START - Unit start date: Profile page
+// SU_AMEND START - Module start date: Profile page
                         // $courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false),
                                 // $linkattributes));
-            						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
-            						$catname = strtolower('x'.$category->name);
+            						$catidnumber = core_course_category::get($mycourse->category, IGNORE_MISSING);
+            						$catidnumber = strtolower('x'.$catidnumber->idnumber);
 
-            						if(strpos($catname, 'unit pages') !== false){
+            						if(strpos($catidnumber, 'modules_') !== false){
             							$courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false) . " - Start date: " . date('d-m-Y', $mycourse->startdate),
             									$linkattributes));
             						}else{
@@ -263,11 +263,11 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                                             $linkattributes));
                         }
                     } else {
-// SU_AMEND START - Unit start date: Profile page
+// SU_AMEND START - Module start date: Profile page
                         //$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
-            						$category = core_course_category::get($mycourse->category, IGNORE_MISSING);
-            						$catname = strtolower('x'.$category->name);
-            						if(strpos($catname, 'unit pages') !== false){
+            						$catidnumber = core_course_category::get($mycourse->category, IGNORE_MISSING);
+            						$catidnumber = strtolower('x'.$catidnumber->idnumber);
+            						if(strpos($catidnumber, 'modules_') !== false){
             							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false) . " - Start date: " . date('d-m-Y', $mycourse->startdate));
             						}else{
             							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));

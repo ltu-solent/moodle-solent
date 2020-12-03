@@ -66,12 +66,12 @@ class course_summary_exporter extends \core\external\exporter {
         }
         $progress = floor($progress);
 
-// SU_AMEND START - Unit start date: myoverview block
+// SU_AMEND START - Module start date: myoverview block
         global $DB;
-        $category = $DB->get_record_sql('SELECT cc.name FROM {course_categories} cc JOIN {course} c ON c.category = cc.id WHERE c.id = ?', array($this->data->id));
-        $catname = strtolower('x'.$category->name);
+        $catidnumber = $DB->get_record_sql('SELECT cc.idnumber FROM {course_categories} cc JOIN {course} c ON c.category = cc.id WHERE c.id = ?', array($this->data->id));
+        $catidnumber = strtolower('x'.$catidnumber->idnumber);
 
-        if(strpos($catname, 'unit pages') != false) {
+        if(strpos($catidnumber, 'modules_') != false) {
             $is_unit_page = true;
         } else {
             $is_unit_page = false;
@@ -80,7 +80,7 @@ class course_summary_exporter extends \core\external\exporter {
         return array(
             'fullnamedisplay' => get_course_display_name_for_list($this->data),
             'viewurl' => (new moodle_url('/course/view.php', array('id' => $this->data->id)))->out(false),
-// SU_AMEND START - Unit start date: myoverview block
+// SU_AMEND START - Module start date: myoverview block
             'is_unit_page' => $is_unit_page,
 // SU_AMEND END
             'courseimage' => $courseimage,
