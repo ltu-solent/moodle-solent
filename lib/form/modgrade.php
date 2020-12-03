@@ -146,6 +146,18 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
 
         // Grade scale select box.
         $scales = get_scales_menu($COURSE->id);
+//SSU_AMEND START - USE SOLENT GRADE SCALES ONLY
+        global $PAGE;
+        if($PAGE->cm){
+          if($PAGE->cm->modname == 'assign' && $PAGE->cm->idnumber !=''){
+            $newscales = array();
+            $newscales[34] = $scales['34'];
+            $newscales[38] = $scales['38'];
+            unset($scales);
+            $scales = $newscales;
+          }
+        }
+//SSU_AMEND END
         $langscale = get_string('modgradetypescale', 'grades');
         $this->scaleformelement = $this->createFormElement('select', 'modgrade_scale', $langscale,
             $scales, $attributes);
@@ -166,6 +178,14 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
             'scale' => get_string('modgradetypescale', 'grades'),
             'point' => get_string('modgradetypepoint', 'grades'),
         );
+// SU_AMEND START - Marks Upload: Force scales to be used
+        if($PAGE->cm){
+          if($PAGE->cm->modname == 'assign' && $PAGE->cm->idnumber !='' && !is_siteadmin()){
+            unset($gradetype['none']);
+            unset($gradetype['point']);
+          }
+        }
+// SU_AMEND END
         $langtype = get_string('modgradetype', 'grades');
         $this->gradetypeformelement = $this->createFormElement('select', 'modgrade_type', $langtype, $gradetype,
             $attributes, true);

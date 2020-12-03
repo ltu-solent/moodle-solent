@@ -589,6 +589,13 @@ abstract class moodleform_mod extends moodleform {
             $mform->addElement('text', 'cmidnumber', get_string('idnumbermod'));
             $mform->setType('cmidnumber', PARAM_RAW);
             $mform->addHelpButton('cmidnumber', 'idnumbermod');
+// SU_AMEND START - Marks Upload: Disable idnumber for all assignments
+      			if($this->current->modulename == 'assign'){
+      				$mform->addElement('hidden', 'quercus', 1);
+      				$mform->setType('quercus', PARAM_RAW);
+      				$mform->disabledIf('cmidnumber', 'quercus', 'eq', 1);
+      			}
+// SU_AMEND END
         }
 
         if ($this->_features->groups) {
@@ -843,7 +850,23 @@ abstract class moodleform_mod extends moodleform {
                 }
                 $mform->addElement('modgrade', 'grade', get_string('grade'), $gradeoptions);
                 $mform->addHelpButton('grade', 'modgrade', 'grades');
-                $mform->setDefault('grade', $CFG->gradepointdefault);
+// SU_AMEND START - Marks Upload: Default to scale
+			//	$mform->setDefault('grade', $CFG->gradepointdefault);
+				if(isset($this->current->grade) > 0){
+					$mform->setDefault('grade', $CFG->gradepointmax);
+				}else{
+					$mform->setDefault('grade[modgrade_type]', 'scale');
+				}
+// SU_AMEND END
+
+// SU_AMEND START - Marks Upload: Hardfreeze scale
+        // if ($this->_cm) {
+        //   if($this->_cm->modname == 'assign' && $this->_cm->idnumber !='' && !is_siteadmin()){
+        //       $mform->hardFreeze('grade');
+        //       $mform->setConstant('grade', format_string($this->get_current()->grade));
+        //   }
+        // }
+// SU_AMEND END
             }
 
             if ($this->_features->advancedgrading
@@ -1111,5 +1134,3 @@ abstract class moodleform_mod extends moodleform {
         return $data;
     }
 }
-
-

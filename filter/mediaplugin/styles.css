@@ -11,7 +11,6 @@
 .mediaplugin,
 .mediaplugin video {
     /* Make videos as wide as possible without being wider than their containers */
-    width: 100vw;
     max-width: 100%;
 }
 

@@ -44,6 +44,12 @@ class filter_activitynames extends moodle_text_filter {
             return $text;
         }
         $courseid = $coursectx->instanceid;
+// SU_AMEND START - Filter: Prevent display of activity names on search page
+		// Do not run filter on the search page
+		if (substr ($_SERVER['REQUEST_URI'],0,14) == '/course/search'){
+			return $text;
+		}
+// SU_AMEND END
 
         // Initialise/invalidate our trivial cache if dealing with a different course.
         if (!isset(self::$cachedcourseid) || self::$cachedcourseid !== (int)$courseid) {
@@ -75,6 +81,9 @@ class filter_activitynames extends moodle_text_filter {
                             'url' => $cm->url,
                             'id' => $cm->id,
                             'namelen' => -strlen($cm->name), // Negative value for reverse sorting.
+// SU_AMEND START - Filter: Prevent display of activity names in books
+							              'modname' => $cm->modname,
+// SU_AMEND END
                         );
                     }
                 }
@@ -90,10 +99,22 @@ class filter_activitynames extends moodle_text_filter {
                         $href_tag_begin = html_writer::start_tag('a',
                                 array('class' => 'autolink', 'title' => $title,
                                     'href' => $cm->url));
-                        self::$activitylist[$cm->id] = new filterobject($currentname, $href_tag_begin, '</a>', false, true);
+// SU_AMEND START - Filter: Prevent display of activity names in books
+          							global $OUTPUT;
+          							if(substr ($_SERVER['REQUEST_URI'],0,12) !=  '/course/view' ){
+          								$addedicon = '<img src="' . $OUTPUT->image_url ('icon', $cm->modname) . '" class="icon" alt="'.$cm->modname.'">'; }
+          							else{
+          								$addedicon = '';
+          							}
+    						        //self::$activitylist[$cm->id] = new filterobject($currentname, $href_tag_begin, '</a>', false, true);
+                        self::$activitylist[$cm->id] = new filterobject($currentname, $href_tag_begin.''.$addedicon, '</a>', false, true);
+// SU_AMEND END
                         if ($currentname != $entitisedname) {
-                            // If name has some entity (&amp; &quot; &lt; &gt;) add that filter too. MDL-17545.
-                            self::$activitylist[$cm->id.'-e'] = new filterobject($entitisedname, $href_tag_begin, '</a>', false, true);
+                        // If name has some entity (&amp; &quot; &lt; &gt;) add that filter too. MDL-17545.
+// SU_AMEND START - Filter: Prevent display of activity names in books
+                        //self::$activitylist[$cm->id.'-e'] = new filterobject($entitisedname, $href_tag_begin, '</a>', false, true);
+                        self::$activitylist[$cm->id] = new filterobject($entitisedname, $href_tag_begin.''.$addedicon, '</a>', false, true);
+// SU_AMEND END
                         }
                     }
                 }

@@ -217,7 +217,23 @@ if ($backup->get_stage() == backup_ui::STAGE_FINAL) {
     if ($loghtml != '') {
         echo $renderer->log_display($loghtml);
     }
-
+	
+// SU_AMEND START - Backup: Send email to instructional.design when import is complete
+	// Check if course is in 'modules pages' category first.
+	global $CFG;
+	$catidnumber = core_course_category::get($course->category, IGNORE_MISSING);
+	$catidnumber = strtolower('x'.$catidnumber->idnumber);
+	if(strpos($catidnumber, 'modules_') !== false){
+		$messagebody = '<a href="' . $CFG->wwwroot . '/course/view.php?id='. $course->id . '">' . $CFG->wwwroot . '/course/view.php?id='. $course->id . '</a>';
+		$to = "instructional.design@solent.ac.uk";
+		$subject = "Module imported: " . $course->shortname;
+		//$headers = "From: " . $CFG->noreplyaddress . "\r\n";
+		$headers = "From: lt.systems@solent.ac.uk \r\n";
+		$headers .= "MIME-Version: 1.0\r\n";
+		$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+		mail($to, $subject, $messagebody, $headers);
+	}
+// SU_AMEND END 
     echo $OUTPUT->footer();
 
     die();

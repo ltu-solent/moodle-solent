@@ -65,9 +65,24 @@ class course_summary_exporter extends \core\external\exporter {
             $hasprogress = true;
         }
         $progress = floor($progress);
+
+// SU_AMEND START - Module start date: myoverview block
+        global $DB;
+        $catidnumber = $DB->get_record_sql('SELECT cc.idnumber FROM {course_categories} cc JOIN {course} c ON c.category = cc.id WHERE c.id = ?', array($this->data->id));
+        $catidnumber = strtolower('x'.$catidnumber->idnumber);
+
+        if(strpos($catidnumber, 'modules_') != false) {
+            $is_unit_page = true;
+        } else {
+            $is_unit_page = false;
+        }
+// SU_AMEND END
         return array(
             'fullnamedisplay' => get_course_display_name_for_list($this->data),
             'viewurl' => (new moodle_url('/course/view.php', array('id' => $this->data->id)))->out(false),
+// SU_AMEND START - Module start date: myoverview block
+            'is_unit_page' => $is_unit_page,
+// SU_AMEND END
             'courseimage' => $courseimage,
             'progress' => $progress,
             'hasprogress' => $hasprogress,
@@ -143,6 +158,11 @@ class course_summary_exporter extends \core\external\exporter {
             'isfavourite' => array(
                 'type' => PARAM_BOOL
             ),
+// SU_AMEND START - Unit start date: myoverview block
+            'is_unit_page' => array(
+                'type' => PARAM_BOOL
+            ),
+//SU_AMMEND END
             'hidden' => array(
                 'type' => PARAM_BOOL
             ),
@@ -213,8 +233,11 @@ class course_summary_exporter extends \core\external\exporter {
      */
     public static function coursecolor($courseid) {
         // The colour palette is hardcoded for now. It would make sense to combine it with theme settings.
-        $basecolors = ['#81ecec', '#74b9ff', '#a29bfe', '#dfe6e9', '#00b894',
-            '#0984e3', '#b2bec3', '#fdcb6e', '#fd79a8', '#6c5ce7'];
+// SSU_AMEND START - SSU course block colours
+        // $basecolors = ['#81ecec', '#74b9ff', '#a29bfe', '#dfe6e9', '#00b894',
+        //     '#0984e3', '#b2bec3', '#fdcb6e', '#fd79a8', '#6c5ce7'];
+        $basecolors = ['#cfcc38', '#466273', '#71a3a7', '#9bae4d', '#575757', '#763978', '#00aaaf', '#008fbd', '#836d69', '#e16766'];
+// SSU_AMEND END
 
         $color = $basecolors[$courseid % 10];
         return $color;
