@@ -1751,20 +1751,18 @@ class restore_section_structure_step extends restore_structure_step {
 //                $newid = $DB->insert_record('course_format_options', $params);
 //            }
 
-			if ($record = $DB->get_record('course_format_options', $params, 'id, value, name, format')) { //if record exists for course importing to
-				if($record->format == 'onetopic' && ($record->name == 'level' || $record->name == 'firsttabtext')){ //if onetopic and child tab data
-                   $newid = $DB->set_field('course_format_options', 'value', $data['value'], array('id'=>$record->id)); //keep value
-                }else{
+           if ($record = $DB->get_record('course_format_options', $params, 'id, value, name')) {
+               if($record->name == 'bgcolor' || $record->name == 'fontcolor' || $record->name == 'cssstyles'){ //if onetopic and child tab data
+                   $newid = $DB->set_field('course_format_options', 'value', null, array('id'=>$record->id)); //keep value
+               }else{
                     $newid = $record->id; //else do not update
-                }		
-			} else {
-				//Backup: Remove styling of onetopic tabs on import
-				$params['value'] = $data['value'];
-				if($params['name'] == 'bgcolor' || $params['name'] == 'fontcolor' || $params['name'] == 'cssstyles'){
-					$params['value'] = null;
-				}
-				$newid = $DB->insert_record('course_format_options', $params);
-			}
+               }		
+           } else {
+               if($params['name'] == 'bgcolor' || $params['name'] == 'fontcolor' || $params['name'] == 'cssstyles'){
+                 $params['value'] = null;
+               }
+               $newid = $DB->insert_record('course_format_options', $params);
+           }
 //SU_AMEND END
             $this->set_mapping('course_format_options', $data['id'], $newid);
         }
