@@ -591,9 +591,8 @@ abstract class moodleform_mod extends moodleform {
             $mform->addHelpButton('cmidnumber', 'idnumbermod');
 // SU_AMEND START - Marks Upload: Disable idnumber for all assignments
       			if($this->current->modulename == 'assign'){
-      				$mform->addElement('hidden', 'quercus', 1);
-      				$mform->setType('quercus', PARAM_RAW);
-      				$mform->disabledIf('cmidnumber', 'quercus', 'eq', 1);
+					$mform->hardFreeze('cmidnumber');
+					$mform->setConstant('cmidnumber', $this->_cm->idnumber);
       			}
 // SU_AMEND END
         }

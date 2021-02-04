@@ -150,9 +150,13 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
         global $PAGE;
         if($PAGE->cm){
           if($PAGE->cm->modname == 'assign' && $PAGE->cm->idnumber !=''){
+			  
+			$grademark = get_config('local_quercus_tasks', 'grademarkscale');
+			$grademarkexempt = get_config('local_quercus_tasks', 'grademarkexemptscale');
+			
             $newscales = array();
-            $newscales[34] = $scales['34'];
-            $newscales[38] = $scales['38'];
+            $newscales[$grademark] = $scales[$grademark];
+            $newscales[$grademarkexempt] = $scales[$grademarkexempt];
             unset($scales);
             $scales = $newscales;
           }
