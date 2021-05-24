@@ -23,13 +23,38 @@ class editsection_form extends moodleform {
         $sectioninfo = $this->_customdata['cs'];
 
         $mform->addElement('header', 'generalhdr', get_string('general'));
-
-        $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
-            'defaultvalue' => $this->_customdata['defaultsectionname'],
-            'customvalue' => $sectioninfo->name,
-        ], ['size' => 30, 'maxlength' => 255]);
-        $mform->setDefault('name', false);
-        $mform->addGroupRule('name', array('name' => array(array(get_string('maximumchars', '', 255), 'maxlength', 255))));
+// SU_AMEND START - Course: Restrict section name length
+        // $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
+        //     'defaultvalue' => $this->_customdata['defaultsectionname'],
+        //     'customvalue' => $sectioninfo->name,
+        // ], ['size' => 30, 'maxlength' => 255]);
+        global $CFG;
+        $catidnumber = core_course_category::get($course->category, IGNORE_MISSING);
+        $catidnumber = strtolower('x'.$catidnumber->idnumber);
+        $section = $this->_customdata['cs']->section;
+        if(strpos($catidnumber, 'modules_') !== false){
+          $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
+              'defaultvalue' => $this->_customdata['defaultsectionname'],
+              'customvalue' => $sectioninfo->name,
+          ], ['size' => 30, 'maxlength' => 30]);
+//// SU_AMEND START - Course: Prevent anyone except admins editing default section titles
+          if(!is_siteadmin() && $section < 5){
+            $mform->addElement('hidden', 'unitpages', 1);
+            $mform->setType('unitpages', PARAM_RAW);
+            $mform->disabledIf('name', 'unitpages', 'eq', 1);
+            $mform->disabledIf('usedefaultname', 'unitpages', 'eq', 1);
+            $mform->setConstant('name', $sectioninfo->name);
+          }
+// SU_AMEND END - Course: Prevent anyone except admins editing default section titles
+        }else{
+          $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
+              'defaultvalue' => $this->_customdata['defaultsectionname'],
+              'customvalue' => $sectioninfo->name,
+          ], ['size' => 30, 'maxlength' => 255]);
+        }
+// SU_AMEND END - Course: Restrict section name length
+          $mform->setDefault('name', false);
+          $mform->addGroupRule('name', array('name' => array(array(get_string('maximumchars', '', 255), 'maxlength', 255))));
 
         /// Prepare course and the editor
 

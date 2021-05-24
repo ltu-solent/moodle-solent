@@ -33,6 +33,11 @@ defined('MOODLE_INTERNAL') || die();
 class filter_activitynames extends moodle_text_filter {
 
     function filter($text, array $options = array()) {
+// SU_AMEND START - Filter: Prevent autolinking of activity names on search page
+		if (strpos($_SERVER['REQUEST_URI'], '/course/search.php') !== false){			
+			return $text;
+		}
+// SU_AMEND END
         $coursectx = $this->context->get_course_context(false);
         if (!$coursectx) {
             return $text;
@@ -105,6 +110,9 @@ class filter_activitynames extends moodle_text_filter {
                         'url' => $cm->url,
                         'id' => $cm->id,
                         'namelen' => -strlen($cm->name), // Negative value for reverse sorting.
+// SU_AMEND START - Filter: Display activity icon within activities only
+						'modname' => $cm->modname,
+// SU_AMEND END
                     );
                 }
             }
@@ -120,10 +128,23 @@ class filter_activitynames extends moodle_text_filter {
                     $hreftagbegin = html_writer::start_tag('a',
                         array('class' => 'autolink', 'title' => $title,
                             'href' => $cm->url));
-                    $activitylist[$cm->id] = new filterobject($currentname, $hreftagbegin, '</a>', false, true);
+// SU_AMEND START - Filter: Display activity icon within activities only
+							global $OUTPUT;
+							if(strpos($_SERVER['REQUEST_URI'], 'course/view')){
+								$addedicon = '';
+							}else{								
+								$addedicon = '<img src="' . $OUTPUT->image_url('icon', $cm->modname) . '" class="icon" alt="'.$cm->modname.'">'; 
+							}
+							//$activitylist[$cm->id] = new filterobject($currentname, $hreftagbegin, '</a>', false, true);
+							$activitylist[$cm->id] = new filterobject($currentname, $hreftagbegin.' '.$addedicon, '</a>', false, true);
+// SU_AMEND END                    
                     if ($currentname != $entitisedname) {
                         // If name has some entity (&amp; &quot; &lt; &gt;) add that filter too. MDL-17545.
                         $activitylist[$cm->id.'-e'] = new filterobject($entitisedname, $hreftagbegin, '</a>', false, true);
+// SU_AMEND START - Filter: Display activity icon within activities only
+                        //$activitylist[$cm->id.'-e'] = new filterobject($entitisedname, $hreftagbegin, '</a>', false, true);
+                        $activitylist[$cm->id. '-e']  = new filterobject($entitisedname, $hreftagbegin.' '.$addedicon, '</a>', false, true);
+// SU_AMEND END
                     }
                 }
             }

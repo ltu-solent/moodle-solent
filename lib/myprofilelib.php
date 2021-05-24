@@ -253,10 +253,30 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                             $params['showallcourses'] = 1;
                         }
                         $url = new moodle_url('/user/view.php', $params);
-                        $courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false),
-                                $linkattributes));
+// SU_AMEND START - Module start date: Profile page
+                        // $courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false),
+                                // $linkattributes));
+            						$catidnumber = core_course_category::get($mycourse->category, IGNORE_MISSING);
+            						$catidnumber = strtolower('x'.$catidnumber->idnumber);
+
+            						if(strpos($catidnumber, 'modules_') !== false){
+            							$courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false) . " - Start date: " . date('d-m-Y', $mycourse->startdate),
+            									$linkattributes));
+            						}else{
+            							$courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false),
+                                            $linkattributes));
+                        }
                     } else {
-                        $courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
+// SU_AMEND START - Module start date: Profile page
+                        //$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
+            						$catidnumber = core_course_category::get($mycourse->category, IGNORE_MISSING);
+            						$catidnumber = strtolower('x'.$catidnumber->idnumber);
+            						if(strpos($catidnumber, 'modules_') !== false){
+            							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false) . " - Start date: " . date('d-m-Y', $mycourse->startdate));
+            						}else{
+            							$courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
+            						}
+// SU_AMEND END
                     }
                 }
                 $shown++;
