@@ -66,9 +66,24 @@ class course_summary_exporter extends \core\external\exporter {
         }
         $progress = floor($progress);
         $coursecategory = \core_course_category::get($this->data->category, MUST_EXIST, true);
+
+// SU_AMEND START - Module start date: myoverview block
+        global $DB;
+        $catidnumber = $DB->get_record_sql('SELECT cc.idnumber FROM {course_categories} cc JOIN {course} c ON c.category = cc.id WHERE c.id = ?', array($this->data->id));
+        $catidnumber = strtolower('x'.$catidnumber->idnumber);
+
+        if(strpos($catidnumber, 'modules_') != false) {
+            $is_unit_page = true;
+        } else {
+            $is_unit_page = false;
+        }
+// SU_AMEND END
         return array(
             'fullnamedisplay' => get_course_display_name_for_list($this->data),
             'viewurl' => (new moodle_url('/course/view.php', array('id' => $this->data->id)))->out(false),
+// SU_AMEND START - Module start date: myoverview block
+            'is_unit_page' => $is_unit_page,
+// SU_AMEND END
             'courseimage' => $courseimage,
             'progress' => $progress,
             'hasprogress' => $hasprogress,
@@ -145,6 +160,11 @@ class course_summary_exporter extends \core\external\exporter {
             'isfavourite' => array(
                 'type' => PARAM_BOOL
             ),
+// SU_AMEND START - Module start date: myoverview block
+            'is_unit_page' => array(
+                'type' => PARAM_BOOL
+            ),
+//SU_AMMEND END
             'hidden' => array(
                 'type' => PARAM_BOOL
             ),

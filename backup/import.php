@@ -223,7 +223,7 @@ if ($backup->get_stage() == backup_ui::STAGE_FINAL) {
     if ($loghtml != '') {
         echo $renderer->log_display($loghtml);
     }
-
+	 
     echo $OUTPUT->footer();
 
     die();

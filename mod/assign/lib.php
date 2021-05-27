@@ -291,9 +291,14 @@ function assign_update_events($assign, $override = null) {
         $groupid   = isset($current->groupid) ? $current->groupid : 0;
         $userid    = isset($current->userid) ? $current->userid : 0;
         $duedate = isset($current->duedate) ? $current->duedate : $assigninstance->duedate;
+// SU_AMEND START - Stop admin creating events when assignments are imported		
+		$admins = explode(',', $CFG->siteadmins);
+		$maindamin = $admins[0];
 
-        // Only add 'due' events for an override if they differ from the assign default.
-        $addclose = empty($current->id) || !empty($current->duedate);
+		if($userid != $maindamin){
+// SU_AMEND END
+		// Only add 'due' events for an override if they differ from the assign default.
+		$addclose = empty($current->id) || !empty($current->duedate);
 
         $event = new stdClass();
         $event->type = CALENDAR_EVENT_TYPE_ACTION;
@@ -312,43 +317,44 @@ function assign_update_events($assign, $override = null) {
         $event->eventtype   = ASSIGN_EVENT_TYPE_DUE;
         $event->priority    = null;
 
-        // Determine the event name and priority.
-        if ($groupid) {
-            // Group override event.
-            $params = new stdClass();
-            $params->assign = $assigninstance->name;
-            $params->group = groups_get_group_name($groupid);
-            if ($params->group === false) {
-                // Group doesn't exist, just skip it.
-                continue;
-            }
-            $eventname = get_string('overridegroupeventname', 'assign', $params);
-            // Set group override priority.
-            if (isset($current->sortorder)) {
-                $event->priority = $current->sortorder;
-            }
-        } else if ($userid) {
-            // User override event.
-            $params = new stdClass();
-            $params->assign = $assigninstance->name;
-            $eventname = get_string('overrideusereventname', 'assign', $params);
-            // Set user override priority.
-            $event->priority = CALENDAR_EVENT_USER_OVERRIDE_PRIORITY;
-        } else {
-            // The parent event.
-            $eventname = $assigninstance->name;
-        }
+			// Determine the event name and priority.
+			if ($groupid) {
+				// Group override event.
+				$params = new stdClass();
+				$params->assign = $assigninstance->name;
+				$params->group = groups_get_group_name($groupid);
+				if ($params->group === false) {
+					// Group doesn't exist, just skip it.
+					continue;
+				}
+				$eventname = get_string('overridegroupeventname', 'assign', $params);
+				// Set group override priority.
+				if (isset($current->sortorder)) {
+					$event->priority = $current->sortorder;
+				}
+			} else if ($userid) {
+				// User override event.
+				$params = new stdClass();
+				$params->assign = $assigninstance->name;
+				$eventname = get_string('overrideusereventname', 'assign', $params);
+				// Set user override priority.
+				$event->priority = CALENDAR_EVENT_USER_OVERRIDE_PRIORITY;
+			} else {
+				// The parent event.
+				$eventname = $assigninstance->name;
+			}
 
-        if ($duedate && $addclose) {
-            if ($oldevent = array_shift($oldevents)) {
-                $event->id = $oldevent->id;
-            } else {
-                unset($event->id);
-            }
-            $event->name      = $eventname.' ('.get_string('duedate', 'assign').')';
-            calendar_event::create($event, false);
-        }
-    }
+			if ($duedate && $addclose) {
+				if ($oldevent = array_shift($oldevents)) {
+					$event->id = $oldevent->id;
+				} else {
+					unset($event->id);
+				}
+				$event->name      = $eventname.' ('.get_string('duedate', 'assign').')';
+				calendar_event::create($event);
+			}
+		}
+	}
 
     // Delete any leftover events.
     foreach ($oldevents as $badevent) {

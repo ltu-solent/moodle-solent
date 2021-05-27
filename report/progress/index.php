@@ -302,10 +302,20 @@ if (!$csv) {
         echo '<th scope="col" class="completion-identifyfield">' .
                 get_user_field_name($field) . '</th>';
     }
+// SU_AMEND START - Prevent completion: Add ID number, Department and address fields
+	echo '<th scope="col" class="completion-identifyfield">ID Number</th>';
+	echo '<th scope="col" class="completion-identifyfield">Department</th>';
+	echo '<th scope="col" class="completion-identifyfield">Address</th>';
+// SU_AMEND END
 } else {
     foreach ($extrafields as $field) {
         echo $sep . csv_quote(get_user_field_name($field));
     }
+// SU_AMEND START - Prevent completion: Add ID number, Department and address fields
+	echo $sep . csv_quote('ID Number');
+	echo $sep . csv_quote('Department');
+	echo $sep . csv_quote('Address');
+// SU_AMEND END
 }
 
 // Activities
@@ -356,14 +366,24 @@ if ($csv) {
     print '</tr></thead><tbody>';
 }
 
+
+
 // Row for each user
 foreach($progress as $user) {
+// SU_AMEND START - Prevent completion: Add ID number, Department and address fields
+	$user1 =   core_user::get_user($user->id);
+// SU_AMEND END
     // User name
     if ($csv) {
         print csv_quote(fullname($user, has_capability('moodle/site:viewfullnames', $context)));
         foreach ($extrafields as $field) {
             echo $sep . csv_quote($user->{$field});
         }
+// SU_AMEND START - Prevent completion: Add ID number, Department and address fields
+			echo $sep . csv_quote($user1->idnumber);
+			echo $sep . csv_quote($user1->department);
+			echo $sep . csv_quote($user1->address);
+// SU_AMEND END
     } else {
         print '<tr><th scope="row"><a href="' . $CFG->wwwroot . '/user/view.php?id=' .
             $user->id . '&amp;course=' . $course->id . '">' .
@@ -371,6 +391,11 @@ foreach($progress as $user) {
         foreach ($extrafields as $field) {
             echo '<td>' . s($user->{$field}) . '</td>';
         }
+// SU_AMEND START - Prevent completion: Add ID number, Department and address fields
+		echo '<td>' . $user1->idnumber . '</td>';
+		echo '<td>' . $user1->department . '</td>';
+		echo '<td>' . $user1->address . '</td>';
+// SU_AMEND END
     }
 
     // Progress for each activity
@@ -461,4 +486,3 @@ print '<ul class="progress-actions"><li><a href="index.php?course='.$course->id.
     get_string('excelcsvdownload','completion').'</a></li></ul>';
 
 echo $OUTPUT->footer();
-
