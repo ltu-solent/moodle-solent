@@ -102,6 +102,8 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
                 ele = $('.logininfo');
             } else if ($('footer').length) {
                 ele = $('footer');
+            } else if ($('div[data-region="grade-panel"]').length) {
+                ele = $('div[data-region="grade-panel"]');
             } else {
                 ele = $('body');
             }

@@ -1,0 +1,10 @@
+{
+    "name": "moodle-backup-importrestrictions",
+    "builds": {
+        "moodle-backup-importrestrictions": {
+            "jsfiles": [
+                "importrestrictions.js"
+            ]
+        }
+    }
+}

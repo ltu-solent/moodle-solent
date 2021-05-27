@@ -628,10 +628,14 @@ $string['viewrevealidentitiesconfirm'] = 'View reveal student identities confirm
 $string['workflowfilter'] = 'Workflow filter';
 $string['xofy'] = '{$a->x} of {$a->y}';
 
-// Deprecated since Moodle 3.8.
-$string['duedateno'] = 'No due date';
-$string['mysubmission'] = 'My submission: ';
-$string['nolatesubmissions'] = 'No late submissions accepted. ';
-$string['nosubmissionsacceptedafter'] = 'No submissions accepted after ';
-$string['notsubmittedyet'] = 'Not submitted yet';
-$string['submissionsnotgraded'] = 'Submissions not graded: {$a}';
+// SU_AMEND START - Marks upload: Language strings
+$string['agreed'] = 'Agreed grade';
+$string['gradeslocked'] = '<strong>Grades for this assignment have been released and locked.</strong>';
+$string['marksuploadinclude'] = '<p>Grades for this assignment will be sent to Quercus once they have been released to students in SOL.</p>
+<p><strong>Please do not add marks out of 100 in Turnitin</strong> as it can cause issues with grades sent to Quercus.</p>
+<p>For technical guidance please visit refer to the <strong><a href="https://learn.solent.ac.uk/staff-help" target="_blank" rel="noopener noreferrer">assignment help</a></strong>
+ or contact ltu@solent.ac.uk (ext. 5100). For amendments to dates please email student.registry@solent.ac.uk.</p>';
+$string['noboard'] = '<p>No board date is available (grades cannot be released). Please contact student.registry@solent.ac.uk.</p>';
+$string['releasedate'] = 'Grades cannot be released until {$a->date} ({$a->days} days after the board has passed).';
+$string['releasemessage'] = '<h4>By releasing these grades you are confirming that:</h4><br><ul><li>This assessment has been marked in accordance with the University\'s Assessment Policy, Academic Handbook Section 2O and according the assessment\'s specific marking criteria</li><li>You are the unit leader for this unit</li><li>All grades have been entered correctly</li><li>You accept that no more changes can be made to grades</li></ul><br /><p><strong>Reminder</strong> - Have you remembered to indicate which marks are to form part of the sample? If not, please tick the sample box against each relevant mark.</p>';
+// SU_AMEND END

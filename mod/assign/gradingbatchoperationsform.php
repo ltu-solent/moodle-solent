@@ -83,7 +83,9 @@ class mod_assign_grading_batch_operations_form extends moodleform {
         $mform->setType('selectedusers', PARAM_SEQUENCE);
         $mform->addElement('hidden', 'returnaction', 'grading');
         $mform->setType('returnaction', PARAM_ALPHA);
-
+// SU_AMEND START - Marks Upload: Set workflow state as default
+        $mform->setDefault('operation', 'setmarkingworkflowstate');
+// SU_AMEND END
         $objs = array();
         $objs[] =& $mform->createElement('select', 'operation', get_string('chooseoperation', 'assign'), $options);
         $objs[] =& $mform->createElement('submit', 'submit', get_string('go'));
@@ -91,4 +93,3 @@ class mod_assign_grading_batch_operations_form extends moodleform {
         $mform->addElement('group', 'actionsgrp', $batchdescription, $objs, ' ', false);
     }
 }
-

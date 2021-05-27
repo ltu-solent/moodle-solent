@@ -838,6 +838,6 @@ function prepare_new_moduleinfo_data($course, $modulename, $section) {
             $data->{$formfield} = '';
         }
     }
-
+	
     return array($module, $context, $cw, $cm, $data);
 }

@@ -72,8 +72,14 @@ class assign_submission_file extends assign_submission_plugin {
             $defaultmaxsubmissionsizebytes = $this->get_config('maxsubmissionsizebytes');
             $defaultfiletypes = $this->get_config('filetypeslist');
         } else {
-            $defaultmaxfilesubmissions = get_config('assignsubmission_file', 'maxfiles');
-            $defaultmaxsubmissionsizebytes = get_config('assignsubmission_file', 'maxbytes');
+// SU_AMEND START - Assignment: Max 1 file upload by default
+            // $defaultmaxfilesubmissions = get_config('assignsubmission_file', 'maxfiles');
+            $defaultmaxfilesubmissions = 1;
+// SU_AMEND END
+// SU_AMEND START - Assignment: 100MB default file size
+            //$defaultmaxsubmissionsizebytes = get_config('assignsubmission_file', 'maxbytes');
+            $defaultmaxsubmissionsizebytes = 104857600;
+// SU_AMEND END
             $defaultfiletypes = get_config('assignsubmission_file', 'filetypes');
         }
         $defaultfiletypes = (string)$defaultfiletypes;
@@ -107,8 +113,17 @@ class assign_submission_file extends assign_submission_plugin {
         $mform->addHelpButton('assignsubmission_file_maxsizebytes',
                               'maximumsubmissionsize',
                               'assignsubmission_file');
-        $mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
-        $mform->hideIf('assignsubmission_file_maxsizebytes',
+
+// SU_AMEND START - Assignment: 100MB default file size
+        //$mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
+        if($defaultmaxsubmissionsizebytes){
+			$mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
+		}else{
+			$mform->setDefault('assignsubmission_file_maxsizebytes', 104857600);
+		}
+// SU_AMEND END
+
+        $mform->disabledIf('assignsubmission_file_maxsizebytes',
                            'assignsubmission_file_enabled',
                            'notchecked');
 
