@@ -131,8 +131,14 @@ abstract class base_moodleform extends moodleform {
             $buttonarray[] = $this->_form->createElement('submit', 'previous', get_string('previousstage', 'backup'));
         } else if ($this->uistage instanceof backup_ui_stage) {
             // Only display the button on the first stage of backup, they only place where it has an effect.
-            $buttonarray[] = $this->_form->createElement('submit', 'oneclickbackup', get_string('jumptofinalstep', 'backup'),
+// SU_AMEND START  - Backup: Remove final step button from imports
+            //$buttonarray[] = $this->_form->createElement('submit', 'oneclickbackup', get_string('jumptofinalstep', 'backup'),
+                //array('class' => 'oneclickbackup'));
+			if(!$_REQUEST['importid']) {
+				$buttonarray[] = $this->_form->createElement('submit', 'oneclickbackup', get_string('jumptofinalstep', 'backup'),
                 array('class' => 'oneclickbackup'));
+			}
+// SU_AMEND END
         }
         $buttonarray[] = $this->_form->createElement('cancel', 'cancel', get_string('cancel'), array('class' => 'confirmcancel'));
         $buttonarray[] = $this->_form->createElement(
@@ -406,6 +412,12 @@ abstract class base_moodleform extends moodleform {
         core_collator::asort($modnames);
         $PAGE->requires->yui_module('moodle-backup-backupselectall', 'M.core_backup.backupselectall',
                 array($modnames));
+// SU_AMEND START - Backup: Import restrctions
+        if ($this->uistage->get_ui() instanceof import_ui) {
+          $PAGE->requires->yui_module('moodle-backup-importrestrictions', 'M.core_backup.importrestrictions',
+                array());
+        }
+// SU_AMEND END
         $PAGE->requires->strings_for_js(array('select', 'all', 'none'), 'moodle');
         $PAGE->requires->strings_for_js(array('showtypes', 'hidetypes'), 'backup');
 

@@ -634,7 +634,10 @@ class assign_attempt_history_chooser implements renderable, templatable {
             $editbtn = '';
 
             if ($submission->timemodified) {
-                $submissionsummary = userdate($submission->timemodified);
+// SU_AMEND START - Assignment: Show seconds for submission time
+                //$submissionsummary = userdate($submission->timemodified);
+                $submissionsummary = userdate($submission->timemodified, '%d %B %Y, %I:%M:%S %p');
+// SU_AMEND END
             } else {
                 $submissionsummary = get_string('nosubmission', 'assign');
             }
@@ -945,12 +948,16 @@ class assign_files implements renderable {
         }
         foreach ($dir['files'] as $file) {
             $file->portfoliobutton = '';
-
+// SU_AMEND START - Assignment: Show seconds for submission time
+            // $file->timemodified = userdate(
+            //     $file->get_timemodified(),
+            //     get_string('strftimedatetime', 'langconfig')
+            // );
             $file->timemodified = userdate(
                 $file->get_timemodified(),
-                get_string('strftimedatetime', 'langconfig')
+                '%d %B %Y, %I:%M:%S %p'
             );
-
+// SU_AMEND END
             if (!empty($CFG->enableportfolios)) {
                 require_once($CFG->libdir . '/portfoliolib.php');
                 $button = new portfolio_add_button();

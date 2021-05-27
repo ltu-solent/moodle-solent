@@ -1315,7 +1315,10 @@ class assign {
             ($perpage == -1 || $perpage > $maxperpage)) {
             $perpage = $maxperpage;
         }
-        return $perpage;
+// SU_AMEND START - Marks Upload: Prevent pagination of grading table
+        //return $perpage;
+        return -1;
+// SU_AMEND END        
     }
 
     /**
@@ -1611,6 +1614,9 @@ class assign {
         }
         $group->setElements($feedbackpluginsenabled);
         $mform->setExpanded('submissiontypes');
+// SU_AMEND START - Assignment: Expand feedback types in settings
+        $mform->setExpanded('feedbacktypes');
+// SU_AMEND END
     }
 
     /**
@@ -4474,7 +4480,6 @@ class assign {
         $gradingactions->set_label(get_string('choosegradingaction', 'assign'));
 
         $gradingmanager = get_grading_manager($this->get_context(), 'mod_assign', 'submissions');
-
         $perpage = $this->get_assign_perpage();
         $filter = get_user_preferences('assign_filter', '');
         $markerfilter = get_user_preferences('assign_markerfilter', '');
@@ -4535,7 +4540,11 @@ class assign {
                                  'markingworkflow'=>$markingworkflow,
                                  'markingallocation'=>$markingallocation);
         $classoptions = array('class'=>'gradingbatchoperationsform');
-
+// SU_AMEND START - Marks Upload: Remove revert to draft option
+        if($this->get_course_module()->idnumber != '' && !is_siteadmin()){
+          $batchformparams['submissiondrafts'] = 0;
+        }
+// SU_AMEND END
         $gradingbatchoperationsform = new mod_assign_grading_batch_operations_form(null,
                                                                                    $batchformparams,
                                                                                    'post',
@@ -4557,7 +4566,39 @@ class assign {
                                     get_string('grading', 'assign'),
                                     $actionformtext);
         $o .= $this->get_renderer()->render($header);
+// SU_AMEND START - Marks Upload: Notification that grades will be sent to Quercus
+		global $PAGE, $DB;
+        if ($this->get_course_module()->idnumber != '' && $this->get_grade_item()->locked == 0) {
+            if ($PAGE->pagetype == 'mod-assign-grading') {
+              $sitting = $DB->get_record('local_quercus_tasks_sittings', array('assign'=> $this->get_course_module()->instance), 'sitting_desc, externaldate', $strictness=IGNORE_MISSING);
+              if ($sitting->sitting_desc == 'FIRST_SITTING') {
+                $o .= $this->output->notification(get_string('marksuploadinclude','assign'), \core\output\notification::NOTIFY_SUCCESS);
+              } else {
+                // Calculate date grades can be released
+                if ($sitting->externaldate != null){
+                  $releaseavailable = new DateTime('now', core_date::get_user_timezone_object());
+                  $releaseavailable = DateTime::createFromFormat('U', $sitting->externaldate);
+                  $timezone = core_date::get_user_timezone($releaseavailable);
+                  $modifystring = '+' . get_config('local_quercus_tasks', 'boardbuffer') . ' days';
+                  $releaseavailable  = 	$releaseavailable->modify($modifystring);
+                  $releaseavailable = $releaseavailable->getTimestamp();
 
+                  $o .= $this->output->notification(get_string('marksuploadinclude','assign') .
+                    get_string('releasedate', 'assign', ['date' => date('d/m/Y', $releaseavailable), 'days' => get_config('local_quercus_tasks', 'boardbuffer')]),
+                    \core\output\notification::NOTIFY_SUCCESS);
+                }else{
+                  $o .= $this->output->notification(get_string('marksuploadinclude','assign') .
+                    get_string('noboard','assign'),
+                    \core\output\notification::NOTIFY_SUCCESS);
+                }
+              }
+            }
+        }
+
+			if($this->get_grade_item()->locked != 0){
+				$o .= $this->output->notification(get_string('gradeslocked','assign'), \core\output\notification::NOTIFY_ERROR);
+			}
+// SU_AMEND END
         $currenturl = $CFG->wwwroot .
                       '/mod/assign/view.php?id=' .
                       $this->get_course_module()->id .
@@ -5062,17 +5103,54 @@ class assign {
         $formparams = array(
             'userscount' => count($userlist),
             'usershtml' => $usershtml,
-            'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user()
+            'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user(),
+// SU_AMEND START - Marks Upload: Pass locked value to form
+            'locked' => $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?' , array( 'assign', $this->coursemodule->instance))
+// SU_AMEND END
         );
 
         $mform = new mod_assign_batch_set_marking_workflow_state_form(null, $formparams);
         $mform->set_data($formdata);    // Initialises the hidden elements.
+
         $header = new assign_header($this->get_instance(),
             $this->get_context(),
             $this->show_intro(),
             $this->get_course_module()->id,
             get_string('setmarkingworkflowstate', 'assign'));
         $o .= $this->get_renderer()->render($header);
+// SU_AMEND START - Marks Upload: Show either release disclaimer or locked message
+		global $USER;
+        $context = context_course::instance($this->course->id);
+        $userroles = $DB->get_fieldset_select('role_assignments', 'roleid', 'contextid = ? AND userid = ? ' , array( $context->id, $USER->id));
+
+        if($this->get_grade_item()->locked == 0){
+            if (has_capability('local/quercus_tasks:releasegrades', $this->context) 
+				&& $this->coursemodule->idnumber != '') {
+              $sitting = $DB->get_record('local_quercus_tasks_sittings', array('assign'=> $this->coursemodule->instance), 'sitting_desc, externaldate', $strictness=IGNORE_MISSING);
+              if($sitting->sitting_desc == 'FIRST_SITTING'){
+                $message = get_string('releasemessage', 'assign');
+              }else{
+                $message = get_string('releasemessage', 'assign');
+                if($sitting->externaldate != null){
+                  // Calculate date grades can be released
+                  $releaseavailable = new DateTime('now', core_date::get_user_timezone_object());
+                  $releaseavailable = DateTime::createFromFormat('U', $sitting->externaldate);
+                  $timezone = core_date::get_user_timezone($releaseavailable);
+                  $modifystring = '+' . get_config('local_quercus_tasks', 'boardbuffer') . ' days';
+                  $releaseavailable  = 	$releaseavailable->modify($modifystring);
+                  $releaseavailable = $releaseavailable->getTimestamp();
+
+                  $message .= get_string('releasedate', 'assign', ['date' => date('d/m/Y', $releaseavailable), 'days' => get_config('local_quercus_tasks', 'boardbuffer')]);
+                }else{
+                  $message .= get_string('noboard', 'assign');
+                }
+              }
+              $o .= $this->output->notification($message, \core\output\notification::NOTIFY_ERROR);
+          }
+        }elseif($this->get_grade_item()->locked != 0){
+          $o .= $this->output->notification(get_string('gradeslocked','assign'), \core\output\notification::NOTIFY_ERROR);
+        }
+// SU_AMEND END
         $o .= $this->get_renderer()->render(new assign_form('setworkflowstate', $mform));
         $o .= $this->view_footer();
 
@@ -6386,7 +6464,13 @@ class assign {
         }
         $info->assignment = format_string($assignmentname, true, array('context'=>$context));
         $info->url = $CFG->wwwroot.'/mod/assign/view.php?id='.$coursemodule->id;
-        $info->timeupdated = userdate($updatetime, get_string('strftimerecentfull'));
+// SU_AMEND START - Assignment: Add seconds to submission date email
+        //$info->timeupdated = userdate($updatetime, get_string('strftimerecentfull'));
+        $info->timeupdated = userdate($updatetime, '%d %B %Y, %I:%M:%S %p');
+// SU_AMEND END
+// SU_AMEND START - Assignment: Add seconds to submission date email
+        $info->timeupdatedfull = userdate($updatetime, '%d %B %Y, %I:%M:%S %p');
+// SU_AMEND END
 
         $postsubject = get_string($messagetype . 'small', 'assign', $info);
         $posttext = self::format_notification_message_text($messagetype,
@@ -7712,8 +7796,13 @@ class assign {
             } else {
                 $grademenu = array(-1 => get_string("nograde")) + make_grades_menu($this->get_instance()->grade);
                 if (count($grademenu) > 1) {
-                    $gradingelement = $mform->addElement('select', 'grade', get_string('grade') . ':', $grademenu);
-
+// SU_AMEND START - Marks Upload: Agreed grade for double marks
+                    if ($plugin = $this->get_feedback_plugin_by_type('doublemark')->is_enabled('enabled')) {
+                        $gradingelement = $mform->addElement('select', 'grade', get_string('agreed', 'assign'), $grademenu);
+                    } else {
+                        $gradingelement = $mform->addElement('select', 'grade', get_string('grade'), $grademenu);
+                    }
+// SU_AMEND END
                     // The grade is already formatted with format_float so it needs to be converted back to an integer.
                     if (!empty($data->grade)) {
                         $data->grade = (int)unformat_float($data->grade);
@@ -7787,6 +7876,12 @@ class assign {
                     $mform->addElement('static', 'currentassigngrade', $label, $assigngradestring);
                 }
             }
+// SU_AMEND START - Marks Upload: Prevent grades being re-released
+            if($this->get_grade_item()->locked != 0){
+                $mform->addElement('hidden', 'locked', $this->get_grade_item()->locked);
+                $mform->disabledIf('workflowstate', 'locked', 'neq', 0);
+            }
+// SU_AMEND END
         }
 
         if ($this->get_instance()->markingworkflow &&
@@ -8205,7 +8300,10 @@ class assign {
         $formparams = array(
             'userscount' => 0,  // This form is never re-displayed, so we don't need to
             'usershtml' => '',  // initialise these parameters with real information.
-            'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user()
+            'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user(),
+// SU_AMEND START - Marks Upload: Pass locked value to form
+            'locked' => $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?' , array( 'assign', $this->coursemodule->instance))
+// SU_AMEND END
         );
 
         $mform = new mod_assign_batch_set_marking_workflow_state_form(null, $formparams);
@@ -8250,6 +8348,15 @@ class assign {
                     \mod_assign\event\workflow_state_updated::create_from_user($this, $user, $state)->trigger();
                 }
             }
+// SU_AMEND START - Marks Upload: Lock grades after release
+            if ($state == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
+                require_once($CFG->dirroot . '/lib/grade/grade_item.php');
+                $gradeitem = $this->get_grade_item();
+                if ($gradeitem->itemmodule == 'assign' && $gradeitem->idnumber != '') {
+                    $locked = $gradeitem->set_locked(time(), false, true);
+                }
+            }
+// SU_AMEND END
         }
     }
 
@@ -9051,9 +9158,49 @@ class assign {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW] = get_string('markingworkflowstateinreview', 'assign');
             $states[ASSIGN_MARKING_WORKFLOW_STATE_READYFORRELEASE] = get_string('markingworkflowstatereadyforrelease', 'assign');
         }
-        if (has_any_capability(array('mod/assign:releasegrades',
-                                     'mod/assign:managegrades'), $this->context)) {
-            $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
+
+// SU_AMEND START - Marks Upload: Release grades by unit leader only
+
+        if ($this->get_course()->startdate >= 1533081600 && $this->coursemodule->idnumber != '') {
+            global $DB, $USER, $PAGE;
+            $context = context_course::instance($this->course->id);
+            $userroles = $DB->get_fieldset_select('role_assignments', 'roleid', 'contextid = ? AND userid = ?' , array( $context->id, $USER->id));
+            $locked = $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?' , array( 'assign', $this->coursemodule->instance));
+
+            // Get current timestamp
+            $now = new DateTime('now', core_date::get_user_timezone_object());
+
+            // 'Released' not available on grading page and only for unit leader or assessments team for bulk changes
+            if ((has_capability('local/quercus_tasks:releasegrades', $this->context)) && 
+					$PAGE->pagetype != "mod-assign-gradingpanel" && $locked == 0) {
+              $sitting = $DB->get_record('local_quercus_tasks_sittings', array('assign'=> $this->coursemodule->instance), 'sitting_desc, externaldate', $strictness=IGNORE_MISSING);
+
+              if($sitting->sitting_desc == 'FIRST_SITTING'){
+                $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
+              }else{
+                if($sitting->externaldate != null){
+                  // Calculate date grades can be released
+                  $releaseavailable = new DateTime('now', core_date::get_user_timezone_object());
+                  $releaseavailable = DateTime::createFromFormat('U', $sitting->externaldate);
+                  $timezone = core_date::get_user_timezone($releaseavailable);
+                  $modifystring = '+' . get_config('local_quercus_tasks', 'boardbuffer') . ' days';
+                  $releaseavailable  = 	$releaseavailable->modify($modifystring);
+
+                  if($now > $releaseavailable ){
+                    $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
+                  }
+                }
+              }
+
+            }elseif($locked != 0){
+              $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
+            }
+        } else {
+// SU_AMEND END
+            if (has_any_capability(array('mod/assign:releasegrades',
+                        'mod/assign:managegrades'), $this->context)) {
+                $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
+            }
         }
         $this->markingworkflowstates = $states;
         return $this->markingworkflowstates;
