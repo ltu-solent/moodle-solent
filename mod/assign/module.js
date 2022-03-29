@@ -72,9 +72,17 @@ M.mod_assign.init_grading_table = function(Y) {
                 }
             });
         }
-// SU_AMEND START - Marks Upload: Select all assignments for release
+// SU_AMEND START - Marks Upload: Select all assignments for release.
+        // If filters are being used in the grading table, the selectall option is disabled.
+        var disable = document.querySelector('[data-quercus="disable-selectall"]');
         var selectallquercus = Y.all('td.cell .selectallquercus');
         if (selectallquercus) {
+            if (disable) {
+                var controls = document.querySelectorAll('.c0 input[type="checkbox"]');
+                controls.forEach(function(node) {
+                    node.disabled = true;
+                });
+            }
             selectallquercus.on('change', function(e) {
                 if (e.currentTarget.get('checked')) {
                     checkboxes = Y.all('td.c0 input[type="checkbox"]');
