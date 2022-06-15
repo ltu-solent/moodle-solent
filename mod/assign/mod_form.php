@@ -53,23 +53,26 @@ class mod_assign_mod_form extends moodleform_mod {
         } else {
             $mform->setType('name', PARAM_CLEANHTML);
         }
-		if($this->current->id){
-// SU_AMEND START - Marks Upload: Remove 'required' for quercus assignment names
-			if(!$this->current->modulename == 'assign' && !$this->current->cmidnumber != null){
-          $mform->addRule('name', null, 'required', null, 'client');
-			}
+// SU_AMEND START - Marks Upload: Define a variable to check if this is a Quercus assignment.
+        $isquercusassignment = (
+            $this->current->id && $this->current->modulename == 'assign' && !empty($this->current->cmidnumber)
+        );
 // SU_AMEND END
-		}
+// SU_AMEND START - Marks Upload: Remove 'required' for quercus assignment names.
+        if (!$isquercusassignment) {
+            $mform->addRule('name', null, 'required', null, 'client');
+        }
+// SU_AMEND END
+
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-		if($this->current->id){
-// SU_AMEND START - Marks Upload: Prevent assignment name being edited
-      if($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)){
-          // PREVENT ASSIGNMENT NAME BEING EDITED
-          $mform->hardFreeze('name');
-          $mform->setConstant('name', format_string($this->current->name));
-			}
+
+// SU_AMEND START - Marks Upload: Prevent assignment name being edited.
+        if ($isquercusassignment) {
+            // Prevent assignment name being edited.
+            $mform->hardFreeze('name');
+            $mform->setConstant('name', format_string($this->current->name));
+        }
 // SU_AMEND END
-		}
 
         $this->standard_intro_elements(get_string('description', 'assign'));
 
@@ -101,8 +104,8 @@ class mod_assign_mod_form extends moodleform_mod {
         $options = array('optional'=>true);
         $mform->addElement('date_time_selector', 'allowsubmissionsfromdate', $name, $options);
         $mform->addHelpButton('allowsubmissionsfromdate', 'allowsubmissionsfromdate', 'assign');
-// SU_AMEND START - Marks Upload: Freeze allowsubmissionsfromdate
-        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin()){
+// SU_AMEND START - Marks Upload: Freeze allowsubmissionsfromdate.
+        if ($isquercusassignment && !is_siteadmin()) {
           $mform->hardFreeze('allowsubmissionsfromdate');
           $mform->setConstant('allowsubmissionsfromdate', format_string($this->current->allowsubmissionsfromdate));
         }
@@ -110,28 +113,28 @@ class mod_assign_mod_form extends moodleform_mod {
         $name = get_string('duedate', 'assign');
         $mform->addElement('date_time_selector', 'duedate', $name, array('optional'=>true));
         $mform->addHelpButton('duedate', 'duedate', 'assign');
-// SU_AMEND START - Marks Upload: Freeze duedate
-        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin()){
-			$mform->hardFreeze('duedate');
-          $mform->setConstant('duedate', format_string($this->current->duedate));
+// SU_AMEND START - Marks Upload: Freeze duedate.
+        if ($isquercusassignment && !is_siteadmin()) {
+            $mform->hardFreeze('duedate');
+            $mform->setConstant('duedate', format_string($this->current->duedate));
         }
 // SU_AMEND END
         $name = get_string('cutoffdate', 'assign');
         $mform->addElement('date_time_selector', 'cutoffdate', $name, array('optional'=>true));
         $mform->addHelpButton('cutoffdate', 'cutoffdate', 'assign');
-// SU_AMEND START - Marks Upload: Freeze cutoffdate
-        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin()){
-			$mform->hardFreeze('cutoffdate');
-          $mform->setConstant('cutoffdate', format_string($this->current->cutoffdate));
+// SU_AMEND START - Marks Upload: Freeze cutoffdate.
+        if ($isquercusassignment && !is_siteadmin()) {
+            $mform->hardFreeze('cutoffdate');
+            $mform->setConstant('cutoffdate', format_string($this->current->cutoffdate));
         }
 // SU_AMEND END
         $name = get_string('gradingduedate', 'assign');
         $mform->addElement('date_time_selector', 'gradingduedate', $name, array('optional' => true));
         $mform->addHelpButton('gradingduedate', 'gradingduedate', 'assign');
-// SU_AMEND START - Marks Upload: Freeze gradingduedate
-        if(($this->current->modulename == 'assign' && (isset($this->current->cmidnumber) && $this->current->cmidnumber != null)) && !is_siteadmin()){
-			$mform->hardFreeze('gradingduedate');
-          $mform->setConstant('gradingduedate', format_string($this->current->gradingduedate));
+// SU_AMEND START - Marks Upload: Freeze gradingduedate.
+        if ($isquercusassignment && !is_siteadmin()) {
+            $mform->hardFreeze('gradingduedate');
+            $mform->setConstant('gradingduedate', format_string($this->current->gradingduedate));
         }
 // SU_AMEND END
         $name = get_string('alwaysshowdescription', 'assign');

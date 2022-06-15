@@ -164,7 +164,7 @@ class course_summary_exporter extends \core\external\exporter {
             'is_unit_page' => array(
                 'type' => PARAM_BOOL
             ),
-//SU_AMMEND END
+// SU_AMEND END
             'hidden' => array(
                 'type' => PARAM_BOOL
             ),
