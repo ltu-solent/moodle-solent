@@ -217,6 +217,12 @@ export default class extends BaseComponent {
         this._disableLink(currentElement);
         const generalSection = modalBody.querySelector(`${this.selectors.SECTIONLINK}[data-number='0']`);
         this._disableLink(generalSection);
+        // SU_AMEND_START: Prevent dragging of sections that should be locked.
+        const nondraggableSections = modalBody.querySelectorAll(`${this.selectors.SECTIONLINK}[data-isdraggable='false']`);
+        nondraggableSections.forEach(element => {
+            this._disableLink(element);
+        });
+        // SU_AMEND_END.
 
         // Setup keyboard navigation.
         new ContentTree(
