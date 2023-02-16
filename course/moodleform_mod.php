@@ -636,6 +636,16 @@ abstract class moodleform_mod extends moodleform {
             $mform->addElement('text', 'cmidnumber', get_string('idnumbermod'));
             $mform->setType('cmidnumber', PARAM_RAW);
             $mform->addHelpButton('cmidnumber', 'idnumbermod');
+            // SU_AMEND_START: Marks Upload: Disable idnumber for all assignments.
+            if ($this->current->modulename == 'assign') {
+                // Make sure at least an empty string, rather than null, is set, to prevent warning messages.
+                $defaultidnumber = (isset($this->_cm->idnumber) && $this->_cm->idnumber != '')
+                    ? $this->_cm->idnumber
+                    : '';
+                $mform->setConstant('cmidnumber', $defaultidnumber);
+                $mform->hardFreeze('cmidnumber');
+            }
+            // SU_AMEND_END.
         }
 
         if (has_capability('moodle/course:setforcedlanguage', $this->get_context())) {
