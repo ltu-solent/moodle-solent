@@ -33,6 +33,12 @@ defined('MOODLE_INTERNAL') || die();
 class filter_activitynames extends moodle_text_filter {
 
     function filter($text, array $options = array()) {
+        // SU_AMEND_START: Prevent autolinking of activity names on search and category index pages.
+        global $PAGE;
+        if (in_array($PAGE->pagetype, ['course-index-category', 'course-category.ajax', 'course-search'])) {
+            return $text;
+        }
+        // SU_AMEND_END.
         $coursectx = $this->context->get_course_context(false);
         if (!$coursectx) {
             return $text;
@@ -105,12 +111,17 @@ class filter_activitynames extends moodle_text_filter {
                         'url' => $cm->url,
                         'id' => $cm->id,
                         'namelen' => -strlen($cm->name), // Negative value for reverse sorting.
+                        // SU_AMEND_START: Display activity icon within activities only.
+                        'modname' => $cm->modname,
+                        // SU_AMEND_END.
                     );
                 }
             }
             // Sort activities by the length of the activity name in reverse order.
             core_collator::asort_objects_by_property($sortedactivities, 'namelen', core_collator::SORT_NUMERIC);
-
+            // SU_AMEND_START: Optionally add the activity icon.
+            global $OUTPUT, $PAGE;
+            $incoursepage = (strpos($PAGE->pagetype, 'course-view') !== false);
             foreach ($sortedactivities as $cm) {
                 $title = s(trim(strip_tags($cm->name)));
                 $currentname = trim($cm->name);
@@ -120,13 +131,22 @@ class filter_activitynames extends moodle_text_filter {
                     $hreftagbegin = html_writer::start_tag('a',
                         array('class' => 'autolink', 'title' => $title,
                             'href' => $cm->url));
-                    $activitylist[$cm->id] = new filterobject($currentname, $hreftagbegin, '</a>', false, true);
+                    $activityicon = '';
+                    if (!$incoursepage) {
+                        $activityicon = html_writer::img(
+                            $OUTPUT->image_url('icon', $cm->modname),
+                            $cm->modname,
+                            ['class' => 'icon']
+                        );
+                    }
+                    $activitylist[$cm->id] = new filterobject($currentname, $hreftagbegin . $activityicon, '</a>', false, true);
                     if ($currentname != $entitisedname) {
                         // If name has some entity (&amp; &quot; &lt; &gt;) add that filter too. MDL-17545.
-                        $activitylist[$cm->id.'-e'] = new filterobject($entitisedname, $hreftagbegin, '</a>', false, true);
+                        $activitylist[$cm->id.'-e'] = new filterobject($entitisedname, $hreftagbegin . $activityicon, '</a>', false, true);
                     }
                 }
             }
+            // SU_AMEND_END.
         }
         return $activitylist;
     }
