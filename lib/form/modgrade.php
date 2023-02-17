@@ -145,7 +145,14 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
         // We have to create the scale and point elements first, as we need their IDs.
 
         // Grade scale select box.
-        $scales = get_scales_menu($COURSE->id);
+        // SU_AMEND_START: Marks upload. Use Solent grade scales only.
+        $scales = [];
+        if (method_exists('\local_solsits\helper', 'get_scales_menu')) {
+            $scales = \local_solsits\helper::get_scales_menu($COURSE->id);
+        } else {
+            $scales = get_scales_menu($COURSE->id);
+        }
+        // SU_AMEND_END.
         $langscale = get_string('modgradetypescale', 'grades');
         $this->scaleformelement = $this->createFormElement('select', 'modgrade_scale', $langscale,
             $scales, $attributes);
@@ -166,6 +173,18 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
             'scale' => get_string('modgradetypescale', 'grades'),
             'point' => get_string('modgradetypepoint', 'grades'),
         );
+        // SU_AMEND_START: Marks upload. Force scales to be used.
+        if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+            global $PAGE;
+            if ($this->isupdate) {
+                $issummative = \local_solsits\helper::is_summative_assignment($PAGE->cm->id);
+                if ($issummative) {
+                    unset($gradetype['none']);
+                    unset($gradetype['point']);
+                }
+            }
+        }
+        // SU_AMEND_END.
         $langtype = get_string('modgradetype', 'grades');
         $this->gradetypeformelement = $this->createFormElement('select', 'modgrade_type', $langtype, $gradetype,
             $attributes, true);
