@@ -47,10 +47,15 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
         $mform->addElement('static', 'userslist', get_string('selectedusers', 'assign'), $params['usershtml']);
 
         $options = $params['markingworkflowstates'];
-        $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);
+        // SU_AMEND_START: Prevent grades being re-released.
+        $locked = (isset($params['locked']) && $params['locked'] != 0);
+        // If not locked, allow marking worflow.
+        if (!$locked) {
+            $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);
 
-        // Don't allow notification to be sent until in "Released" state.
-        $mform->addElement('selectyesno', 'sendstudentnotifications', get_string('sendstudentnotifications', 'assign'));
+            // Don't allow notification to be sent until in "Released" state.
+            $mform->addElement('selectyesno', 'sendstudentnotifications', get_string('sendstudentnotifications', 'assign'));
+        }
         $mform->setDefault('sendstudentnotifications', 0);
         $mform->disabledIf('sendstudentnotifications', 'markingworkflowstate', 'neq', ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
 
@@ -60,8 +65,13 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
         $mform->setType('action', PARAM_ALPHA);
         $mform->addElement('hidden', 'selectedusers');
         $mform->setType('selectedusers', PARAM_SEQUENCE);
-        $this->add_action_buttons(true, get_string('savechanges'));
-
+        // If locked prevent re-releasing.
+        if ($locked) {
+            $mform->addGroup([$mform->createElement('cancel')], 'buttonar', '', ' ', false);
+        } else {
+            $this->add_action_buttons(true, get_string('savechanges'));
+        }
+        // SU_AMEND_END.
     }
 
     /**
