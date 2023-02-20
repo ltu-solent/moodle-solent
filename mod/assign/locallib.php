@@ -1356,7 +1356,9 @@ class assign {
             ($perpage == -1 || $perpage > $maxperpage)) {
             $perpage = $maxperpage;
         }
-        return $perpage;
+        // SU_AMEND_START: Marks upload: Prevent pagination. Return all participants in a single page.
+        return -1;
+        // SU_AMEND_END.
     }
 
     /**
