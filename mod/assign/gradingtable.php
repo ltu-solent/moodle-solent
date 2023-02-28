@@ -140,6 +140,9 @@ class assign_grading_table extends table_sql implements renderable {
         $extrauserfields = $userfieldsapi->get_required_fields([\core_user\fields::PURPOSE_IDENTITY]);
         $fields = $userfields . ', ';
         $fields .= 'u.id as userid, ';
+        // SU_AMEND_START: Assignment: Grading table student no.
+        $fields .= 'u.idnumber';
+        // SU_AMEND_END.
         $fields .= 's.status as status, ';
         $fields .= 's.id as submissionid, ';
         $fields .= 's.timecreated as firstsubmission, ';
@@ -390,8 +393,10 @@ class assign_grading_table extends table_sql implements renderable {
                 $columns[] = 'picture';
                 $headers[] = get_string('pictureofuser');
             } else {
-                $columns[] = 'recordid';
-                $headers[] = get_string('recordid', 'assign');
+                // SU_AMEND_START: Assignment: Grading table student no.
+                $columns[] = 'idnumber';
+                $headers[] = get_string('studentid', 'local_solent');
+                // SU_AMEND_END.
             }
 
             // Fullname.
@@ -401,8 +406,10 @@ class assign_grading_table extends table_sql implements renderable {
             // Participant # details if can view real identities.
             if ($this->assignment->is_blind_marking()) {
                 if (!$this->is_downloading()) {
-                    $columns[] = 'recordid';
-                    $headers[] = get_string('recordid', 'assign');
+                    // SU_AMEND_START: Assignment: Grading table student no.
+                    $columns[] = 'idnumber';
+                    $headers[] = get_string('studentid', 'local_solent');
+                    // SU_AMEND_END.
                 }
             }
 
@@ -412,8 +419,10 @@ class assign_grading_table extends table_sql implements renderable {
             }
         } else {
             // Record ID.
-            $columns[] = 'recordid';
-            $headers[] = get_string('recordid', 'assign');
+            // SU_AMEND_START: Assignment: Grading table student no.
+            $columns[] = 'idnumber';
+            $headers[] = get_string('studentid', 'local_solent');
+            // SU_AMEND_END.
         }
 
         // Submission status.
