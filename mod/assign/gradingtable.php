@@ -458,7 +458,13 @@ class assign_grading_table extends table_sql implements renderable {
         }
         // Grade.
         $columns[] = 'grade';
-        $headers[] = get_string('gradenoun');
+        // SU_AMEND_START: Marks Upload: Change grade string if doublemarks enabled
+        if ($this->assignment->get_feedback_plugin_by_type('doublemark')->is_enabled('enabled')) {
+            $headers[] = get_string('agreed', 'assignfeedback_doublemark');
+        } else {
+            $headers[] = get_string('gradenoun');
+        }
+        // SU_AMEND_END.
         if ($this->is_downloading()) {
             $gradetype = $this->assignment->get_instance()->grade;
             if ($gradetype > 0) {
