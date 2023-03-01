@@ -656,6 +656,13 @@ class assign_grading_table extends table_sql implements renderable {
         $gradingdisabled = $this->assignment->grading_disabled($row->id, true, $this->gradinginfo);
         // The function in the assignment keeps a static cache of this list of states.
         $workflowstates = $this->assignment->get_marking_workflow_states_for_current_user();
+        // SU_AMEND_START: Marks upload. Remove 'Released' option from quick grading.
+        if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+            if (\local_solsits\helper::is_summative_assignment($this->assignment->get_course_module()->id)) {
+                unset($workflowstates['released']);
+            }
+        }
+        // SU_AMEND_END.
         $workflowstate = $row->workflowstate;
         if (empty($workflowstate)) {
             $workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_NOTMARKED;
