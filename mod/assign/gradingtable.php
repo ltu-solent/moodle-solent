@@ -141,7 +141,7 @@ class assign_grading_table extends table_sql implements renderable {
         $fields = $userfields . ', ';
         $fields .= 'u.id as userid, ';
         // SU_AMEND_START: Assignment: Grading table student no.
-        $fields .= 'u.idnumber';
+        $fields .= 'u.idnumber,';
         // SU_AMEND_END.
         $fields .= 's.status as status, ';
         $fields .= 's.id as submissionid, ';
