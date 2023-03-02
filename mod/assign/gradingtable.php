@@ -935,10 +935,22 @@ class assign_grading_table extends table_sql implements renderable {
         $selectcol = '<label class="accesshide" for="selectuser_' . $row->userid . '">';
         $selectcol .= get_string('selectuser', 'assign', $this->assignment->fullname($row));
         $selectcol .= '</label>';
+        // SU_AMEND_START: Marks Upload: Select all assignments for release.
+        $inputname = 'selectedusers';
+        $inputclass = '';
+        if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+            if (\local_solsits\helper::is_summative_assignment($this->assignment->get_course_module()->id)
+                && !is_siteadmin()) {
+                $inputname = 'selectallquercus';
+                $inputclass = 'class="selectallquercus"';
+            }
+        }
         $selectcol .= '<input type="checkbox"
                               id="selectuser_' . $row->userid . '"
-                              name="selectedusers"
+                              name="' . $inputname . '"
+                              ' . $inputclass . '
                               value="' . $row->userid . '"/>';
+        // SU_AMEND_END.
         $selectcol .= '<input type="hidden"
                               name="grademodified_' . $row->userid . '"
                               value="' . $row->timemarked . '"/>';
