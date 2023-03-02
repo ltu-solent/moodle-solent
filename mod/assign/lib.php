@@ -297,60 +297,70 @@ function assign_update_events($assign, $override = null) {
 
         // Only add 'due' events for an override if they differ from the assign default.
         $addclose = empty($current->id) || !empty($current->duedate);
-
-        $event = new stdClass();
-        $event->type = CALENDAR_EVENT_TYPE_ACTION;
-        $event->description = format_module_intro('assign', $assigninstance, $cmid, false);
-        $event->format = FORMAT_HTML;
-        // Events module won't show user events when the courseid is nonzero.
-        $event->courseid    = ($userid) ? 0 : $assigninstance->course;
-        $event->groupid     = $groupid;
-        $event->userid      = $userid;
-        $event->modulename  = 'assign';
-        $event->instance    = $assigninstance->id;
-        $event->timestart   = $duedate;
-        $event->timeduration = $timelimit;
-        $event->timesort    = $event->timestart + $event->timeduration;
-        $event->visible     = instance_is_visible('assign', $assigninstance);
-        $event->eventtype   = ASSIGN_EVENT_TYPE_DUE;
-        $event->priority    = null;
-
-        // Determine the event name and priority.
-        if ($groupid) {
-            // Group override event.
-            $params = new stdClass();
-            $params->assign = $assigninstance->name;
-            $params->group = groups_get_group_name($groupid);
-            if ($params->group === false) {
-                // Group doesn't exist, just skip it.
-                continue;
-            }
-            $eventname = get_string('overridegroupeventname', 'assign', $params);
-            // Set group override priority.
-            if (isset($current->sortorder)) {
-                $event->priority = $current->sortorder;
-            }
-        } else if ($userid) {
-            // User override event.
-            $params = new stdClass();
-            $params->assign = $assigninstance->name;
-            $eventname = get_string('overrideusereventname', 'assign', $params);
-            // Set user override priority.
-            $event->priority = CALENDAR_EVENT_USER_OVERRIDE_PRIORITY;
-        } else {
-            // The parent event.
-            $eventname = $assigninstance->name;
+        // SU_AMEND_START: Prevent admin creating events when assignments are imported.
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        $preventcalendarevent = false;
+        if ($issolsits) {
+            $admins = explode(',', $CFG->siteadmins);
+            $mainadmin = $admins[0];
+            $preventcalendarevent = ($userid == $mainadmin);
         }
+        if (!$preventcalendarevent) {
+            $event = new stdClass();
+            $event->type = CALENDAR_EVENT_TYPE_ACTION;
+            $event->description = format_module_intro('assign', $assigninstance, $cmid, false);
+            $event->format = FORMAT_HTML;
+            // Events module won't show user events when the courseid is nonzero.
+            $event->courseid    = ($userid) ? 0 : $assigninstance->course;
+            $event->groupid     = $groupid;
+            $event->userid      = $userid;
+            $event->modulename  = 'assign';
+            $event->instance    = $assigninstance->id;
+            $event->timestart   = $duedate;
+            $event->timeduration = $timelimit;
+            $event->timesort    = $event->timestart + $event->timeduration;
+            $event->visible     = instance_is_visible('assign', $assigninstance);
+            $event->eventtype   = ASSIGN_EVENT_TYPE_DUE;
+            $event->priority    = null;
 
-        if ($duedate && $addclose) {
-            if ($oldevent = array_shift($oldevents)) {
-                $event->id = $oldevent->id;
+            // Determine the event name and priority.
+            if ($groupid) {
+                // Group override event.
+                $params = new stdClass();
+                $params->assign = $assigninstance->name;
+                $params->group = groups_get_group_name($groupid);
+                if ($params->group === false) {
+                    // Group doesn't exist, just skip it.
+                    continue;
+                }
+                $eventname = get_string('overridegroupeventname', 'assign', $params);
+                // Set group override priority.
+                if (isset($current->sortorder)) {
+                    $event->priority = $current->sortorder;
+                }
+            } else if ($userid) {
+                // User override event.
+                $params = new stdClass();
+                $params->assign = $assigninstance->name;
+                $eventname = get_string('overrideusereventname', 'assign', $params);
+                // Set user override priority.
+                $event->priority = CALENDAR_EVENT_USER_OVERRIDE_PRIORITY;
             } else {
-                unset($event->id);
+                // The parent event.
+                $eventname = $assigninstance->name;
             }
-            $event->name      = $eventname.' ('.get_string('duedate', 'assign').')';
-            calendar_event::create($event, false);
+
+            if ($duedate && $addclose) {
+                if ($oldevent = array_shift($oldevents)) {
+                    $event->id = $oldevent->id;
+                } else {
+                    unset($event->id);
+                }
+                $event->name      = $eventname.' ('.get_string('duedate', 'assign').')';
+                calendar_event::create($event, false);
+            }
         }
+        // SU_AMEND_END.
     }
 
     // Delete any leftover events.
