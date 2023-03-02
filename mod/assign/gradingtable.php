@@ -1093,11 +1093,14 @@ class assign_grading_table extends table_sql implements renderable {
         $group = false;
         $submission = false;
         $this->get_group_and_submission($row->id, $group, $submission, -1);
+        // SU_AMEND_START: Assignment. Show seconds for submission time.
+        $format = component_class_callback('\local_solsits\helper', 'returnresult', ['%A, %d %b %Y, %I:%M:%S %p'], '');
         if ($submission && $submission->timemodified && $submission->status != ASSIGN_SUBMISSION_STATUS_NEW) {
-            $o = userdate($submission->timemodified);
+            $o = userdate($submission->timemodified, $format);
         } else if ($row->timesubmitted && $row->status != ASSIGN_SUBMISSION_STATUS_NEW) {
-            $o = userdate($row->timesubmitted);
+            $o = userdate($row->timesubmitted, $format);
         }
+        // SU_AMEND_END.
 
         return $o;
     }
