@@ -5145,6 +5145,19 @@ class assign {
             'usershtml' => $usershtml,
             'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user()
         );
+        // SU_AMEND_START: Marks upload. Pass locked value to batch workflow form.
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            $formparams['locked'] = $DB->get_field_select(
+                'grade_items',
+                'locked',
+                'itemmodule = :itemmodule AND iteminstance = :iteminstance',
+                [
+                    'itemmodule' => 'assign',
+                    'iteminstance' => $this->coursemodule->instance
+                ]);
+        }
+        // SU_AMEND_END.
 
         $mform = new mod_assign_batch_set_marking_workflow_state_form(null, $formparams);
         $mform->set_data($formdata);    // Initialises the hidden elements.
