@@ -4558,7 +4558,14 @@ class assign {
             'class' => 'gradingbatchoperationsform',
             'data-double-submit-protection' => 'off',
         ];
-
+        // SU_AMEND_START: Marks upload. Remove "Revert to draft" option.
+        if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+            if (\local_solsits\helper::is_summative_assignment($cmid)
+                && !is_siteadmin()) {
+                $batchformparams['submissiondrafts'] = 0;
+            }
+        }
+        // SU_AMEND_END.
         $gradingbatchoperationsform = new mod_assign_grading_batch_operations_form(null,
                                                                                    $batchformparams,
                                                                                    'post',
