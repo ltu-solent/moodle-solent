@@ -141,7 +141,10 @@ class assign_grading_table extends table_sql implements renderable {
         $fields = $userfields . ', ';
         $fields .= 'u.id as userid, ';
         // SU_AMEND_START: Assignment: Grading table student no.
-        $fields .= 'u.idnumber,';
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            $fields .= 'u.idnumber,';
+        }
         // SU_AMEND_END.
         $fields .= 's.status as status, ';
         $fields .= 's.id as submissionid, ';
@@ -394,8 +397,13 @@ class assign_grading_table extends table_sql implements renderable {
                 $headers[] = get_string('pictureofuser');
             } else {
                 // SU_AMEND_START: Assignment: Grading table student no.
-                $columns[] = 'idnumber';
-                $headers[] = get_string('studentid', 'local_solent');
+                if ($issolsits) {
+                    $columns[] = 'idnumber';
+                    $headers[] = get_string('studentid', 'local_solent');
+                } else {
+                    $columns[] = 'recordid';
+                    $headers[] = get_string('recordid', 'assign');
+                }
                 // SU_AMEND_END.
             }
 
@@ -407,8 +415,13 @@ class assign_grading_table extends table_sql implements renderable {
             if ($this->assignment->is_blind_marking()) {
                 if (!$this->is_downloading()) {
                     // SU_AMEND_START: Assignment: Grading table student no.
-                    $columns[] = 'idnumber';
-                    $headers[] = get_string('studentid', 'local_solent');
+                    if ($issolsits) {
+                        $columns[] = 'idnumber';
+                        $headers[] = get_string('studentid', 'local_solent');
+                    } else {
+                        $columns[] = 'recordid';
+                        $headers[] = get_string('recordid', 'assign');
+                    }
                     // SU_AMEND_END.
                 }
             }
@@ -420,8 +433,13 @@ class assign_grading_table extends table_sql implements renderable {
         } else {
             // Record ID.
             // SU_AMEND_START: Assignment: Grading table student no.
-            $columns[] = 'idnumber';
-            $headers[] = get_string('studentid', 'local_solent');
+            if ($issolsits) {
+                $columns[] = 'idnumber';
+                $headers[] = get_string('studentid', 'local_solent');
+            } else {
+                $columns[] = 'recordid';
+                $headers[] = get_string('recordid', 'assign');
+            }
             // SU_AMEND_END.
         }
 
