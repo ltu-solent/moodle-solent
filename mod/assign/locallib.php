@@ -6579,7 +6579,8 @@ class assign {
         $info->assignment = format_string($assignmentname, true, array('context'=>$context));
         $info->url = $CFG->wwwroot.'/mod/assign/view.php?id='.$coursemodule->id;
         // SU_AMEND_START: Add seconds to submission date email.
-        $format = component_class_callback('\local_solsits\helper', 'returnresult', [get_string('strftimedatetimeaccurate', 'langconfig')], get_string('strftimerecentfull'));
+        $format = component_class_callback('\local_solsits\helper', 'returnresult',
+            [get_string('strftimedatetimeaccurate', 'langconfig')], get_string('strftimerecentfull'));
         $info->timeupdated = userdate($updatetime, $format);
         $info->timeupdatedfull = $info->timeupdated;
         // SU_AMEND_END.
