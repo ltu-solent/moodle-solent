@@ -4560,7 +4560,10 @@ class assign {
                                  'context'=>$this->get_context(),
                                  'markingworkflow'=>$markingworkflow,
                                  'markingallocation'=>$markingallocation);
-        $classoptions = array('class'=>'gradingbatchoperationsform');
+        $classoptions = [
+            'class' => 'gradingbatchoperationsform',
+            'data-double-submit-protection' => 'off',
+        ];
         // SU_AMEND_START: Marks upload. Remove "Revert to draft" option.
         if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
             if (\local_solsits\helper::is_summative_assignment($cmid)
