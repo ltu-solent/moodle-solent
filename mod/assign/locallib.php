@@ -7924,7 +7924,8 @@ class assign {
                 if (count($grademenu) > 1) {
                     // SU_AMEND_START: Marks Upload: Change grade string if doublemarks enabled
                     $gradestring = get_string('gradenoun');
-                    if ($this->get_feedback_plugin_by_type('doublemark')->is_enabled('enabled')) {
+                    $doublemark = $this->get_feedback_plugin_by_type('doublemark');
+                    if ($doublemark && $doublemark->is_enabled('enabled')) {
                         $gradestring = get_string('agreed', 'assignfeedback_doublemark');
                     }
                     $gradingelement = $mform->addElement('select', 'grade', $gradestring . ':', $grademenu);
@@ -8002,6 +8003,7 @@ class assign {
                     $mform->addElement('static', 'currentassigngrade', $label, $assigngradestring);
                 }
             }
+
         }
 
         if ($this->get_instance()->markingworkflow &&
