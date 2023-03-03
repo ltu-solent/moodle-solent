@@ -1359,7 +1359,12 @@ class assign {
             $perpage = $maxperpage;
         }
         // SU_AMEND_START: Marks upload: Prevent pagination. Return all participants in a single page.
-        return -1;
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            return -1;
+        } else {
+            return $perpage;
+        }
         // SU_AMEND_END.
     }
 
