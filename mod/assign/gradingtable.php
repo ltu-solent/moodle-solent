@@ -479,7 +479,11 @@ class assign_grading_table extends table_sql implements renderable {
         // SU_AMEND_START: Marks Upload: Change grade string if doublemarks enabled
         $doublemark = $this->assignment->get_feedback_plugin_by_type('doublemark');
         if ($doublemark && $doublemark->is_enabled('enabled')) {
+<<<<<<< HEAD
             $headers[] = get_string('agreedgrade', 'assignfeedback_doublemark');
+=======
+            $headers[] = get_string('agreed', 'assignfeedback_doublemark');
+>>>>>>> a20dca3aa72 (mod_assign: Make check for doublemark more resilient)
         } else {
             $headers[] = get_string('gradenoun');
         }
