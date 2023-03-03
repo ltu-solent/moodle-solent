@@ -7922,7 +7922,13 @@ class assign {
             } else {
                 $grademenu = array(-1 => get_string("nograde")) + make_grades_menu($this->get_instance()->grade);
                 if (count($grademenu) > 1) {
-                    $gradingelement = $mform->addElement('select', 'grade', get_string('gradenoun') . ':', $grademenu);
+                    // SU_AMEND_START: Marks Upload: Change grade string if doublemarks enabled
+                    $gradestring = get_string('gradenoun');
+                    if ($this->get_feedback_plugin_by_type('doublemark')->is_enabled('enabled')) {
+                        $gradestring = get_string('agreed', 'assignfeedback_doublemark');
+                    }
+                    $gradingelement = $mform->addElement('select', 'grade', $gradestring . ':', $grademenu);
+                    // SU_AMEND_END.
 
                     // The grade is already formatted with format_float so it needs to be converted back to an integer.
                     if (!empty($data->grade)) {
