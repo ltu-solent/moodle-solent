@@ -8028,6 +8028,7 @@ class assign {
                     $mform->addElement('static', 'currentassigngrade', $label, $assigngradestring);
                 }
             }
+<<<<<<< HEAD
             // SU_AMEND_START: Marks Upload: Prevent grades being re-released.
             $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
             if ($issolsits) {
@@ -8037,6 +8038,8 @@ class assign {
                 }
             }
             // SU_AMEND_END.
+=======
+>>>>>>> fdb691dbf34 (mod_assign: Make check for doublemark more resilient)
 
         }
 
