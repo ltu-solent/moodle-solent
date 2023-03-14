@@ -53,9 +53,16 @@ class mod_assign_mod_form extends moodleform_mod {
         } else {
             $mform->setType('name', PARAM_CLEANHTML);
         }
-        $mform->addRule('name', null, 'required', null, 'client');
+        // SU_AMEND_START: Manage editing "name" for Summative assignments.
+        $issummative = component_class_callback('\local_solsits\helper', 'is_summative_assignment', [$this->current->coursemodule], false);
+        if (!$issummative) {
+            $mform->addRule('name', null, 'required', null, 'client');
+        } else {
+            $mform->hardFreeze('name');
+            $mform->setConstant('name', format_string($this->current->name));
+        }
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-
+        // SU_AMEND_END.
         $this->standard_intro_elements(get_string('description', 'assign'));
 
         // Activity.
@@ -94,18 +101,42 @@ class mod_assign_mod_form extends moodleform_mod {
         $options = array('optional'=>true);
         $mform->addElement('date_time_selector', 'allowsubmissionsfromdate', $name, $options);
         $mform->addHelpButton('allowsubmissionsfromdate', 'allowsubmissionsfromdate', 'assign');
+        // SU_AMEND_START: Manage editing "allowsubmissionsfromdate" for Summative assignments.
+        if ($issummative && !is_siteadmin()) {
+            $mform->hardFreeze('allowsubmissionsfromdate');
+            $mform->setConstant('allowsubmissionsfromdate', format_string($this->current->allowsubmissionsfromdate));
+        }
+        // SU_AMEND_END.
 
         $name = get_string('duedate', 'assign');
         $mform->addElement('date_time_selector', 'duedate', $name, array('optional'=>true));
         $mform->addHelpButton('duedate', 'duedate', 'assign');
+        // SU_AMEND_START: Manage editing "duedate" for Summative assignments.
+        if (!$issummative && !is_siteadmin()) {
+            $mform->hardFreeze('duedate');
+            $mform->setConstant('duedate', format_string($this->current->duedate));
+        }
+        // SU_AMEND_END.
 
         $name = get_string('cutoffdate', 'assign');
         $mform->addElement('date_time_selector', 'cutoffdate', $name, array('optional'=>true));
         $mform->addHelpButton('cutoffdate', 'cutoffdate', 'assign');
+        // SU_AMEND_START: Manage editing "cutoffdate" for Summative assignments.
+        if (!$issummative && !is_siteadmin()) {
+            $mform->hardFreeze('cutoffdate');
+            $mform->setConstant('cutoffdate', format_string($this->current->cutoffdate));
+        }
+        // SU_AMEND_END.
 
         $name = get_string('gradingduedate', 'assign');
         $mform->addElement('date_time_selector', 'gradingduedate', $name, array('optional' => true));
         $mform->addHelpButton('gradingduedate', 'gradingduedate', 'assign');
+        // SU_AMEND_START: Manage editing "gradingduedate" for Summative assignments.
+        if (!$issummative && !is_siteadmin()) {
+            $mform->hardFreeze('gradingduedate');
+            $mform->setConstant('gradingduedate', format_string($this->current->gradingduedate));
+        }
+        // SU_AMEND_END.
 
         $timelimitenabled = get_config('assign', 'enabletimelimit');
         // Time limit.
