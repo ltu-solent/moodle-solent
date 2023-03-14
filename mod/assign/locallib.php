@@ -7994,6 +7994,15 @@ class assign {
                     $mform->addElement('static', 'currentassigngrade', $label, $assigngradestring);
                 }
             }
+            // SU_AMEND_START: Marks Upload: Prevent grades being re-released.
+            $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+            if ($issolsits) {
+                if ($this->get_grade_item()->locked != 0) {
+                    $mform->addElement('hidden', 'locked', $this->get_grade_item()->locked);
+                    $mform->disabledIf('workflowstate', 'locked', 'neq', 0);
+                }
+            }
+            // SU_AMEND_END.
 
         }
 
@@ -8425,6 +8434,19 @@ class assign {
             'usershtml' => '',  // initialise these parameters with real information.
             'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user()
         );
+        // SU_AMEND_START: Marks upload. Pass locked value to batch workflow form.
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            $formparams['locked'] = $DB->get_field_select(
+                'grade_items',
+                'locked',
+                'itemmodule = :itemmodule AND iteminstance = :iteminstance',
+                [
+                    'itemmodule' => 'assign',
+                    'iteminstance' => $this->coursemodule->instance
+                ]);
+        }
+        // SU_AMEND_END.
 
         $mform = new mod_assign_batch_set_marking_workflow_state_form(null, $formparams);
 
@@ -8476,6 +8498,15 @@ class assign {
                     \mod_assign\event\workflow_state_updated::create_from_user($this, $user, $state)->trigger();
                 }
             }
+            // SU_AMEND_START: Marks Upload: Lock grades after release
+            if ($state == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
+                require_once($CFG->dirroot . '/lib/grade/grade_item.php');
+                $gradeitem = $this->get_grade_item();
+                if ($gradeitem->itemmodule == 'assign' && $gradeitem->idnumber != '') {
+                    $gradeitem->set_locked(time(), false, true);
+                }
+            }
+            // SU_AMEND_END.
         }
     }
 
@@ -9280,10 +9311,13 @@ class assign {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW] = get_string('markingworkflowstateinreview', 'assign');
             $states[ASSIGN_MARKING_WORKFLOW_STATE_READYFORRELEASE] = get_string('markingworkflowstatereadyforrelease', 'assign');
         }
+        // SU_AMEND_START: Marks Upload: Release grades by unit leader only.
+        $canreleasegrades = component_class_callback('\local_solsits\helper', 'can_release_grades', [$this->coursemodule->id], true);
         if (has_any_capability(array('mod/assign:releasegrades',
-                                     'mod/assign:managegrades'), $this->context)) {
+                                     'mod/assign:managegrades'), $this->context) && $canreleasegrades) {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
         }
+        // SU_AMEND_END.
         $this->markingworkflowstates = $states;
         return $this->markingworkflowstates;
     }
