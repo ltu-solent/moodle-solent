@@ -74,6 +74,12 @@ class assign_submission_file extends assign_submission_plugin {
         } else {
             $defaultmaxfilesubmissions = get_config('assignsubmission_file', 'maxfiles');
             $defaultmaxsubmissionsizebytes = get_config('assignsubmission_file', 'maxbytes');
+            // SU_AMEND_START: Assignment file submission. Default file settings not the max.
+            if ($solsits = get_config('local_solsits')) {
+                $defaultmaxfilesubmissions = $solsits->defaultfilesubmissions ?? 1;
+                $defaultmaxsubmissionsizebytes = $solsits->defaultfilesubmissionfilesize ?? 104857600;
+            }
+            // SU_AMEND_END.
             $defaultfiletypes = get_config('assignsubmission_file', 'filetypes');
         }
         $defaultfiletypes = (string)$defaultfiletypes;
