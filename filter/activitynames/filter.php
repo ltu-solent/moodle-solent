@@ -34,9 +34,12 @@ class filter_activitynames extends moodle_text_filter {
 
     function filter($text, array $options = array()) {
         // SU_AMEND_START: Prevent autolinking of activity names on search and category index pages.
-        global $PAGE;
-        if (in_array($PAGE->pagetype, ['course-index-category', 'course-category.ajax', 'course-search'])) {
-            return $text;
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            global $PAGE;
+            if (in_array($PAGE->pagetype, ['course-index-category', 'course-category.ajax', 'course-search'])) {
+                return $text;
+            }
         }
         // SU_AMEND_END.
         $coursectx = $this->context->get_course_context(false);
@@ -120,6 +123,7 @@ class filter_activitynames extends moodle_text_filter {
             // Sort activities by the length of the activity name in reverse order.
             core_collator::asort_objects_by_property($sortedactivities, 'namelen', core_collator::SORT_NUMERIC);
             // SU_AMEND_START: Optionally add the activity icon.
+            $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
             global $OUTPUT, $PAGE;
             $incoursepage = (strpos($PAGE->pagetype, 'course-view') !== false);
             foreach ($sortedactivities as $cm) {
@@ -132,7 +136,7 @@ class filter_activitynames extends moodle_text_filter {
                         array('class' => 'autolink', 'title' => $title,
                             'href' => $cm->url));
                     $activityicon = '';
-                    if (!$incoursepage) {
+                    if (!$incoursepage && $issolsits) {
                         $activityicon = html_writer::img(
                             $OUTPUT->image_url('icon', $cm->modname),
                             $cm->modname,
