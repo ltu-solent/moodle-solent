@@ -1761,10 +1761,10 @@ class restore_section_structure_step extends restore_structure_step {
                 'name' => $data['name']
             );
             // SU_AMEND_START: Backup: Allow import of child tab settings.
-            if ($record = $DB->get_record('course_format_options', $params, 'id, value')) {
+            if ($record = $DB->get_record('course_format_options', $params, 'id, value, name')) {
                 // Do not overwrite existing information.
                 // If onetopic child tab data.
-                if ($record->name == 'firsttabtext' || $record->name == 'level') {
+                if ($data['format'] == 'onetopic' && ($record->name == 'firsttabtext' || $record->name == 'level')) {
                     // Keep value.
                     $newid = $DB->set_field('course_format_options', 'value', $data['value'], ['id' => $record->id]);
                 } else {
