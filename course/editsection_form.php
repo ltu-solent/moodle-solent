@@ -25,11 +25,8 @@ class editsection_form extends moodleform {
         $mform->addElement('header', 'generalhdr', get_string('general'));
 
         // SU_AMEND_START: Manage section name editing.
-        $maxlength = 255;
-        $isdraggable = true;
-        if (method_exists('\format_onetopic\solhelper', 'isdraggable')) {
-            $isdraggable = \format_onetopic\solhelper::isdraggable($course, $sectioninfo);
-        }
+        $isdraggable = component_class_callback('\format_onetopic\solhelper', 'isdraggable', [$course, $sectioninfo], true);
+        $maxlength = component_class_callback('\local_solent\helper', 'tablength', [$course], 255);
         $mform->addElement('defaultcustom', 'name', get_string('sectionname'), [
             'defaultvalue' => $this->_customdata['defaultsectionname'],
             'customvalue' => $sectioninfo->name,
