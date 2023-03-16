@@ -112,7 +112,7 @@ class mod_assign_mod_form extends moodleform_mod {
         $mform->addElement('date_time_selector', 'duedate', $name, array('optional'=>true));
         $mform->addHelpButton('duedate', 'duedate', 'assign');
         // SU_AMEND_START: Manage editing "duedate" for Summative assignments.
-        if (!$issummative && !is_siteadmin()) {
+        if ($issummative && !is_siteadmin()) {
             $mform->hardFreeze('duedate');
             $mform->setConstant('duedate', format_string($this->current->duedate));
         }
@@ -122,7 +122,7 @@ class mod_assign_mod_form extends moodleform_mod {
         $mform->addElement('date_time_selector', 'cutoffdate', $name, array('optional'=>true));
         $mform->addHelpButton('cutoffdate', 'cutoffdate', 'assign');
         // SU_AMEND_START: Manage editing "cutoffdate" for Summative assignments.
-        if (!$issummative && !is_siteadmin()) {
+        if ($issummative && !is_siteadmin()) {
             $mform->hardFreeze('cutoffdate');
             $mform->setConstant('cutoffdate', format_string($this->current->cutoffdate));
         }
@@ -132,7 +132,7 @@ class mod_assign_mod_form extends moodleform_mod {
         $mform->addElement('date_time_selector', 'gradingduedate', $name, array('optional' => true));
         $mform->addHelpButton('gradingduedate', 'gradingduedate', 'assign');
         // SU_AMEND_START: Manage editing "gradingduedate" for Summative assignments.
-        if (!$issummative && !is_siteadmin()) {
+        if ($issummative && !is_siteadmin()) {
             $mform->hardFreeze('gradingduedate');
             $mform->setConstant('gradingduedate', format_string($this->current->gradingduedate));
         }
