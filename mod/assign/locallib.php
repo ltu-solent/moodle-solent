@@ -1674,6 +1674,12 @@ class assign {
      */
     public function add_all_plugin_settings(MoodleQuickForm $mform) {
         $mform->addElement('header', 'submissiontypes', get_string('submissiontypes', 'assign'));
+        // SU_AMEND_START: Add extra help info for submission types.
+        $stringmanager = get_string_manager();
+        if ($stringmanager->string_exists('submissiontypesinfo', 'local_solent')) {
+            $mform->addElement('html', get_string('submissiontypesinfo', 'local_solent'));
+        }
+        // SU_AMEND_END.
 
         $submissionpluginsenabled = array();
         $group = $mform->addGroup(array(), 'submissionplugins', get_string('submissiontypes', 'assign'), array(' '), false);
