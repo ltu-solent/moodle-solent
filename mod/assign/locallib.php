@@ -7926,7 +7926,7 @@ class assign {
                     $gradestring = get_string('gradenoun');
                     $doublemark = $this->get_feedback_plugin_by_type('doublemark');
                     if ($doublemark && $doublemark->is_enabled('enabled')) {
-                        $gradestring = get_string('agreed', 'assignfeedback_doublemark');
+                        $gradestring = get_string('agreedgrade', 'assignfeedback_doublemark');
                     }
                     $gradingelement = $mform->addElement('select', 'grade', $gradestring . ':', $grademenu);
                     // SU_AMEND_END.
