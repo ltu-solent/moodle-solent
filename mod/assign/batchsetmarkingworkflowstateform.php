@@ -48,9 +48,8 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
 
         $options = $params['markingworkflowstates'];
         // SU_AMEND_START: Prevent grades being re-released.
-        $locked = (isset($params['locked']) && $params['locked'] != 0);
         // If not locked, allow marking worflow.
-        if (!$locked) {
+        if (isset($params['locked']) && $params['locked'] == 0) {
             $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);
 
             // Don't allow notification to be sent until in "Released" state.
@@ -66,7 +65,7 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
         $mform->addElement('hidden', 'selectedusers');
         $mform->setType('selectedusers', PARAM_SEQUENCE);
         // If locked prevent re-releasing.
-        if ($locked) {
+        if (isset($params['locked']) && $params['locked'] != 0) {
             $mform->addGroup([$mform->createElement('cancel')], 'buttonar', '', ' ', false);
         } else {
             $this->add_action_buttons(true, get_string('savechanges'));
