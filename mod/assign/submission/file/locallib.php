@@ -113,7 +113,14 @@ class assign_submission_file extends assign_submission_plugin {
         $mform->addHelpButton('assignsubmission_file_maxsizebytes',
                               'maximumsubmissionsize',
                               'assignsubmission_file');
-        $mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
+        // SU_AMEND_START: Assignment: Fix to SITS default size.
+        if ($defaultmaxsubmissionsizebytes) {
+            $mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
+        } else {
+            $sitsmaxbytes = get_config('local_solsits', 'defaultfilesubmissionfilesize') ?? 104857600;
+            $mform->setDefault('assignsubmission_file_maxsizebytes', $sitsmaxbytes);
+        }
+        // SU_AMEND_END.
         $mform->hideIf('assignsubmission_file_maxsizebytes',
                            'assignsubmission_file_enabled',
                            'notchecked');
