@@ -244,7 +244,7 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                     // SU_AMEND_START: Add startdate to course title.
                     $startdatestring = '';
                     $cat = core_course_category::get($mycourse->category, IGNORE_MISSING);
-                    if (strpos($cat->idnumber, 'modules_') !== false) {
+                    if (isset($cat->idnumber) && strpos($cat->idnumber, 'modules_') !== false) {
                         $startdate = userdate($mycourse->startdate, get_string('strftimedatefullshort', 'core_langconfig'));
                         $startdatestring = get_string('startdatestring', 'local_solent', $startdate);
                     }
