@@ -112,6 +112,12 @@ export default class extends BaseComponent {
         // We accept any section but the section 0 or ourself
         if (dropdata?.type === 'section') {
             const sectionzeroid = this.course.sectionlist[0];
+            // SU_AMEND_START: Restrict dropzones to only those from which you can drag in the first place.
+            const zonepermitted = this.section.isdraggable;
+            if (!zonepermitted) {
+                return false;
+            }
+            // SU_AMEND_END.
             return dropdata?.id != this.id && dropdata?.id != sectionzeroid && this.id != sectionzeroid;
         }
         return false;
