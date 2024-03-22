@@ -1358,7 +1358,14 @@ class assign {
             ($perpage == -1 || $perpage > $maxperpage)) {
             $perpage = $maxperpage;
         }
-        return $perpage;
+        // SU_AMEND_START: Marks upload: Prevent pagination. Return all participants in a single page.
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            return -1;
+        } else {
+            return $perpage;
+        }
+        // SU_AMEND_END.
     }
 
     /**
@@ -1667,6 +1674,12 @@ class assign {
      */
     public function add_all_plugin_settings(MoodleQuickForm $mform) {
         $mform->addElement('header', 'submissiontypes', get_string('submissiontypes', 'assign'));
+        // SU_AMEND_START: Add extra help info for submission types.
+        $stringmanager = get_string_manager();
+        if ($stringmanager->string_exists('submissiontypesinfo', 'local_solent')) {
+            $mform->addElement('html', get_string('submissiontypesinfo', 'local_solent'));
+        }
+        // SU_AMEND_END.
 
         $submissionpluginsenabled = array();
         $group = $mform->addGroup(array(), 'submissionplugins', get_string('submissiontypes', 'assign'), array(' '), false);
@@ -4551,7 +4564,14 @@ class assign {
             'class' => 'gradingbatchoperationsform',
             'data-double-submit-protection' => 'off',
         ];
-
+        // SU_AMEND_START: Marks upload. Remove "Revert to draft" option.
+        if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+            if (\local_solsits\helper::is_summative_assignment($cmid)
+                && !is_siteadmin()) {
+                $batchformparams['submissiondrafts'] = 0;
+            }
+        }
+        // SU_AMEND_END.
         $gradingbatchoperationsform = new mod_assign_grading_batch_operations_form(null,
                                                                                    $batchformparams,
                                                                                    'post',
@@ -5140,6 +5160,19 @@ class assign {
             'usershtml' => $usershtml,
             'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user()
         );
+        // SU_AMEND_START: Marks upload. Pass locked value to batch workflow form.
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            $formparams['locked'] = $DB->get_field_select(
+                'grade_items',
+                'locked',
+                'itemmodule = :itemmodule AND iteminstance = :iteminstance',
+                [
+                    'itemmodule' => 'assign',
+                    'iteminstance' => $this->coursemodule->instance
+                ]);
+        }
+        // SU_AMEND_END.
 
         $mform = new mod_assign_batch_set_marking_workflow_state_form(null, $formparams);
         $mform->set_data($formdata);    // Initialises the hidden elements.
@@ -6571,7 +6604,12 @@ class assign {
         }
         $info->assignment = format_string($assignmentname, true, array('context'=>$context));
         $info->url = $CFG->wwwroot.'/mod/assign/view.php?id='.$coursemodule->id;
-        $info->timeupdated = userdate($updatetime, get_string('strftimerecentfull'));
+        // SU_AMEND_START: Add seconds to submission date email.
+        $format = component_class_callback('\local_solsits\helper', 'returnresult',
+            [get_string('strftimedatetimeaccurate', 'langconfig')], get_string('strftimerecentfull'));
+        $info->timeupdated = userdate($updatetime, $format);
+        $info->timeupdatedfull = $info->timeupdated;
+        // SU_AMEND_END.
 
         $postsubject = get_string($messagetype . 'small', 'assign', $info);
         $posttext = self::format_notification_message_text($messagetype,
@@ -7909,7 +7947,14 @@ class assign {
             } else {
                 $grademenu = array(-1 => get_string("nograde")) + make_grades_menu($this->get_instance()->grade);
                 if (count($grademenu) > 1) {
-                    $gradingelement = $mform->addElement('select', 'grade', get_string('gradenoun') . ':', $grademenu);
+                    // SU_AMEND_START: Marks Upload: Change grade string if doublemarks enabled
+                    $gradestring = get_string('gradenoun');
+                    $doublemark = $this->get_feedback_plugin_by_type('doublemark');
+                    if ($doublemark && $doublemark->is_enabled('enabled')) {
+                        $gradestring = get_string('agreedgrade', 'assignfeedback_doublemark');
+                    }
+                    $gradingelement = $mform->addElement('select', 'grade', $gradestring . ':', $grademenu);
+                    // SU_AMEND_END.
 
                     // The grade is already formatted with format_float so it needs to be converted back to an integer.
                     if (!empty($data->grade)) {
@@ -7986,6 +8031,16 @@ class assign {
                     $mform->addElement('static', 'currentassigngrade', $label, $assigngradestring);
                 }
             }
+            // SU_AMEND_START: Marks Upload: Prevent grades being re-released.
+            $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+            if ($issolsits) {
+                if ($this->get_grade_item()->locked != 0) {
+                    $mform->addElement('hidden', 'locked', $this->get_grade_item()->locked);
+                    $mform->disabledIf('workflowstate', 'locked', 'neq', 0);
+                }
+            }
+            // SU_AMEND_END.
+
         }
 
         if ($this->get_instance()->markingworkflow &&
@@ -8416,6 +8471,19 @@ class assign {
             'usershtml' => '',  // initialise these parameters with real information.
             'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user()
         );
+        // SU_AMEND_START: Marks upload. Pass locked value to batch workflow form.
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            $formparams['locked'] = $DB->get_field_select(
+                'grade_items',
+                'locked',
+                'itemmodule = :itemmodule AND iteminstance = :iteminstance',
+                [
+                    'itemmodule' => 'assign',
+                    'iteminstance' => $this->coursemodule->instance
+                ]);
+        }
+        // SU_AMEND_END.
 
         $mform = new mod_assign_batch_set_marking_workflow_state_form(null, $formparams);
 
@@ -8467,6 +8535,15 @@ class assign {
                     \mod_assign\event\workflow_state_updated::create_from_user($this, $user, $state)->trigger();
                 }
             }
+            // SU_AMEND_START: Marks Upload: Lock grades after release
+            if ($state == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
+                require_once($CFG->dirroot . '/lib/grade/grade_item.php');
+                $gradeitem = $this->get_grade_item();
+                if ($gradeitem->itemmodule == 'assign' && $gradeitem->idnumber != '') {
+                    $gradeitem->set_locked(time(), false, true);
+                }
+            }
+            // SU_AMEND_END.
         }
     }
 
@@ -9271,10 +9348,13 @@ class assign {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW] = get_string('markingworkflowstateinreview', 'assign');
             $states[ASSIGN_MARKING_WORKFLOW_STATE_READYFORRELEASE] = get_string('markingworkflowstatereadyforrelease', 'assign');
         }
+        // SU_AMEND_START: Marks Upload: Release grades by unit leader only.
+        $canreleasegrades = component_class_callback('\local_solsits\helper', 'can_release_grades', [$this->coursemodule->id], true);
         if (has_any_capability(array('mod/assign:releasegrades',
-                                     'mod/assign:managegrades'), $this->context)) {
+                                     'mod/assign:managegrades'), $this->context) && $canreleasegrades) {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
         }
+        // SU_AMEND_END.
         $this->markingworkflowstates = $states;
         return $this->markingworkflowstates;
     }

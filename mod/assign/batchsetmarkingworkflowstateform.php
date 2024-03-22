@@ -47,7 +47,21 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
         $mform->addElement('static', 'userslist', get_string('selectedusers', 'assign'), $params['usershtml']);
 
         $options = $params['markingworkflowstates'];
-        $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);
+        // SU_AMEND_START: Prevent grades being re-released.
+        // If not locked, allow marking worflow.
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        // Solent context.
+        if ($issolsits) {
+            // The assignment is not locked yet - therefore not released.
+            if ((isset($params['locked']) && $params['locked'] == 0)) {
+                $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);
+            } else {
+                $mform->addElement('hidden', 'markingworkflowstate');
+                $mform->setType('markingworkflowstate', PARAM_ALPHA);
+            }
+        } else {
+            $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);
+        }
 
         // Don't allow notification to be sent until in "Released" state.
         $mform->addElement('selectyesno', 'sendstudentnotifications', get_string('sendstudentnotifications', 'assign'));
@@ -60,8 +74,13 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
         $mform->setType('action', PARAM_ALPHA);
         $mform->addElement('hidden', 'selectedusers');
         $mform->setType('selectedusers', PARAM_SEQUENCE);
-        $this->add_action_buttons(true, get_string('savechanges'));
-
+        // If locked prevent re-releasing.
+        if ($issolsits && (isset($params['locked']) && $params['locked'] != 0)) {
+            $mform->addGroup([$mform->createElement('cancel')], 'buttonar', '', ' ', false);
+        } else {
+            $this->add_action_buttons(true, get_string('savechanges'));
+        }
+        // SU_AMEND_END.
     }
 
     /**
