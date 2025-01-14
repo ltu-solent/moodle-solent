@@ -139,6 +139,12 @@ class assign_grading_table extends table_sql implements renderable {
         $extrauserfields = $userfieldsapi->get_required_fields([\core_user\fields::PURPOSE_IDENTITY]);
         $fields = $userfields . ', ';
         $fields .= 'u.id as userid, ';
+        // SSU_AMEND_START: Assignment: Grading table student no.
+        $issolsits = component_class_callback('\local_solsits\helper', 'issolsits', [], false);
+        if ($issolsits) {
+            $fields .= 'u.idnumber,';
+        }
+        // SSU_AMEND_END.
         $fields .= 's.status as status, ';
         $fields .= 's.id as submissionid, ';
         $fields .= 's.timecreated as firstsubmission, ';
@@ -385,8 +391,15 @@ class assign_grading_table extends table_sql implements renderable {
 
         if ($this->hasviewblind || !$this->assignment->is_blind_marking()) {
             if ($this->is_downloading()) {
-                $columns[] = 'recordid';
-                $headers[] = get_string('recordid', 'assign');
+                // SSU_AMEND_START: Assignment: Grading table student no.
+                if ($issolsits) {
+                    $columns[] = 'idnumber';
+                    $headers[] = get_string('studentid', 'local_solent');
+                } else {
+                    $columns[] = 'recordid';
+                    $headers[] = get_string('recordid', 'assign');
+                }
+                // SSU_AMEND_END.
             }
 
             // Fullname.
@@ -395,8 +408,15 @@ class assign_grading_table extends table_sql implements renderable {
             // Participant # details if can view real identities.
             if ($this->assignment->is_blind_marking()) {
                 if (!$this->is_downloading()) {
-                    $columns[] = 'recordid';
-                    $headers[] = get_string('recordid', 'assign');
+                    // SSU_AMEND_START: Assignment: Grading table student no.
+                    if ($issolsits) {
+                        $columns[] = 'idnumber';
+                        $headers[] = get_string('studentid', 'local_solent');
+                    } else {
+                        $columns[] = 'recordid';
+                        $headers[] = get_string('recordid', 'assign');
+                    }
+                    // SSU_AMEND_END.
                 }
             }
 
@@ -406,8 +426,15 @@ class assign_grading_table extends table_sql implements renderable {
             }
         } else {
             // Record ID.
-            $columns[] = 'recordid';
-            $headers[] = get_string('recordid', 'assign');
+            // SSU_AMEND_START: Assignment: Grading table student no.
+            if ($issolsits) {
+                $columns[] = 'idnumber';
+                $headers[] = get_string('studentid', 'local_solent');
+            } else {
+                $columns[] = 'recordid';
+                $headers[] = get_string('recordid', 'assign');
+            }
+            // SSU_AMEND_END.
         }
 
         // Submission status.
@@ -443,7 +470,14 @@ class assign_grading_table extends table_sql implements renderable {
         }
         // Grade.
         $columns[] = 'grade';
-        $headers[] = get_string('gradenoun');
+        // SSU_AMEND_START: Marks Upload: Change grade string if doublemarks enabled.
+        $doublemark = $this->assignment->get_feedback_plugin_by_type('doublemark');
+        if ($doublemark && $doublemark->is_enabled('enabled')) {
+            $headers[] = get_string('agreedgrade', 'assignfeedback_doublemark');
+        } else {
+            $headers[] = get_string('gradenoun');
+        }
+        // SSU_AMEND_END.
         if ($this->is_downloading()) {
             $gradetype = $this->assignment->get_instance()->grade;
             if ($gradetype > 0) {
@@ -633,6 +667,13 @@ class assign_grading_table extends table_sql implements renderable {
         $gradingdisabled = $this->assignment->grading_disabled($row->id, true, $this->gradinginfo);
         // The function in the assignment keeps a static cache of this list of states.
         $workflowstates = $this->assignment->get_marking_workflow_states_for_current_user();
+        // SSU_AMEND_START: Marks upload. Remove 'Released' option from quick grading.
+        if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+            if (\local_solsits\helper::is_summative_assignment($this->assignment->get_course_module()->id)) {
+                unset($workflowstates['released']);
+            }
+        }
+        // SSU_AMEND_END.
         $workflowstate = $row->workflowstate;
         if (empty($workflowstate)) {
             $workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_NOTMARKED;
@@ -918,11 +959,23 @@ class assign_grading_table extends table_sql implements renderable {
         $selectcol = '<label class="accesshide" for="selectuser_' . $row->userid . '">';
         $selectcol .= get_string('selectuser', 'assign', $this->assignment->fullname($row));
         $selectcol .= '</label>';
+        // SSU_AMEND_START: Marks Upload: Select all assignments for release.
+        $inputname = 'selectedusers';
+        $inputclass = 'ignoredirty';
+        if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+            $canselectusers = has_capability('local/solsits:submissionsselectusers', $this->assignment->get_context());
+            if (\local_solsits\helper::is_summative_assignment($this->assignment->get_course_module()->id)
+                && !is_siteadmin() && !$canselectusers) {
+                $inputname = 'selectallquercus';
+                $inputclass .= ' selectallquercus';
+            }
+        }
         $selectcol .= '<input type="checkbox"
-                              class="ignoredirty"
+                              class="' . $inputclass . '"
                               id="selectuser_' . $row->userid . '"
-                              name="selectedusers"
+                              name="' . $inputname . '"
                               value="' . $row->userid . '"/>';
+        // SSU_AMEND_END.
         $selectcol .= '<input type="hidden"
                               name="grademodified_' . $row->userid . '"
                               value="' . $row->timemarked . '"/>';
@@ -1073,11 +1126,14 @@ class assign_grading_table extends table_sql implements renderable {
         $group = false;
         $submission = false;
         $this->get_group_and_submission($row->id, $group, $submission, -1);
-        if ($submission && $submission->timemodified && $submission->status != ASSIGN_SUBMISSION_STATUS_NEW) {
-            $o = userdate($submission->timemodified);
-        } else if ($row->timesubmitted && $row->status != ASSIGN_SUBMISSION_STATUS_NEW) {
-            $o = userdate($row->timesubmitted);
-        }
+         // SSU_AMEND_START: Assignment. Show seconds for submission time.
+         $format = component_class_callback('\local_solsits\helper', 'returnresult', ['%A, %d %b %Y, %I:%M:%S %p'], '');
+         if ($submission && $submission->timemodified && $submission->status != ASSIGN_SUBMISSION_STATUS_NEW) {
+             $o = userdate($submission->timemodified, $format);
+         } else if ($row->timesubmitted && $row->status != ASSIGN_SUBMISSION_STATUS_NEW) {
+             $o = userdate($row->timesubmitted, $format);
+         }
+         // SSU_AMEND_END.
 
         return $o;
     }
@@ -1823,6 +1879,14 @@ class assign_grading_table extends table_sql implements renderable {
      */
     public function get_paging_bar(): string {
         global $OUTPUT;
+        // $issummative = component_class_callback('\local_solsits\helper',
+        //     'is_summative_assignment',
+        //     [$this->assignment->get_course_module()->id],
+        //     false
+        // );
+        // if ($issummative) {
+        //     return '';
+        // }
 
         if ($this->use_pages) {
             $pagingbar = new paging_bar($this->totalrows, $this->currpage, $this->pagesize, $this->baseurl);
@@ -1840,7 +1904,14 @@ class assign_grading_table extends table_sql implements renderable {
      */
     public function get_paging_selector(): string {
         global $OUTPUT;
-
+        // $issummative = component_class_callback('\local_solsits\helper',
+        //     'is_summative_assignment',
+        //     [$this->assignment->get_course_module()->id],
+        //     false
+        // );
+        // if ($issummative) {
+        //     return '';
+        // }
         if ($this->use_pages) {
             $pagingoptions = [...$this->pagingoptions, $this->perpage]; // To make sure the actual page size is within the options.
             $pagingoptions = array_unique($pagingoptions);
