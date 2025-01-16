@@ -960,20 +960,18 @@ class assign_grading_table extends table_sql implements renderable {
         $selectcol .= get_string('selectuser', 'assign', $this->assignment->fullname($row));
         $selectcol .= '</label>';
         // SSU_AMEND_START: Marks Upload: Select all assignments for release.
-        $inputname = 'selectedusers';
         $inputclass = 'ignoredirty';
         if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
             $canselectusers = has_capability('local/solsits:submissionsselectusers', $this->assignment->get_context());
             if (\local_solsits\helper::is_summative_assignment($this->assignment->get_course_module()->id)
                 && !is_siteadmin() && !$canselectusers) {
-                $inputname = 'selectallquercus';
                 $inputclass .= ' selectallquercus';
             }
         }
         $selectcol .= '<input type="checkbox"
                               class="' . $inputclass . '"
                               id="selectuser_' . $row->userid . '"
-                              name="' . $inputname . '"
+                              name="selectedusers"
                               value="' . $row->userid . '"/>';
         // SSU_AMEND_END.
         $selectcol .= '<input type="hidden"
