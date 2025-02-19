@@ -1390,6 +1390,16 @@ class assign {
      * @return integer
      */
     public function get_assign_perpage() {
+        // SSU_AMEND_START: Marks upload: Prevent pagination. Return all participants in a single page.
+        $issummative = component_class_callback('\local_solsits\helper',
+            'is_summative_assignment',
+            [$this->get_course_module()->id],
+            false
+        );
+        if ($issummative) {
+            return -1;
+        }
+        // SSU_AMEND_END.
         $perpage = (int) get_user_preferences('assign_perpage', 10);
         $adminconfig = $this->get_admin_config();
         $maxperpage = -1;
@@ -1710,6 +1720,12 @@ class assign {
      */
     public function add_all_plugin_settings(MoodleQuickForm $mform) {
         $mform->addElement('header', 'submissiontypes', get_string('submissiontypes', 'assign'));
+        // SSU_AMEND_START: Add extra help info for submission types.
+        $stringmanager = get_string_manager();
+        if ($stringmanager->string_exists('submissiontypesinfo', 'local_solent')) {
+            $mform->addElement('html', get_string('submissiontypesinfo', 'local_solent'));
+        }
+        // SSU_AMEND_END.
 
         $submissionpluginsenabled = array();
         $group = $mform->addGroup(array(), 'submissionplugins', get_string('submissiontypes', 'assign'), array(' '), false);
@@ -4494,9 +4510,16 @@ class assign {
         }
 
         $submittedperpage = optional_param('perpage', null, PARAM_INT);
-        if (isset($submittedperpage)) {
+        // SSU_AMEND_START: Don't save user preference perpage for summative assignments.
+        $issummative = component_class_callback('\local_solsits\helper',
+            'is_summative_assignment',
+            [$this->get_course_module()->id],
+            false
+        );
+        if (isset($submittedperpage) && !$issummative) {
             set_user_preference('assign_perpage', $submittedperpage);
         }
+        // SSU_AMEND_END.
 
         $o = '';
         $cmid = $this->get_course_module()->id;
@@ -4624,6 +4647,11 @@ class assign {
             $jsparams['message'] = !empty($CFG->messaging)
                 && has_all_capabilities(['moodle/site:sendmessage', 'moodle/course:bulkmessaging'], $this->context);
             $jsparams['submissiondrafts'] = !empty($this->get_instance()->submissiondrafts);
+            // SSU_AMEND_START: Marks upload. Remove "Revert to draft" option.
+            if ($issummative && !is_siteadmin()) {
+                $jsparams['submissiondrafts'] = 0;
+            }
+            // SSU_AMEND_END.
             $jsparams['removesubmission'] = has_capability('mod/assign:editothersubmission', $this->context);
             $jsparams['extend'] = $this->get_instance()->duedate && has_capability('mod/assign:grantextension', $this->context);
 
@@ -5136,6 +5164,21 @@ class assign {
             'usershtml' => $usershtml,
             'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user()
         );
+        // SSU_AMEND_START: Marks upload. Pass locked value to batch workflow form.
+        $issummative = component_class_callback('\local_solsits\helper', 'is_summative_assignment', [
+            $this->get_course_module()->id,
+        ], false);
+        if ($issummative) {
+            $formparams['locked'] = $DB->get_field_select(
+                'grade_items',
+                'locked',
+                'itemmodule = :itemmodule AND iteminstance = :iteminstance',
+                [
+                    'itemmodule' => 'assign',
+                    'iteminstance' => $this->coursemodule->instance,
+                ]);
+        }
+        // SSU_AMEND_END.
 
         $mform = new mod_assign_batch_set_marking_workflow_state_form(null, $formparams);
         $mform->set_data($formdata);    // Initialises the hidden elements.
@@ -6558,6 +6601,12 @@ class assign {
         }
         $info->assignment = format_string($assignmentname, true, array('context'=>$context));
         $info->url = $CFG->wwwroot.'/mod/assign/view.php?id='.$coursemodule->id;
+        // SSU_AMEND_START: Add seconds to submission date email.
+        $format = component_class_callback('\local_solsits\helper', 'returnresult',
+            [get_string('strftimedatetimeaccurate', 'langconfig')], get_string('strftimerecentfull'));
+        $info->timeupdated = userdate($updatetime, $format);
+        $info->timeupdatedfull = $info->timeupdated;
+        // SSU_AMEND_END.
         $info->timeupdated = userdate($updatetime, get_string('strftimerecentfull'));
 
         $postsubject = get_string($messagetype . 'small', 'assign', $info);
@@ -7825,7 +7874,14 @@ class assign {
             } else {
                 $grademenu = array(-1 => get_string("nograde")) + make_grades_menu($this->get_instance()->grade);
                 if (count($grademenu) > 1) {
-                    $gradingelement = $mform->addElement('select', 'grade', get_string('gradenoun') . ':', $grademenu);
+                    // SSU_AMEND_START: Marks Upload: Change grade string if doublemarks enabled.
+                    $gradestring = get_string('gradenoun');
+                    $doublemark = $this->get_feedback_plugin_by_type('doublemark');
+                    if ($doublemark && $doublemark->is_enabled('enabled')) {
+                        $gradestring = get_string('agreedgrade', 'assignfeedback_doublemark');
+                    }
+                    $gradingelement = $mform->addElement('select', 'grade', $gradestring . ':', $grademenu);
+                    // SSU_AMEND_END.
 
                     // The grade is already formatted with format_float so it needs to be converted back to an integer.
                     if (!empty($data->grade)) {
@@ -7909,6 +7965,17 @@ class assign {
                     $mform->addElement('static', 'currentassigngrade', $label, $assigngradestring);
                 }
             }
+            // SSU_AMEND_START: Marks Upload: Prevent grades being re-released.
+            $issummative = component_class_callback('\local_solsits\helper', 'is_summative_assignment', [
+                $this->get_course_module()->id,
+            ], false);
+            if ($issummative) {
+                if ($this->get_grade_item()->locked != 0) {
+                    $mform->addElement('hidden', 'locked', $this->get_grade_item()->locked);
+                    $mform->disabledIf('workflowstate', 'locked', 'neq', 0);
+                }
+            }
+            // SSU_AMEND_END.
         }
 
         if ($this->get_instance()->markingworkflow &&
@@ -8339,6 +8406,21 @@ class assign {
             'usershtml' => '',  // initialise these parameters with real information.
             'markingworkflowstates' => $this->get_marking_workflow_states_for_current_user()
         );
+        // SSU_AMEND_START: Marks upload. Pass locked value to batch workflow form.
+        $issummative = component_class_callback('\local_solsits\helper', 'is_summative_assignment', [
+            $this->get_course_module()->id,
+        ], false);
+        if ($issummative) {
+            $formparams['locked'] = $DB->get_field_select(
+                'grade_items',
+                'locked',
+                'itemmodule = :itemmodule AND iteminstance = :iteminstance',
+                [
+                    'itemmodule' => 'assign',
+                    'iteminstance' => $this->coursemodule->instance,
+                ]);
+        }
+        // SSU_AMEND_END.
 
         $mform = new mod_assign_batch_set_marking_workflow_state_form(null, $formparams);
 
@@ -8394,6 +8476,15 @@ class assign {
                     \mod_assign\event\workflow_state_updated::create_from_user($this, $user, $state)->trigger();
                 }
             }
+            // SSU_AMEND_START: Marks Upload: Lock grades after release.
+            if ($issummative && $state == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
+                require_once($CFG->dirroot . '/lib/grade/grade_item.php');
+                $gradeitem = $this->get_grade_item();
+                if ($gradeitem->itemmodule == 'assign' && $gradeitem->idnumber != '') {
+                    $gradeitem->set_locked(time(), false, true);
+                }
+            }
+            // SSU_AMEND_END.
         }
     }
 
@@ -9205,10 +9296,18 @@ class assign {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW] = get_string('markingworkflowstateinreview', 'assign');
             $states[ASSIGN_MARKING_WORKFLOW_STATE_READYFORRELEASE] = get_string('markingworkflowstatereadyforrelease', 'assign');
         }
-        if (has_any_capability(array('mod/assign:releasegrades',
-                                     'mod/assign:managegrades'), $this->context)) {
+        // SSU_AMEND_START: Marks Upload: Release grades by modules leader only.
+        $canreleasegrades = component_class_callback(
+            '\local_solsits\helper',
+            'can_release_grades',
+            [$this->coursemodule->id],
+            true
+        );
+        if (has_any_capability(['mod/assign:releasegrades', 'mod/assign:managegrades'], $this->context)
+            && $canreleasegrades) {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
         }
+        // SSU_AMEND_END.
         $this->markingworkflowstates = $states;
         return $this->markingworkflowstates;
     }

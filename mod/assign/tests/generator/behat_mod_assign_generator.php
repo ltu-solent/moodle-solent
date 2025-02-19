@@ -30,12 +30,13 @@ class behat_mod_assign_generator extends behat_generator_base {
      * @return array
      */
     protected function get_creatable_entities(): array {
+        // SSU_AMEND_START: MDL-83459 cmid rather than assignid.
         return [
             'submissions' => [
                 'singular' => 'submission',
                 'datagenerator' => 'submission',
                 'required' => ['assign', 'user'],
-                'switchids' => ['assign' => 'assignid', 'user' => 'userid'],
+                'switchids' => ['assign' => 'cmid', 'user' => 'userid'],
             ],
             'extensions' => [
                 'singular' => 'extension',
@@ -44,6 +45,7 @@ class behat_mod_assign_generator extends behat_generator_base {
                 'switchids' => ['assign' => 'cmid', 'user' => 'userid'],
             ],
         ];
+        // SSU_AMEND_END.
     }
 
     /**
