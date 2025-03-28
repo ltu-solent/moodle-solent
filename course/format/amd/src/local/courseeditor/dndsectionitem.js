@@ -46,10 +46,13 @@ export default class extends BaseComponent {
             this.course = state.course;
         }
 
+        // SSU_AMEND_START: Prevent protected sections being draggable.
         // Prevent topic zero and delegated sections from being draggable.
-        if (this.section.number > 0 && this.section.component === null) {
+        let isDraggable = this.section.isdraggable ?? true;
+        if (this.section.number > 0 && this.section.component === null && isDraggable) {
             this.getDraggableData = this._getDraggableData;
         }
+        // SSU_AMEND_END.
 
         this.fullregion = fullregion;
 
