@@ -670,7 +670,7 @@ class assign_grading_table extends table_sql implements renderable {
         // SSU_AMEND_START: Marks upload. Remove 'Released' option from quick grading.
         if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
             if (\local_solsits\helper::is_summative_assignment($this->assignment->get_course_module()->id)) {
-                unset($workflowstates['released']);
+                unset($workflowstates[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED]);
             }
         }
         // SSU_AMEND_END.

@@ -56,7 +56,6 @@ class mod_assign_batch_set_marking_workflow_state_form extends moodleform {
                 $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);
             } else {
                 $mform->addElement('hidden', 'markingworkflowstate');
-                $mform->setType('markingworkflowstate', PARAM_ALPHA);
             }
         } else {
             $mform->addElement('select', 'markingworkflowstate', get_string('markingworkflowstate', 'assign'), $options);

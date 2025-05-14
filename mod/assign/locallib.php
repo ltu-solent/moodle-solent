@@ -5184,6 +5184,16 @@ class assign {
                     'itemmodule' => 'assign',
                     'iteminstance' => $this->coursemodule->instance,
                 ]);
+            // Remove the "released" option if not Module leader.
+            $canreleasegrades = component_class_callback(
+                '\local_solsits\helper',
+                'can_release_grades',
+                [$this->coursemodule->id],
+                true
+            );
+            if (!$canreleasegrades) {
+                unset($formparams['markingworkflowstates'][ASSIGN_MARKING_WORKFLOW_STATE_RELEASED]);
+            }
         }
         // SSU_AMEND_END.
 
@@ -7949,6 +7959,13 @@ class assign {
 
         if ($this->get_instance()->markingworkflow) {
             $states = $this->get_marking_workflow_states_for_current_user();
+            // SSU_AMEND_START: Marks upload. Remove 'Released' option from grade form.
+            if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+                if (\local_solsits\helper::is_summative_assignment($this->get_course_module()->id)) {
+                    unset($states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED]);
+                }
+            }
+            // SSU_AMEND_END.
             $options = array('' => get_string('markingworkflowstatenotmarked', 'assign')) + $states;
             $select = $mform->addElement('select', 'workflowstate', get_string('markingworkflowstate', 'assign'), $options);
             $mform->addHelpButton('workflowstate', 'markingworkflowstate', 'assign');
@@ -8426,6 +8443,17 @@ class assign {
                     'itemmodule' => 'assign',
                     'iteminstance' => $this->coursemodule->instance,
                 ]);
+            // Remove "released" option except for Module leader.
+            $canreleasegrades = component_class_callback(
+                '\local_solsits\helper',
+                'can_release_grades',
+                [$this->coursemodule->id],
+                true
+            );
+            if (!$canreleasegrades) {
+                unset($formparams['markingworkflowstates']['released']);
+            }
+
         }
         // SSU_AMEND_END.
 
@@ -9294,18 +9322,10 @@ class assign {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW] = get_string('markingworkflowstateinreview', 'assign');
             $states[ASSIGN_MARKING_WORKFLOW_STATE_READYFORRELEASE] = get_string('markingworkflowstatereadyforrelease', 'assign');
         }
-        // SSU_AMEND_START: Marks Upload: Release grades by modules leader only.
-        $canreleasegrades = component_class_callback(
-            '\local_solsits\helper',
-            'can_release_grades',
-            [$this->coursemodule->id],
-            true
-        );
-        if (has_any_capability(['mod/assign:releasegrades', 'mod/assign:managegrades'], $this->context)
-            && $canreleasegrades) {
+        if (has_any_capability(array('mod/assign:releasegrades',
+                                     'mod/assign:managegrades'), $this->context)) {
             $states[ASSIGN_MARKING_WORKFLOW_STATE_RELEASED] = get_string('markingworkflowstatereleased', 'assign');
         }
-        // SSU_AMEND_END.
         $this->markingworkflowstates = $states;
         return $this->markingworkflowstates;
     }
