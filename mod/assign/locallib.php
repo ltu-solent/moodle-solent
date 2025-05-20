@@ -4654,11 +4654,6 @@ class assign {
             $jsparams['message'] = !empty($CFG->messaging)
                 && has_all_capabilities(['moodle/site:sendmessage', 'moodle/course:bulkmessaging'], $this->context);
             $jsparams['submissiondrafts'] = !empty($this->get_instance()->submissiondrafts);
-            // SSU_AMEND_START: Marks upload. Remove "Revert to draft" option.
-            if ($issummative && !is_siteadmin()) {
-                $jsparams['submissiondrafts'] = 0;
-            }
-            // SSU_AMEND_END.
             $jsparams['removesubmission'] = has_capability('mod/assign:editothersubmission', $this->context);
             $jsparams['extend'] = $this->get_instance()->duedate && has_capability('mod/assign:grantextension', $this->context);
 
@@ -4686,6 +4681,15 @@ class assign {
             $jsparams['markingallocation'] = !empty($this->get_instance()->markingallocation);
             $jsparams['cmid'] = $this->get_course_module()->id;
             $jsparams['sesskey'] = sesskey();
+            $jsparams['lock'] = 1;
+            // SSU_AMEND_START: Marks upload. Remove Bulk Options for Summative assignments.
+            if ($issummative && !is_siteadmin()) {
+                $jsparams['submissiondrafts'] = 0;
+                $jsparams['removesubmission'] = 0;
+                $jsparams['lock'] = 0;
+                $jsparams['extend'] = 0;
+            }
+            // SSU_AMEND_END.
 
             $PAGE->requires->js_call_amd('mod_assign/bulkactions/grading/bulk_actions', 'init', [$jsparams]);
         }
@@ -7392,6 +7396,27 @@ class assign {
             }
             $this->gradebook_item_update(null, $grade);
         }
+        // SSU_AMEND_START: Marks upload. Lock grades on Reveal identities.
+        // If the user_flag for each user is "Released" we have released all the grades (suspended users)?
+        // Therefore we can lock this grade item here.
+        $issummative = component_class_callback('\local_solsits\helper', 'is_summative_assignment', [
+            $this->get_course_module()->id,
+        ], false);
+        if ($issummative) {
+            $released = $DB->count_records('assign_user_flags', [
+                'assignment' => $this->get_instance()->id,
+                'workflowstate' => ASSIGN_MARKING_WORKFLOW_STATE_RELEASED,
+            ]);
+            if (count($grades) == $released) {
+                global $CFG;
+                require_once($CFG->dirroot . '/lib/grade/grade_item.php');
+                $gradeitem = $this->get_grade_item();
+                if ($gradeitem->itemmodule == 'assign' && $gradeitem->idnumber != '') {
+                    $gradeitem->set_locked(time(), false, true);
+                }
+            }
+        }
+        // SSU_AMEND_END.
 
         \mod_assign\event\identities_revealed::create_from_assign($this)->trigger();
     }
@@ -8502,12 +8527,23 @@ class assign {
                     \mod_assign\event\workflow_state_updated::create_from_user($this, $user, $state)->trigger();
                 }
             }
-            // SSU_AMEND_START: Marks Upload: Lock grades after release.
+            // SSU_AMEND_START: Marks Upload: Lock grades after release for non-anonymous assignments.
+            // or if identities have already been released.
             if ($issummative && $state == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
-                require_once($CFG->dirroot . '/lib/grade/grade_item.php');
-                $gradeitem = $this->get_grade_item();
-                if ($gradeitem->itemmodule == 'assign' && $gradeitem->idnumber != '') {
-                    $gradeitem->set_locked(time(), false, true);
+                $lockme = false;
+                // Lock me if this isn't blind marking.
+                if (!$this->get_instance()->blindmarking) {
+                    $lockme = true;
+                } else if ($this->get_instance()->blindmarking && $this->get_instance()->revealidentities) {
+                    // Lock me if it's blind marking and identities have been revealed.
+                    $lockme = true;
+                }
+                if ($lockme) {
+                    require_once($CFG->dirroot . '/lib/grade/grade_item.php');
+                    $gradeitem = $this->get_grade_item();
+                    if ($gradeitem->itemmodule == 'assign' && $gradeitem->idnumber != '') {
+                        $gradeitem->set_locked(time(), false, true);
+                    }
                 }
             }
             // SSU_AMEND_END.

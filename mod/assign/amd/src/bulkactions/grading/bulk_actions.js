@@ -67,6 +67,9 @@ export default class extends BulkActions {
     /** @type {boolean} Whether to show the set workflow state action. */
     #workflowState;
 
+    /** @type {boolean} Can lock. */
+    #lock;
+
     /**
      * Returns the instance of the class.
      *
@@ -81,6 +84,7 @@ export default class extends BulkActions {
      * @param {boolean} options.markingallocation - Whether to show the set marking allocation action.
      * @param {Array} options.pluginoperations - The list of plugin operations.
      * @param {string} options.sesskey - The session key.
+     * @param {boolean} options.lock - Whether to show lock/unlock.
      * @returns {this} An instance of the anonymous class extending BulkActions.
      */
     static init(options) {
@@ -101,10 +105,11 @@ export default class extends BulkActions {
      * @param {boolean} options.markingallocation - Whether to show the set marking allocation action.
      * @param {Array} options.pluginoperations - The list of plugin operations.
      * @param {string} options.sesskey - The session key.
+     * @param {boolean} options.lock - Whether to show lock/unlock.
      */
     constructor({
         cmid, message, submissiondrafts, removesubmission, extend,
-        grantattempt, workflowstate, markingallocation, pluginoperations, sesskey
+        grantattempt, workflowstate, markingallocation, pluginoperations, sesskey, lock
     }) {
         super();
         this.#cmid = cmid;
@@ -117,6 +122,7 @@ export default class extends BulkActions {
         this.#markingAllocation = markingallocation;
         this.#sesskey = sesskey;
         this.#pluginOperations = pluginoperations;
+        this.#lock = lock;
     }
 
     getBulkActions() {
@@ -137,31 +143,34 @@ export default class extends BulkActions {
         if (this.#message) {
             actions.push(new MessageAction());
         }
+        // Note addition of conditional lock.
+        if (this.#lock) {
+            actions.push(
+                new GeneralAction(
+                    this.#cmid,
+                    this.#sesskey,
+                    'lock',
+                    getString('batchoperationlock', 'mod_assign'),
+                    Templates.renderPix('i/lock', 'core'),
+                    getString('locksubmissions', 'mod_assign'),
+                    getString('batchoperationconfirmlock', 'mod_assign'),
+                    getString('batchoperationlock', 'mod_assign'),
+                )
+            );
+            actions.push(
+                new GeneralAction(
+                    this.#cmid,
+                    this.#sesskey,
+                    'unlock',
+                    getString('batchoperationunlock', 'mod_assign'),
+                    Templates.renderPix('i/unlock', 'core'),
+                    getString('unlocksubmissions', 'mod_assign'),
+                    getString('batchoperationconfirmunlock', 'mod_assign'),
+                    getString('batchoperationunlock', 'mod_assign'),
+                )
+            );
+        }
 
-        actions.push(
-            new GeneralAction(
-                this.#cmid,
-                this.#sesskey,
-                'lock',
-                getString('batchoperationlock', 'mod_assign'),
-                Templates.renderPix('i/lock', 'core'),
-                getString('locksubmissions', 'mod_assign'),
-                getString('batchoperationconfirmlock', 'mod_assign'),
-                getString('batchoperationlock', 'mod_assign'),
-            )
-        );
-        actions.push(
-            new GeneralAction(
-                this.#cmid,
-                this.#sesskey,
-                'unlock',
-                getString('batchoperationunlock', 'mod_assign'),
-                Templates.renderPix('i/unlock', 'core'),
-                getString('unlocksubmissions', 'mod_assign'),
-                getString('batchoperationconfirmunlock', 'mod_assign'),
-                getString('batchoperationunlock', 'mod_assign'),
-            )
-        );
         actions.push(
             new GeneralAction(
                 this.#cmid,
