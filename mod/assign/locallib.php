@@ -7906,7 +7906,19 @@ class assign {
                 $name = get_string('gradeoutof', 'assign', $this->get_instance()->grade);
                 if (!$gradingdisabled) {
                     $gradingelement = $mform->addElement('text', 'grade', $name);
-                    $mform->addHelpButton('grade', 'gradeoutofhelp', 'assign');
+                    // SSU_AMEND_START: Add Grademark help.
+                    $sitsassign = false;
+                    if (method_exists('\local_solsits\helper', 'is_sits_assignment')) {
+                        if (\local_solsits\helper::is_sits_assignment($this->get_course_module()->id)) {
+                            $sitsassign = \local_solsits\sitsassign::get_record(['cmid' => $this->get_course_module()->id]);
+                        }
+                    }
+                    if ($sitsassign) {
+                        $mform->addHelpButton('grade', 'pointgrademarkmapping', 'local_solsits');
+                    } else {
+                        $mform->addHelpButton('grade', 'gradeoutofhelp', 'assign');
+                    }
+                    // SSU_AMEND_END.
                     $mform->setType('grade', PARAM_RAW);
                 } else {
                     $strgradelocked = get_string('gradelocked', 'assign');
