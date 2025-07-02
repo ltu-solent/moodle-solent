@@ -6697,6 +6697,7 @@ class assign {
         global $USER;
         $userid = core_user::is_real_user($userfrom->id) ? $userfrom->id : $USER->id;
         $uniqueid = $this->get_uniqueid_for_user($userid);
+        $oldforcelang = force_current_language($userto->lang);
         self::send_assignment_notification($userfrom,
                                            $userto,
                                            $messagetype,
@@ -6709,6 +6710,7 @@ class assign {
                                            $this->get_instance()->name,
                                            $this->is_blind_marking(),
                                            $uniqueid);
+        force_current_language($oldforcelang);
     }
 
     /**
