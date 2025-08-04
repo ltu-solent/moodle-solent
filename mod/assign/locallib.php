@@ -7404,12 +7404,15 @@ class assign {
         $issummative = component_class_callback('\local_solsits\helper', 'is_summative_assignment', [
             $this->get_course_module()->id,
         ], false);
-        if ($issummative) {
+        // We lock markingworkflow to yes, but add explicit check.
+        if ($issummative && $this->get_instance()->markingworkflow == 1) {
             $released = $DB->count_records('assign_user_flags', [
                 'assignment' => $this->get_instance()->id,
                 'workflowstate' => ASSIGN_MARKING_WORKFLOW_STATE_RELEASED,
             ]);
-            if (count($grades) == $released) {
+            // Is there anything to lock? Don't lock grades before any grades have been given.
+            $gradecount = count($grades);
+            if ($gradecount > 0 && $gradecount == $released) {
                 global $CFG;
                 require_once($CFG->dirroot . '/lib/grade/grade_item.php');
                 $gradeitem = $this->get_grade_item();
