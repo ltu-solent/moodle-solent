@@ -313,9 +313,14 @@ if (!$csv) {
                 \core_user\fields::get_display_name($field) . '</th>';
     }
     // SSU_AMEND_START: Add extra fields.
-    foreach ($addfields as $field) {
-        echo '<th scope="col" class="completion-identifyfield">' .
+    $stringmanager = get_string_manager();
+    foreach ($addfields as $fieldkey => $field) {
+        if ($stringmanager->string_exists($field, 'moodle')) {
+            echo '<th scope="col" class="completion-identifyfield">' .
                 \core_user\fields::get_display_name($field) . '</th>';
+        } else {
+            unset($addfields[$fieldkey]);
+        }
     }
     // SSU_AMEND_END.
 } else {
