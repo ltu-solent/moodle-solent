@@ -269,6 +269,13 @@ export default class extends BaseComponent {
             this._disableLink(currentElement);
         });
 
+        // SSU_AMEND_START: Prevent dragging of sections that should be locked.
+        const nondraggableSections = modalBody.querySelectorAll(`${this.selectors.SECTIONLINK}[data-isdraggable='false']`);
+        nondraggableSections.forEach(element => {
+            this._disableLink(element);
+        });
+        // SSU_AMEND_END.
+
         // Setup keyboard navigation.
         new ContentTree(
             modalBody.querySelector(this.selectors.CONTENTTREE),
