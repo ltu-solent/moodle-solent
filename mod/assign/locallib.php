@@ -1316,12 +1316,13 @@ class assign {
 
             // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
             // See MDL-9367.
-            shift_course_mod_dates(
-                'assign',
-                ['duedate', 'allowsubmissionsfromdate', 'cutoffdate'],
-                $data->timeshift,
-                $data->courseid, $this->get_instance()->id,
-            );
+            shift_course_mod_dates('assign', [
+                'allowsubmissionsfromdate',
+                'duedate',
+                'cutoffdate',
+                'gradingduedate',
+            ], $data->timeshift, $data->courseid, $this->get_instance()->id);
+
             $status[] = [
                 'component' => $componentstr,
                 'item' => get_string('date'),
@@ -2287,8 +2288,9 @@ class assign {
      * @param bool $idsonly
      * @param bool $tablesort
      * @return array List of user records
+     * @param bool|null $onlyactive Whether to show only active users.
      */
-    public function list_participants($currentgroup, $idsonly, $tablesort = false) {
+    public function list_participants($currentgroup, $idsonly, $tablesort = false, ?bool $onlyactive = null) {
         global $DB, $USER;
 
         // Get the last known sort order for the grading table.
@@ -2297,10 +2299,13 @@ class assign {
             $currentgroup = 0;
         }
 
-        $key = $this->context->id . '-' . $currentgroup . '-' . $this->show_only_active_users();
+        if ($onlyactive === null) {
+            $onlyactive = $this->show_only_active_users();
+        }
+
+        $key = $this->context->id . '-' . $currentgroup . '-' . $onlyactive;
         if (!isset($this->participants[$key])) {
-            list($esql, $params) = get_enrolled_sql($this->context, 'mod/assign:submit', $currentgroup,
-                    $this->show_only_active_users());
+            list($esql, $params) = get_enrolled_sql($this->context, 'mod/assign:submit', $currentgroup, $onlyactive);
             list($ssql, $sparams) = $this->get_submitted_sql($currentgroup);
             $params += $sparams;
 
@@ -3222,7 +3227,9 @@ class assign {
             if ($create) {
                 $action = optional_param('action', '', PARAM_TEXT);
                 if ($action == 'editsubmission') {
-                    if (empty($submission->timestarted) && $this->get_instance()->timelimit) {
+                    $starttimer = optional_param('begin', 0, PARAM_INT);
+                    // Only start the timer if the user has clicked the 'Begin assignment' button.
+                    if (empty($submission->timestarted) && $this->get_instance()->timelimit && $starttimer) {
                         $submission->timestarted = time();
                         $DB->update_record('assign_submission', $submission);
                     }
@@ -3833,7 +3840,9 @@ class assign {
             if ($create) {
                 $action = optional_param('action', '', PARAM_TEXT);
                 if ($action == 'editsubmission') {
-                    if (empty($submission->timestarted) && $this->get_instance()->timelimit) {
+                    $starttimer = optional_param('begin', 0, PARAM_INT);
+                    // Only start the timer if the user has clicked the 'Begin assignment' button.
+                    if (empty($submission->timestarted) && $this->get_instance()->timelimit && $starttimer) {
                         $submission->timestarted = time();
                         $DB->update_record('assign_submission', $submission);
                     }
@@ -4859,7 +4868,7 @@ class assign {
      * @return string The page output.
      */
     protected function view_edit_submission_page($mform, $notices) {
-        global $CFG, $USER, $DB, $PAGE;
+        global $CFG, $USER, $DB, $PAGE, $OUTPUT;
 
         $o = '';
         require_once($CFG->dirroot . '/mod/assign/submission_form.php');
@@ -4944,7 +4953,30 @@ class assign {
             $o .= $this->get_renderer()->notification($notice);
         }
 
-        $o .= $this->get_renderer()->render(new assign_form('editsubmissionform', $mform));
+        if (
+            $submission->status == ASSIGN_SUBMISSION_STATUS_NEW && $this->get_instance()->timelimit &&
+            empty($submission->timestarted)
+        ) {
+            // Timed assignment should always get a confirmation that the user wants to start it.
+            $confirmation = new \confirm_action(
+                get_string('confirmstart', 'assign', format_time($this->get_instance()->timelimit)),
+                null,
+                get_string('beginassignment', 'assign')
+            );
+            // The 'begin' flag indicates that the user is starting a timed assignment.
+            $urlparams = ['id' => $this->get_course_module()->id, 'action' => 'editsubmission', 'begin' => 1];
+            $beginbutton = new \action_link(
+                new moodle_url('/mod/assign/view.php', $urlparams),
+                get_string('beginassignment', 'assign'),
+                $confirmation,
+                ['class' => 'btn btn-primary']
+            );
+
+            $o .= $OUTPUT->render($beginbutton);
+        } else {
+            $o .= $this->get_renderer()->render(new assign_form('editsubmissionform', $mform));
+        }
+
         $o .= $this->view_footer();
 
         \mod_assign\event\submission_form_viewed::create_from_user($this, $user)->trigger();
@@ -6622,12 +6654,6 @@ class assign {
         }
         $info->assignment = format_string($assignmentname, true, array('context'=>$context));
         $info->url = $CFG->wwwroot.'/mod/assign/view.php?id='.$coursemodule->id;
-        // SSU_AMEND_START: Add seconds to submission date email.
-        $format = component_class_callback('\local_solsits\helper', 'returnresult',
-            [get_string('strftimedatetimeaccurate', 'langconfig')], get_string('strftimerecentfull'));
-        $info->timeupdated = userdate($updatetime, $format);
-        $info->timeupdatedfull = $info->timeupdated;
-        // SSU_AMEND_END.
         $info->timeupdated = userdate($updatetime, get_string('strftimerecentfull'));
 
         $postsubject = get_string($messagetype . 'small', 'assign', $info);
@@ -8848,6 +8874,9 @@ class assign {
                 $shouldreopen = true;
                 break;
             case ASSIGN_ATTEMPT_REOPEN_METHOD_UNTILPASS:
+                if (!is_gradable($this->course->id, 'mod', 'assign', $this->get_instance()->id)) {
+                    return false;
+                }
                 // Check the gradetopass from the gradebook.
                 $gradeitem = $this->get_grade_item();
                 if ($gradeitem) {
