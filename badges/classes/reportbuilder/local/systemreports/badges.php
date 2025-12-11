@@ -435,7 +435,6 @@ class badges extends system_report {
                 'value' => true,
             ],
         ];
-
         return $OUTPUT->render_from_template('core_badges/bulk_actions', $data);
     }
 }

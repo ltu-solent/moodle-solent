@@ -50,6 +50,8 @@ export const init = () => {
         'deletetitle',
         'activatetitle',
         'deactivatetitle',
+        'bulkenableconfirm',
+        'bulkdisableconfirm',
     ]);
     prefetchStrings('core', [
         'confirm',
@@ -257,7 +259,7 @@ const handleBulkActionChange = async(action, badgeIds) => {
             data = {
                 method: 'core_badges_enable_badges',
                 title: await getString('activatetitle', 'core_badges', badgeIds.length),
-                body: await getString('confirmactivate', 'core_badges', badgeIds.length),
+                body: await getString('bulkenableconfirm', 'core_badges', badgeIds.length),
                 button: await getString('confirm', 'core'),
             };
             modal = Notification.saveCancelPromise(
@@ -270,7 +272,7 @@ const handleBulkActionChange = async(action, badgeIds) => {
             data = {
                 method: 'core_badges_disable_badges',
                 title: await getString('deactivatetitle', 'core_badges', badgeIds.length),
-                body: await getString('deactivatetitle', 'core_badges', badgeIds.length),
+                body: await getString('bulkdisableconfirm', 'core_badges'),
                 button: await getString('confirm', 'core'),
             };
             modal = Notification.saveCancelPromise(

@@ -182,6 +182,18 @@ $string['bendorsement'] = 'Endorsement';
 $string['bmessage'] = 'Message';
 $string['boverview'] = 'Overview';
 $string['brelated'] = 'Related badges ({$a})';
+$string['bulkdisableconfirm'] = '<p>This will make your badges unavailable to users and prevent them from earning these badges.</p>
+
+<p>It is possible that some users have already earned these badges. Once a badge has been issued it will be <strong>locked</strong> - certain settings including the criteria and expiry settings can no longer be changed.</p>
+
+<p>Are you sure you want to disable access to these badges?</p>';
+$string['bulkenableconfirm'] = '<p>This will make your badges visible to users and allow them to start earning them.</p>
+
+<p>It is possible that some users already meet these badges\' criteria and will be issued these badges immediately after you enable them.</p>
+
+<p>Once a badge has been issued it will be <strong>locked</strong> - certain settings including the criteria and expiry settings can no longer be changed.</p>
+
+<p>Are you sure you want to enable access to the badges?</p>';
 $string['bulksuccess'] = '{$a} badge(s) successfully updated.';
 $string['bydate'] = ' complete by';
 $string['canvascredentialsprovider'] = 'Canvas Credentials';
