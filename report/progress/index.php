@@ -265,6 +265,16 @@ $pagingbar .= $OUTPUT->initials_bar($silast, 'lastinitial', get_string('lastname
 $pagingbar .= $OUTPUT->paging_bar($total, $page, helper::COMPLETION_REPORT_PAGE, $url);
 
 // Okay, let's draw the table of progress info,
+// SSU_AMEND_START: Get extra user fields, if required.
+$addfields = [];
+if ($progressreportaddfields = get_config('local_solent', 'progressreport_addfields')) {
+    $addfields = explode(',', $progressreportaddfields);
+    // Make sure there are no duplicate fields.
+    $addfields = array_filter($addfields, function($field) use ($extrafields) {
+        return !in_array($field, $extrafields);
+    });
+}
+// SSU_AMEND_END.
 
 // Start of table
 if (!$csv) {
@@ -302,10 +312,26 @@ if (!$csv) {
         echo '<th scope="col" class="completion-identifyfield">' .
                 \core_user\fields::get_display_name($field) . '</th>';
     }
+    // SSU_AMEND_START: Add extra fields.
+    $stringmanager = get_string_manager();
+    foreach ($addfields as $fieldkey => $field) {
+        if ($stringmanager->string_exists($field, 'moodle')) {
+            echo '<th scope="col" class="completion-identifyfield">' .
+                \core_user\fields::get_display_name($field) . '</th>';
+        } else {
+            unset($addfields[$fieldkey]);
+        }
+    }
+    // SSU_AMEND_END.
 } else {
     foreach ($extrafields as $field) {
         echo $sep . csv_quote(\core_user\fields::get_display_name($field));
     }
+    // SSU_AMEND_START: Add extra fields.
+    foreach ($addfields as $field) {
+        echo $sep . csv_quote(\core_user\fields::get_display_name($field));
+    }
+    // SSU_AMEND_END.
 }
 
 // Activities
@@ -358,12 +384,20 @@ if ($csv) {
 
 // Row for each user
 foreach($progress as $user) {
+    // SSU_AMEND_START: Prevent completion: Add ID number, Department and address fields.
+	$user1 =   core_user::get_user($user->id);
+    // SSU_AMEND_END.
     // User name
     if ($csv) {
         print csv_quote(fullname($user, has_capability('moodle/site:viewfullnames', $context)));
         foreach ($extrafields as $field) {
             echo $sep . csv_quote($user->{$field});
         }
+        // SSU_AMEND_START: Add extra fields.
+        foreach ($addfields as $field) {
+            echo $sep . csv_quote($user1->{$field});
+        }
+        // SSU_AMEND_END.
     } else {
         print '<tr><th scope="row"><a href="' . $CFG->wwwroot . '/user/view.php?id=' .
             $user->id . '&amp;course=' . $course->id . '">' .
@@ -371,6 +405,11 @@ foreach($progress as $user) {
         foreach ($extrafields as $field) {
             echo '<td>' . s($user->{$field}) . '</td>';
         }
+        // SSU_AMEND_START: Add extra fields.
+        foreach ($addfields as $field) {
+            echo '<td>' . s($user1->{$field}) . '</td>';
+        }
+        // SSU_AMEND_END.
     }
 
     // Progress for each activity
