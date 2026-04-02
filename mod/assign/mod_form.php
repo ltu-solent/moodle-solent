@@ -103,6 +103,13 @@ class mod_assign_mod_form extends moodleform_mod {
         $mform->addElement('header', 'availability', get_string('availability', 'assign'));
         $mform->setExpanded('availability', true);
 
+        // SSU_AMEND_START: Add extra help info for availability locking.
+        $stringmanager = get_string_manager();
+        if ($issummative && $stringmanager->string_exists('availabilityinfo', 'local_solent')) {
+            $mform->addElement('html', get_string('availabilityinfo', 'local_solent'));
+        }
+        // SSU_AMEND_END.
+
         $name = get_string('allowsubmissionsfromdate', 'assign');
         $options = array('optional'=>true);
         $mform->addElement('date_time_selector', 'allowsubmissionsfromdate', $name, $options);
