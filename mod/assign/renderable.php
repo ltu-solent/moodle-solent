@@ -477,7 +477,11 @@ class assign_attempt_history_chooser implements renderable, templatable {
             $editbtn = '';
 
             if ($submission->timemodified) {
-                $submissionsummary = userdate($submission->timemodified);
+                // SSU_AMEND_START: Assignment: Show seconds for submission.
+                $format = component_class_callback('\local_solsits\helper', 'returnresult',
+                    [get_string('strftimedatetimeaccurate', 'langconfig')], get_string('strftimerecentfull'));
+                $submissionsummary = userdate($submission->timemodified, $format);
+                // SSU_AMEND_END.
             } else {
                 $submissionsummary = get_string('nosubmission', 'assign');
             }
