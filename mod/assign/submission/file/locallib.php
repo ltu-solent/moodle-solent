@@ -121,7 +121,6 @@ class assign_submission_file extends assign_submission_plugin {
             $mform->setDefault('assignsubmission_file_maxsizebytes', $sitsmaxbytes);
         }
         // SSU_AMEND_END.
-        $mform->setDefault('assignsubmission_file_maxsizebytes', $defaultmaxsubmissionsizebytes);
         $mform->hideIf('assignsubmission_file_maxsizebytes',
                            'assignsubmission_file_enabled',
                            'notchecked');
