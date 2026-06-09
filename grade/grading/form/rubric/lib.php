@@ -942,6 +942,11 @@ class gradingform_rubric_instance extends gradingform_instance {
      */
     public function render_grading_element($page, $gradingformelement) {
         global $USER;
+        // SSU_AMEND_START: Add Additional JS for rubric grading form element.
+        if (class_exists('local_solent\helper')) {
+            $page->requires->js_call_amd('local_solent/rubrics', 'init');
+        }
+        // SSU_AMEND_END.
         if (!$gradingformelement->_flagFrozen) {
             $module = array('name'=>'gradingform_rubric', 'fullpath'=>'/grade/grading/form/rubric/js/rubric.js');
             $page->requires->js_init_call('M.gradingform_rubric.init', array(array('name' => $gradingformelement->getName())), true, $module);
