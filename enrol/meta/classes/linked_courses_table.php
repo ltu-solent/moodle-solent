@@ -65,8 +65,9 @@ class linked_courses_table extends sql_table {
      */
     public function col_course(stdClass $row): string {
         $url = new url('/course/view.php', ['id' => $row->courseid]);
-        // Make this return the formatted name as per config.
-        return html_writer::link($url, format_string($row->fullname));
+        $course = get_course($row->courseid);
+        $fullname = get_course_display_name_for_list($course);
+        return html_writer::link($url, format_string($fullname));
     }
 
     /**
