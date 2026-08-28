@@ -67,6 +67,9 @@ export default class extends BulkActions {
     /** @type {boolean} Whether to show the set workflow state action. */
     #workflowState;
 
+    /** @type {boolean} Can lock. */
+    #lock;
+
     /**
      * Returns the instance of the class.
      *
@@ -81,6 +84,7 @@ export default class extends BulkActions {
      * @param {boolean} options.markingallocation - Whether to show the set marking allocation action.
      * @param {Array} options.pluginoperations - The list of plugin operations.
      * @param {string} options.sesskey - The session key.
+     * @param {boolean} options.lock - Whether to show lock/unlock.
      * @returns {this} An instance of the anonymous class extending BulkActions.
      */
     static init(options) {
@@ -101,10 +105,11 @@ export default class extends BulkActions {
      * @param {boolean} options.markingallocation - Whether to show the set marking allocation action.
      * @param {Array} options.pluginoperations - The list of plugin operations.
      * @param {string} options.sesskey - The session key.
+     * @param {boolean} options.lock - Whether to show lock/unlock.
      */
     constructor({
         cmid, message, submissiondrafts, removesubmission, extend,
-        grantattempt, workflowstate, markingallocation, pluginoperations, sesskey
+        grantattempt, workflowstate, markingallocation, pluginoperations, sesskey, lock
     }) {
         super();
         this.#cmid = cmid;
@@ -117,30 +122,56 @@ export default class extends BulkActions {
         this.#markingAllocation = markingallocation;
         this.#sesskey = sesskey;
         this.#pluginOperations = pluginoperations;
+        this.#lock = lock;
     }
 
     getBulkActions() {
-        const actions = [
-            new GeneralAction(
-                this.#cmid,
-                this.#sesskey,
-                'lock',
-                getString('batchoperationlock', 'mod_assign'),
-                Templates.renderPix('i/lock', 'core'),
-                getString('locksubmissions', 'mod_assign'),
-                getString('batchoperationconfirmlock', 'mod_assign'),
-                getString('batchoperationlock', 'mod_assign'),
-            ),
-            new GeneralAction(
-                this.#cmid,
-                this.#sesskey,
-                'unlock',
-                getString('batchoperationunlock', 'mod_assign'),
-                Templates.renderPix('i/unlock', 'core'),
-                getString('unlocksubmissions', 'mod_assign'),
-                getString('batchoperationconfirmunlock', 'mod_assign'),
-                getString('batchoperationunlock', 'mod_assign'),
-            ),
+        // SSU_AMEND_START: Reorder bulk actions to our preference.
+        // Old order: lock, unlock, downloadselected, ?removesubmission, ?extend, ?addattempt, ?workflowstate, ?markingallocation,
+        // ?reverttodraft, ?message, ?...pluginoperations.
+        // New order: ?workflowstate, ?markingallocation, ?message, lock, unlock, downloadselected, ?addattempt, ?reverttodraft,
+        // ?...pluginoperations, ?removesubmission, ?extend.
+        const actions = [];
+        if (this.#workflowState) {
+            actions.push(new SetMarkingWorkflowStateAction(this.#cmid, this.#sesskey));
+        }
+
+        if (this.#markingAllocation) {
+            actions.push(new SetMarkingAllocationAction(this.#cmid, this.#sesskey));
+        }
+
+        if (this.#message) {
+            actions.push(new MessageAction());
+        }
+        // Note addition of conditional lock.
+        if (this.#lock) {
+            actions.push(
+                new GeneralAction(
+                    this.#cmid,
+                    this.#sesskey,
+                    'lock',
+                    getString('batchoperationlock', 'mod_assign'),
+                    Templates.renderPix('i/lock', 'core'),
+                    getString('locksubmissions', 'mod_assign'),
+                    getString('batchoperationconfirmlock', 'mod_assign'),
+                    getString('batchoperationlock', 'mod_assign'),
+                )
+            );
+            actions.push(
+                new GeneralAction(
+                    this.#cmid,
+                    this.#sesskey,
+                    'unlock',
+                    getString('batchoperationunlock', 'mod_assign'),
+                    Templates.renderPix('i/unlock', 'core'),
+                    getString('unlocksubmissions', 'mod_assign'),
+                    getString('batchoperationconfirmunlock', 'mod_assign'),
+                    getString('batchoperationunlock', 'mod_assign'),
+                )
+            );
+        }
+
+        actions.push(
             new GeneralAction(
                 this.#cmid,
                 this.#sesskey,
@@ -150,16 +181,8 @@ export default class extends BulkActions {
                 getString('downloadselectedsubmissions', 'mod_assign'),
                 getString('batchoperationconfirmdownloadselected', 'mod_assign'),
                 getString('batchoperationdownloadselected', 'mod_assign'),
-            ),
-        ];
-
-        if (this.#removeSubmission) {
-            actions.push(new DeleteAction(this.#cmid, this.#sesskey));
-        }
-
-        if (this.#extend) {
-            actions.push(new ExtendAction(this.#cmid, this.#sesskey));
-        }
+            )
+        );
 
         if (this.#grantAttempt) {
             actions.push(
@@ -174,14 +197,6 @@ export default class extends BulkActions {
                     getString('batchoperationaddattempt', 'mod_assign'),
                 )
             );
-        }
-
-        if (this.#workflowState) {
-            actions.push(new SetMarkingWorkflowStateAction(this.#cmid, this.#sesskey));
-        }
-
-        if (this.#markingAllocation) {
-            actions.push(new SetMarkingAllocationAction(this.#cmid, this.#sesskey));
         }
 
         if (this.#submissionDrafts) {
@@ -199,10 +214,6 @@ export default class extends BulkActions {
             );
         }
 
-        if (this.#message) {
-            actions.push(new MessageAction());
-        }
-
         for (const operation of this.#pluginOperations) {
             actions.push(
                 new GeneralAction(
@@ -215,6 +226,14 @@ export default class extends BulkActions {
                     operation.confirmationquestion,
                 )
             );
+        }
+
+        if (this.#removeSubmission) {
+            actions.push(new DeleteAction(this.#cmid, this.#sesskey));
+        }
+
+        if (this.#extend) {
+            actions.push(new ExtendAction(this.#cmid, this.#sesskey));
         }
 
         return actions;

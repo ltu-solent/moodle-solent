@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use enrol_meta\linked_courses_table;
+
 require('../config.php');
 
 $id         = required_param('id', PARAM_INT); // course id
@@ -298,6 +300,9 @@ if ($candidates) {
     $select->set_label(get_string('addinstance', 'enrol'));
     echo $OUTPUT->render($select);
 }
+
+$table = new linked_courses_table('linkedcourses', $course->id);
+$table->out(0, false);
 
 echo $OUTPUT->box_end();
 
