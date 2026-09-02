@@ -4769,6 +4769,9 @@ function remove_course_contents($courseid, $showfeedback = true, ?array $options
     require_once($CFG->libdir.'/completionlib.php');
     require_once($CFG->libdir.'/questionlib.php');
     require_once($CFG->libdir.'/gradelib.php');
+    // SSU_AMENDS_START: Fix for MDL-85122.
+    require_once($CFG->dirroot . '/course/lib.php');
+    // SSU_AMENDS_END.
     require_once($CFG->dirroot.'/group/lib.php');
     require_once($CFG->dirroot.'/comment/lib.php');
     require_once($CFG->dirroot.'/rating/lib.php');
