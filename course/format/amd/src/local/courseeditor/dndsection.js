@@ -138,6 +138,12 @@ export default class extends BaseComponent {
             if (this.section.component !== null) {
                 return false;
             }
+            // SSU_AMEND_START: Restrict dropzones to only those from which you can drag in the first place.
+            const zonepermitted = this.section.isdraggable;
+            if (!zonepermitted) {
+                return false;
+            }
+            // SSU_AMEND_END.
             // We accept any section but yourself and the next one.
             return dropdata?.id != this.id && dropdata?.number != this.section.number + 1;
         }

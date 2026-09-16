@@ -69,6 +69,39 @@ M.mod_assign.init_grading_table = function(Y) {
             });
         }
 
+        // SSU_AMEND START - Marks Upload: Select all assignments for release.
+        // If filters are being used in the grading table, the selectall option is disabled.
+        const disable = document.querySelector('[data-quercus="disable-selectall"]');
+        const selectallquercus = Y.all('td.cell .selectallquercus');
+        if (selectallquercus) {
+            if (disable) {
+                const controls = document.querySelectorAll('.c0 input[type="checkbox"]');
+                controls.forEach(function(node) {
+                    node.disabled = true;
+                });
+            }
+            selectallquercus.on('change', function(e) {
+                if (e.currentTarget.get('checked')) {
+                    const qcheckboxes = Y.all('td.c0 input[type="checkbox"]');
+                    qcheckboxes.each(function(node) {
+                        rowelement = node.get('parentNode').get('parentNode');
+                        node.set('checked', true);
+                        rowelement.removeClass('unselectedrow');
+                        rowelement.addClass('selectedrow');
+                    });
+                } else {
+                    const qcheckboxes = Y.all('td.c0 input[type="checkbox"]');
+                    qcheckboxes.each(function(node) {
+                        rowelement = node.get('parentNode').get('parentNode');
+                        node.set('checked', false);
+                        rowelement.removeClass('selectedrow');
+                        rowelement.addClass('unselectedrow');
+                    });
+                }
+            });
+        }
+        // SSU_AMEND_END.
+
         var quickgrade = Y.all('.gradingtable .quickgrade');
         quickgrade.each(function(quick) {
             quick.on('change', function(e) {

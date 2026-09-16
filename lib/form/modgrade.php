@@ -145,7 +145,14 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
         // We have to create the scale and point elements first, as we need their IDs.
 
         // Grade scale select box.
-        $scales = get_scales_menu($COURSE->id);
+        // SSU_AMEND_START: Marks upload. Use Solent grade scales only.
+        $scales = [];
+        if (method_exists('\local_solsits\helper', 'get_scales_menu')) {
+            $scales = \local_solsits\helper::get_scales_menu($COURSE->id);
+        } else {
+            $scales = get_scales_menu($COURSE->id);
+        }
+        // SSU_AMEND_END.
         $langscale = get_string('modgradetypescale', 'grades');
         $this->scaleformelement = $this->createFormElement('select', 'modgrade_scale', $langscale,
             $scales, $attributes);
@@ -166,6 +173,25 @@ class MoodleQuickForm_modgrade extends MoodleQuickForm_group {
             'scale' => get_string('modgradetypescale', 'grades'),
             'point' => get_string('modgradetypepoint', 'grades'),
         );
+        // SSU_AMEND_START: Marks upload. Force currentgradetype to be used for summative assignments.
+        if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+            global $PAGE;
+            if ($this->isupdate) {
+                $issummative = \local_solsits\helper::is_summative_assignment($PAGE->cm->id);
+                if ($issummative) {
+                    // Don't allow 'none'.
+                    unset($gradetype['none']);
+                    // Only allow site admins to change grade types.
+                    if ($this->currentgradetype == 'point' && !is_siteadmin()) {
+                        unset($gradetype['scale']);
+                    }
+                    if ($this->currentgradetype == 'scale' && !is_siteadmin()) {
+                        unset($gradetype['point']);
+                    }
+                }
+            }
+        }
+        // SSU_AMEND_END.
         $langtype = get_string('modgradetype', 'grades');
         $this->gradetypeformelement = $this->createFormElement('select', 'modgrade_type', $langtype, $gradetype,
             $attributes, true);

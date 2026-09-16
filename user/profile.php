@@ -107,7 +107,9 @@ if (!$currentpage = my_get_page($userid, MY_PAGE_PUBLIC)) {
 
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('mypublic');
-$PAGE->add_body_class('limitedwidth');
+// SSU_AMEND_START: Make page wider by default.
+$PAGE->add_body_class('mediumwidth');
+// SSU_AMEND_END.
 $PAGE->set_pagetype('user-profile');
 
 // Set up block editing capabilities.
