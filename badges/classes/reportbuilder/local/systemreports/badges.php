@@ -78,8 +78,10 @@ class badges extends system_report {
         }
 
         // Any columns required by actions should be defined here to ensure they're always available.
+        // SSU_AMEND_START: Add badge name to base fields.
         $this->add_base_fields("{$entityalias}.id, {$entityalias}.name, {$entityalias}.type, {$entityalias}.courseid,
             {$entityalias}.status");
+        // SSU_AMEND_END.
 
         $badgeissuedentity = new badge_issued();
         $badgeissuedalias = $badgeissuedentity->get_table_alias('badge_issued');
@@ -89,9 +91,11 @@ class badges extends system_report {
         );
 
         $this->add_base_fields("{$badgeissuedalias}.uniquehash");
+        // SSU_AMEND_START: Add toggle for select all badges.
         $this->set_checkbox_toggleall(static function (stdClass $badge): array {
             return [$badge->id, get_string('selectbadge', 'core_badges', $badge->name)];
         });
+        // SSU_AMEND_END.
 
         // Now we can call our helper methods to add the content we want to include in the report.
         $this->add_columns($badgeissuedalias);
@@ -383,6 +387,7 @@ class badges extends system_report {
         return ($row->status == BADGE_STATUS_INACTIVE_LOCKED || $row->status == BADGE_STATUS_INACTIVE) ? 'text-muted' : '';
     }
 
+    // SSU_AMEND_START: Added bulk actions selector.
     /**
      * Render bulk actions HTML
      *
@@ -437,4 +442,5 @@ class badges extends system_report {
         ];
         return $OUTPUT->render_from_template('core_badges/bulk_actions', $data);
     }
+    // SSU_AMEND_END.
 }

@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// SSU_AMEND_START: Added external API for deleting badges.
 namespace core_badges\external;
 
 use core\exception\moodle_exception;
@@ -97,3 +98,4 @@ class delete_badges extends external_api {
         ]);
     }
 }
+// SSU_AMEND_END.

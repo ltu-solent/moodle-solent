@@ -42,6 +42,7 @@ export const init = () => {
         'deactivatesuccess',
         'awardoncron',
         'numawardstat',
+        // SSU_AMEND_START: Added strings for archive and delete bulk actions.
         'archiveconfirm',
         'archivehelp',
         'deletehelp',
@@ -52,6 +53,7 @@ export const init = () => {
         'deactivatetitle',
         'bulkenableconfirm',
         'bulkdisableconfirm',
+        // SSU_AMEND_END.
     ]);
     prefetchStrings('core', [
         'confirm',
@@ -98,7 +100,7 @@ const registerEventListeners = () => {
             disableBadge(badgeId, badgeName, reportElement);
         }
     });
-
+    // SSU_AMEND_START: Added event listener for archive and delete bulk actions.
     document.querySelector(selectors.actions.bulkactions)?.addEventListener('change', event => {
         const action = event.target;
         event.preventDefault();
@@ -113,6 +115,7 @@ const registerEventListeners = () => {
         const badgeIds = [...checkedBadges].map(check => check.value);
         handleBulkActionChange(action.value, badgeIds);
     });
+    // SSU_AMEND_END.
 };
 
 /**
@@ -218,6 +221,7 @@ function showDisableResultToast(badgeName, result) {
     }
 }
 
+// SSU_AMEND_START: Added bulk action handling for archive and delete.
 /**
  * Handle bulk actions for badges.
  *
@@ -312,3 +316,4 @@ const handleBulkActionChange = async(action, badgeIds) => {
  * @returns {NodeList} List of checked badge checkboxes
  */
 const getCheckedBadges = () => document.querySelectorAll('[data-togglegroup="report-select-all"][data-toggle="slave"]:checked');
+// SSU_AMEND_END.

@@ -17,10 +17,44 @@
 {{!
     @template core_badges/bulk_actions
 
-    TODO describe template bulk_actions
+    Add bulk actions for badges. SSU_AMEND_START.
 
     Example context (json):
     {
+        "showbulkactions": true,
+        "id": "bulkactionsmenuid",
+        "attributes": [
+            {
+                "name": "data-action",
+                "value": "toggle"
+            },
+            {
+                "name": "data-togglegroup",
+                "value": "report-select-all"
+            },
+            {
+                "name": "data-toggle",
+                "value": "action"
+            }
+        ],
+        "actions": [
+            {
+                "value": "activate",
+                "name": "Activate"
+            },
+            {
+                "value": "deactivate",
+                "name": "Deactivate"
+            },
+            {
+                "value": "archive",
+                "name": "Archive"
+            },
+            {
+                "value": "delete",
+                "name": "Delete"
+            }
+        ]
     }
 }}
 

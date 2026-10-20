@@ -172,6 +172,7 @@ if ($course && $course->startdate > time()) {
 }
 
 if ($msg !== '') {
+    // SSU_AMEND_START: Handle bulk action success messages.
     if ($msg === 'bulksuccess') {
         $num = optional_param('num', 0, PARAM_INT);
         $msg = get_string($msg, 'badges', $num);
@@ -179,12 +180,15 @@ if ($msg !== '') {
         $msg = get_string($msg, 'badges');
     }
     echo $OUTPUT->notification($msg, 'notifysuccess');
+    // SSU_AMEND_END.
 }
 /** @var \core_badges\reportbuilder\local\badges $report */
 $report = system_report_factory::create(badges::class, $PAGE->context);
 
 echo $report->output();
+// SSU_AMEND_START: Render bulk actions for badges.
 echo $report->bulk_actions();
+// SSU_AMEND_END.
 $PAGE->requires->js_call_amd('core_badges/actions', 'init');
 
 // Trigger event, badge listing viewed.

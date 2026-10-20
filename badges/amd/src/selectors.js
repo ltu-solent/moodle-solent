@@ -38,7 +38,9 @@ export default {
         deletebackpack: getDataSelector('action', 'deletebackpack'),
         enablebadge: getDataSelector('action', 'enablebadge'),
         disablebadge: getDataSelector('action', 'disablebadge'),
+        // SSU_AMEND_START: Added selectors for archive and delete bulk actions.
         bulkactions: '#badges-bulk-actions',
+        // SSU_AMEND_END.
     },
     elements: {
         clearsearch: '.input-group-append .clear-icon',
