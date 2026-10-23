@@ -239,6 +239,13 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                 if ($mycourse->category) {
                     context_helper::preload_from_record($mycourse);
                     $ccontext = context_course::instance($mycourse->id);
+                    // SSU_AMEND_START: Add startdate to course title.
+                    $startdatestring = '';
+                    $cat = core_course_category::get($mycourse->category, IGNORE_MISSING);
+                    if (isset($cat->idnumber) && strpos($cat->idnumber, 'modules_') !== false) {
+                        $startdate = userdate($mycourse->startdate, get_string('strftimedatefullshort', 'core_langconfig'));
+                        $startdatestring = get_string('startdatestring', 'local_solent', $startdate);
+                    }
                     if (!isset($course) || $mycourse->id != $course->id) {
                         $linkattributes = null;
                         if ($mycourse->visible == 0) {
@@ -252,11 +259,17 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                             $params['showallcourses'] = 1;
                         }
                         $url = new moodle_url('/user/view.php', $params);
-                        $courselisting .= html_writer::tag('li', html_writer::link($url, $ccontext->get_context_name(false),
-                                $linkattributes));
+                        $courselisting .= html_writer::tag('li',
+                            html_writer::link(
+                                $url,
+                                $ccontext->get_context_name(false) . $startdatestring,
+                                $linkattributes
+                            )
+                        );
                     } else {
-                        $courselisting .= html_writer::tag('li', $ccontext->get_context_name(false));
+                        $courselisting .= html_writer::tag('li', $ccontext->get_context_name(false) . $startdatestring);
                     }
+                    // SSU_AMEND_END.
                 }
                 $shown++;
                 if (!$showallcourses && $shown == $CFG->navcourselimit) {

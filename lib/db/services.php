@@ -119,6 +119,20 @@ $functions = array(
         'ajax'          => true,
         'loginrequired' => true,
     ),
+    // SSU_AMEND_START: Bulk actions for badges.
+    'core_badges_archive_badges' => [
+        'classname'     => 'core_badges\external\archive_badges',
+        'description'   => 'Archive badges',
+        'type'          => 'write',
+        'ajax'          => true,
+    ],
+    'core_badges_delete_badges' => [
+        'classname'     => 'core_badges\external\delete_badges',
+        'description'   => 'Delete badges',
+        'type'          => 'write',
+        'ajax'          => true,
+    ],
+    // SSU_AMEND_END.
     'core_badges_disable_badges' => [
         'classname'     => 'core_badges\external\disable_badges',
         'description'   => 'Disable badges',

@@ -553,6 +553,16 @@ abstract class moodleform_mod extends moodleform {
             $mform->addElement('text', 'cmidnumber', get_string('idnumbermod'));
             $mform->setType('cmidnumber', PARAM_RAW);
             $mform->addHelpButton('cmidnumber', 'idnumbermod');
+            // SSU_AMEND_START: Marks Upload: Disable idnumber for all assignments.
+            if ($this->current->modulename == 'assign') {
+                // Make sure at least an empty string, rather than null, is set, to prevent warning messages.
+                $defaultidnumber = (isset($this->_cm->idnumber) && $this->_cm->idnumber != '')
+                    ? $this->_cm->idnumber
+                    : '';
+                $mform->setConstant('cmidnumber', $defaultidnumber);
+                $mform->hardFreeze('cmidnumber');
+            }
+            // SSU_AMEND_END.
         }
 
         if (has_capability('moodle/course:setforcedlanguage', $this->get_context())) {
@@ -924,6 +934,19 @@ abstract class moodleform_mod extends moodleform {
                     $gradeoptions['hasgrades'] = $gradeitem->has_grades();
                 }
             }
+            // SSU_AMEND_START: Marks Upload: Prevent tutors changing the points on summative.
+            // Site admins can deal with changing 18 (Grademark) to 100.
+            if (method_exists('\local_solsits\helper', 'is_summative_assignment')) {
+                global $PAGE;
+                if (!is_null($PAGE->cm)) {
+                    $issummative = \local_solsits\helper::is_summative_assignment($PAGE->cm->id);
+                    $gradetype = $gradeoptions['currentgradetype'] ?? null;
+                    if ($issummative && $gradetype == GRADE_TYPE_VALUE && !is_siteadmin()) {
+                        $mform->disabledIf('grade[modgrade_point]', 'grade[modgrade_type]', 'eq', 'point');
+                    }
+                }
+            }
+            // SSU_AMEND END.
             $mform->addElement('modgrade', $gradefieldname, get_string('gradenoun'), $gradeoptions);
             $mform->addHelpButton($gradefieldname, 'modgrade', 'grades');
             $mform->setDefault($gradefieldname, $CFG->gradepointdefault);
