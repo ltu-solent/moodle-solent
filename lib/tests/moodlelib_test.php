@@ -3758,7 +3758,6 @@ EOF;
      * TODO Add asserts to verify other data related to course is deleted as well.
      */
     public function test_remove_course_contents(): void {
-
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
